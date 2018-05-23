@@ -1,0 +1,64 @@
+﻿
+@section script
+{
+<script>
+	var model = @Html.Raw(Json.Serialize(Model));
+    var vm = new Vue({
+        el: "#app",
+        data: { activeTab: model.last24Hours, model: model }
+    });
+</script>
+}
+
+<h1 class="margin_top_1_625em">CREDITS transaction explorer</h1>
+<h1 class="font_size_1_5_em">All transactions between accounts in CREDITS cryptocurrency must be verified here</h1>
+
+<div class="sub_text">Statistics in this module updating every 5 minutes</div>
+    <div class="block_stat">
+        <div class="type">            
+            <div v-bind:class="{active: activeTab === model.last24Hours}" v-on:click="activeTab = model.last24Hours">24 hours</div>
+            <div v-bind:class="{active: activeTab === model.lastWeek}" v-on:click="activeTab = model.lastWeek">Last week</div>
+            <div v-bind:class="{active: activeTab === model.lastMonth}" v-on:click="activeTab = model.lastMonth">Last month</div>
+            <div v-bind:class="{active: activeTab === model.total}" v-on:click="activeTab = model.total">Total</div>
+        </div>
+        <div class="info">
+            <div>
+                <div class="info">
+                    <p>All transactions</p>
+                    <p class="number">{{activeTab.allTransactions.value}}</p>
+                    <p>transactions</p>
+                </div>
+                <div class="desc">@*{{activeTab.allTransactions.percentChange}}% change*@</div>
+            </div><div>
+                <div class="info">
+                    <p>All pools (blocks)</p>
+                    <p class="number">{{activeTab.allLedgers.value}}</p>
+                    <p>units</p>
+                </div>
+                <div class="desc">@*{{activeTab.allLedgers.percentChange}}% change*@</div>
+            </div><div>
+                <div class="info">
+                    <p>Volume</p>
+                    <p class="number">{{activeTab.csVolume.value}}</p>
+                    <p>CS</p>
+                </div>
+                <div class="desc">@*{{activeTab.csVolume.percentChange}}% change*@</div>
+            </div><div>
+                <div class="info">
+                    <p>Smart contracts</p>
+                    <p class="number">--</p>
+                    <p>units</p>
+                </div>
+                <div class="desc">@*0% change*@</div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <h2>Recent pools (blocks)</h2>
+        <div class="sub_text">Statistics in this module updating every 30 sec</div>
+	    <div class="sub_text">№ of blocks: <span class="number">{{model.lastBlocks.length}}  items</span></div>
+	    <pools :source="model.lastBlocks"></pools>
+        <div class="link_to_all"><a href="/monitor/ledgers">See all pools (blocks)</a></div>
+    </div>
+

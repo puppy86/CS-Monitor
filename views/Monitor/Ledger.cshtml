@@ -1,0 +1,70 @@
+﻿
+@section script
+{
+<script>
+	var poolData = @Html.Raw(Json.Serialize(Model));
+
+	var vm = new Vue({
+		el: "#app",
+        data: {
+            blockId: "@ViewData["blockId"]",			
+            pool: poolData
+		},
+		methods: {
+			getTransactions: function(p) {
+                $.get(`/api/PoolTransactions?hash=${vm.blockId}&page=${p}`)
+					.done(function (data) {		                
+		                vm.pool = data;
+	                });
+			}
+		}
+	});        
+</script>
+}
+
+<div>
+	<a href="#" onclick="history.back();" class="blue_button">< back</a>
+	<h1 class="margin_top_1_625em">Pool (block) of transactions <span class="sub_text color_grey">{{blockId}}</span></h1>
+	<h1 class="font_size_1_5_em">The number of transactions processed in one round</h1>
+	<div class="whitepanel">
+		<div class="block_stat grey_line_bottom">
+			<div class="type">
+		 		<div class="active">Information</div>
+			</div>
+		</div>
+		<table class="table_info">
+			<thead>
+		 		<tr></tr>
+			</thead>
+			<tbody>
+		 		<tr>
+		 			<td>Hash:</td>
+					<td>{{pool.info.hash}}</td>
+		 		</tr>
+		 		<tr>
+		 			<td>Status:</td>
+		 			<td class="success">Success</td>
+		 		</tr>
+		 		<tr>
+		 			<td>Age:</td>
+					<td>{{pool.info.age}}</td>
+		 		</tr>
+		 		<tr>
+		 			<td>Total value:</td>
+					<td>{{pool.info.value}} CS</td>
+		 		</tr>
+		 		<tr>
+		 			<td>Total fee:</td>
+					<td>{{pool.info.fee}} CS</td>
+		 		</tr>
+			</tbody>
+		</table>
+	</div>
+	<h1 class="margin_top_1_625em">List of transactions <span class="sub_text color_grey">{{blockId}}</span></h1>
+	<h1 class="font_size_1_5_em">№ of transactions: <span class="number">{{pool.transactions.length}} txns</span></h1>
+
+	<pager :page="pool.page" :getfn="getTransactions" :next="pool.haveNextPage"></pager>
+	<transactions :source="pool.transactions"></transactions>
+	<div v-bind:hidden="pool.transactions.length > 0" class="sub_text">No transactions in current ledger</div>
+	<pager :page="pool.page" :getfn="getTransactions" :next="pool.haveNextPage"></pager>
+</div>
