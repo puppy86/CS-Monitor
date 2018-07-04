@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using NodeApi;
 
 namespace csmon.Models
 {
@@ -7,19 +10,44 @@ namespace csmon.Models
     /// </summary>
     public class IndexData
     {
-        private readonly PeriodData[] _pdata = new PeriodData[4];
+        public PeriodData[] Pdata = new PeriodData[4];
         
-        public PeriodData Last24Hours => _pdata[0];
-        public PeriodData LastWeek => _pdata[1];
-        public PeriodData LastMonth => _pdata[2];
-        public PeriodData Total => _pdata[3];
+        public PeriodData Last24Hours => Pdata[0];
+        public PeriodData LastWeek => Pdata[1];
+        public PeriodData LastMonth => Pdata[2];
+        public PeriodData Total => Pdata[3];
 
         public List<PoolInfo> LastBlocks = new List<PoolInfo>();
         public List<TransactionInfo> LastTransactions = new List<TransactionInfo>();
 
+        public long LastBlock;
+        public string LastTime = "-";
+        public int LastBlockTxCount;
+        public int Pps;
+
+        public IndexData()
+        {
+            for (var i = 0; i < Pdata.Length; i++)
+                Pdata[i] = new PeriodData();
+        }
+
         public void SetPData(int i, PeriodData data)
         {
-            _pdata[i] = data;
+            Pdata[i] = data;
+        }
+
+        public void CorrectTotal()
+        {
+            if(Total.AllLedgers.Value == 0)
+                Total.AllLedgers.Value += LastMonth.AllLedgers.Value + LastWeek.AllLedgers.Value + Last24Hours.AllLedgers.Value;
+            if (Total.AllTransactions.Value == 0)
+                Total.AllTransactions.Value += LastMonth.AllTransactions.Value + LastWeek.AllTransactions.Value + Last24Hours.AllTransactions.Value;
+            if (Total.SmartContracts.Value == 0)
+                Total.SmartContracts.Value += LastMonth.SmartContracts.Value + LastWeek.SmartContracts.Value + Last24Hours.SmartContracts.Value;
+            if (Total.CSVolume.Value == 0)
+                Total.CSVolume.Value += LastMonth.CSVolume.Value + LastWeek.CSVolume.Value + Last24Hours.CSVolume.Value;
+            if (Total.SmartContracts.Value == 0)
+                Total.SmartContracts.Value += LastMonth.SmartContracts.Value + LastWeek.SmartContracts.Value + Last24Hours.SmartContracts.Value;
         }
     }
 
@@ -28,13 +56,17 @@ namespace csmon.Models
     /// </summary>
     public class PeriodData
     {
-        public StatItem AllTransactions;
-        public StatItem AllLedgers;
+        public StatItem AllTransactions = new StatItem();
+        public StatItem AllLedgers = new StatItem();
         public StatItem CSVolume = new StatItem();
         public StatItem SmartContracts = new StatItem();
         public long Period;
 
-        public PeriodData(PeriodStats stat)
+        public PeriodData()
+        {
+        }
+
+        public PeriodData(NodeApi.PeriodStats stat)
         {
             AllLedgers = new StatItem(stat.PoolsCount);
             AllTransactions = new StatItem(stat.TransactionsCount);
@@ -42,8 +74,10 @@ namespace csmon.Models
                 CSVolume = new StatItem(stat.BalancePerCurrency["cs"].Integral);
             else if (stat.BalancePerCurrency.ContainsKey("CS"))
                 CSVolume = new StatItem(stat.BalancePerCurrency["CS"].Integral);
+            SmartContracts = new StatItem(stat.SmartContractsCount);
             Period = stat.PeriodDuration;
         }
+
     }
 
     /// <summary>
@@ -51,14 +85,14 @@ namespace csmon.Models
     /// </summary>
     public class StatItem
     {
-        public int Value;
+        public long Value;
         public float PercentChange;
 
         public StatItem()
         {
         }
 
-        public StatItem(int value)
+        public StatItem(long value)
         {
             Value = value;
         }
@@ -69,26 +103,33 @@ namespace csmon.Models
     /// </summary>
     public class PoolInfo
     {
-        public long Index;
-        public string Age;
-        public bool Status;
-        public string Hash;
-        public int TxCount;
-        public string Value;
-        public string Fee;
-        public long Number;
+        public long Number { get; set; }
+        public string Age { get; set; }
+        public DateTime Time { get; set; }
+        public string TimeStr => Time.ToString("G");
+        public bool Status { get; set; }
+        public string Hash { get; set; }
+        public int TxCount { get; set; }
+        public string Value { get; set; }
+        public string Fee { get; set; }
 
         public PoolInfo()
         {
         }
 
-        public PoolInfo(Pool pool)
+        public PoolInfo(NodeApi.Pool pool)
         {            
             Age = ConvUtils.GetAge(pool.Time);
-            Hash = ConvUtils.ConvertHash(pool.Hash);            
+            Time = ConvUtils.UnixTimeStampToDateTime(pool.Time);
+            Hash = ConvUtils.ConvertHashAscii(pool.Hash);            
             TxCount = pool.TransactionsCount;
             Status = true;
             Number = pool.PoolNumber;
+        }
+
+        public void RefreshAge(DateTime time)
+        {
+            Age = ConvUtils.AgeStr(time - Time);
         }
     }
 
@@ -97,33 +138,43 @@ namespace csmon.Models
     /// </summary>
     public class TransactionInfo
     {
-        public string Id;
+        public string Id { get; set; }
+        public string FromAccount { get; set; }
+        public string ToAccount { get; set; }
+        public string Age { get; set; }
+        public string Value { get; set; }
+        public string Fee { get; set; }
+        public string Currency { get; set; }
+        public string SmartContractSource { get; set; }
+        public string SmartContractHashState { get; set; }
         public int Index;
-        public string Age;
-        public bool Status;
-        public string Hash;
-        public string FromAccount;
-        public string ToAccount;
-        public string FromAccountEnc;
-        public string ToAccountEnc;
-        public string Value;
-        public string Fee;
-        public string PoolHash;
-        public string Currency;
+        public bool Status = true;
+        public string PoolHash
+        {
+            get
+            {
+                if (Id == null || !Id.Contains(".")) return null;
+                return Id.Split(".")[0];
+            }
+        }        
+        public bool Found;
 
-        public TransactionInfo(int idx, string id, Transaction tr)
+        public TransactionInfo()
+        {
+        }
+
+        public TransactionInfo(int idx, string id, NodeApi.Transaction tr)
         {
             Index = idx;
             Id = id;
-            Status = true;
             Value = ConvUtils.FormatAmount(tr.Amount);
             FromAccount = tr.Source.Trim();
             ToAccount = tr.Target.Trim();
-            FromAccountEnc = System.Net.WebUtility.UrlEncode(FromAccount);
-            ToAccountEnc = System.Net.WebUtility.UrlEncode(ToAccount);
-            Hash = tr.Hash;
             Currency = tr.Currency;
-            Fee = "0";            
+            Fee = "0";
+            if (tr.SmartContract == null) return;
+            SmartContractSource = tr.SmartContract.SourceCode;
+            SmartContractHashState = tr.SmartContract.HashState;
         }
     }
 
@@ -144,7 +195,8 @@ namespace csmon.Models
     {
         public int Page;
         public bool HaveNextPage;
-        public PoolInfo Info;
+        public bool Found;
+        public PoolInfo Info = new PoolInfo();
         public List<TransactionInfo> Transactions = new List<TransactionInfo>();
     }
 
@@ -165,29 +217,44 @@ namespace csmon.Models
         public List<TokenAmount> Tokens = new List<TokenAmount>();
     }
 
-    /// <summary>
-    /// Contains list of nodes
-    /// </summary>
-    public class NodesData
+    public class Network
     {
-        public List<NodeInfo> Nodes = new List<NodeInfo>();
+        public string Id;
+        public string Title;
+        public string Api => $"/{Id}/api";
+        public string Ip;
+        public string SignalIp;
+
+        public static List<Network> Networks = new List<Network>();
+
+        public static Network GetById(string id)
+        {
+            return Networks.FirstOrDefault(n => n.Id == id);
+        }
     }
 
-    /// <summary>
-    /// Credits network node
-    /// </summary>
-    public class NodeInfo
+    public class ContractInfo
     {
-        public int Index;
-        public string Hash;
-        public float Lat;
-        public float Lon;
-        public int Rad;
+        public string Address;
+        public string SourceCode;
+        public string HashState;
+        public string Method;
+        public string Params;
+        public int ByteCodeLen;
+        public bool Found;
 
-        public NodeInfo(int index, string hash)
+        public ContractInfo()
         {
-            Index = index;
-            Hash = hash;
+        }
+
+        public ContractInfo(SmartContract sc)
+        {
+            Address = sc.Address;
+            SourceCode = ConvUtils.FormatSrc(sc.SourceCode);
+            HashState = sc.HashState;
+            Method = sc.Method;
+            Params = string.Join(", ", sc.Params);
+            ByteCodeLen = sc.ByteCode.Length;
         }
     }
 }

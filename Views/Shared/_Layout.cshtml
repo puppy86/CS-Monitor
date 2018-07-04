@@ -1,0 +1,233 @@
+﻿@using Microsoft.AspNetCore.Routing
+@{
+    var network = Context.GetRouteData().Values["network"].ToString();
+    // ReSharper disable once InconsistentNaming
+    var networkObj = Network.GetById(network);
+ // ReSharper disable once InconsistentNaming
+    var m_api = networkObj.Api;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="Title" content="CREDITS Monitor network explorer - FAQ | credits.com">
+    <meta name="Description" content="CREDITS Monitor network explorer  - FAQ | credits.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>CREDITS cryptocurrency bockchain transaction explorer | credits.com</title>
+
+    <environment include="Development">
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-110018170-3"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() { dataLayer.push(arguments); }
+
+            gtag('js', new Date());
+            gtag('config', 'UA-110018170-3');
+        </script>
+
+        <!-- Google Tag Manager -->
+        <script>
+            (function (w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({
+                    'gtm.start':
+                    new Date().getTime(),
+                    event: 'gtm.js'
+                });
+                var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s),
+                    dl = l != 'dataLayer' ? '&l=' + l : '';
+                j.async = true;
+                j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', 'GTM-PPF66RB');
+        </script>
+        <!-- End Google Tag Manager -->
+        <!-- Yandex.Metrika counter -->
+        <script type="text/javascript">
+            (function (d, w, c) {
+                (w[c] = w[c] || []).push(function () {
+                    try {
+                        w.yaCounter44398234 = new Ya.Metrika2({
+                            id: 44398234,
+                            clickmap: true,
+                            trackLinks: true,
+                            accurateTrackBounce: true,
+                            webvisor: true,
+                            trackHash: true
+                        });
+                    } catch (e) { }
+                });
+
+                var n = d.getElementsByTagName("script")[0],
+                    s = d.createElement("script"),
+                    f = function () { n.parentNode.insertBefore(s, n); };
+                s.type = "text/javascript";
+                s.async = true;
+                s.src = "https://mc.yandex.ru/metrika/tag.js";
+
+                if (w.opera == "[object Opera]") {
+                    d.addEventListener("DOMContentLoaded", f, false);
+                } else { f(); }
+            })(document, window, "yandex_metrika_callbacks2");
+        </script>
+        <!-- /Yandex.Metrika counter -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.min.js"></script>
+    </environment>
+    <link rel="stylesheet" href="/style.css" asp-append-version="true">
+    <script type="text/javascript" src="/components.js" asp-append-version="true"></script>
+    @RenderSection("head", false)
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PPF66RB"
+                height="0" width="0" style="display: none; visibility: hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <!-- Yandex.Metrika counter (noscript) -->
+    <noscript><div><img src="https://mc.yandex.ru/watch/44398234" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter (noscript)-->
+    <header class="header">
+        <div class="header__wrapper hrow">
+            <a href="/@network/monitor/index" class="header__logo">
+                <div class="hrow">
+                    <div class="header__img">
+                        <img src="/img/logo.png" style="visibility: hidden;" />
+                    </div>
+                    <div class="header__title">credits</div>
+                    <div class="header__subname">Monitor</div>
+                </div>
+                <div class="header__label">Fast blockchain & cryptocurrency <span class="testnet">@networkObj.Title.ToUpper()</span></div>
+            </a>
+            <div class="container">
+                <nav class="header__nav hrow">
+                    <a target="_blank" href="https://wallet.credits.com/" class="header__category">Wallet</a>
+                    <div class="header__category drop_list">
+                        Monitor ▼
+                        <div class="list">
+                            <a href="/@network/monitor/ledgers" class="header__category">All blocks</a>
+                            @*<a href="/@network/monitor/contracts" class="header__category">Smart contracts</a>*@
+                        </div>
+                    </div>
+                    <div class="header__category drop_list">
+                        Tools ▼
+                        <div class="list">
+                            <a href="/@network/tools/nodes" class="header__category">Network nodes</a>
+                            @*<a href="/@network/tools/activityGraph" class="header__category">Activity graph</a>*@
+                            <a href="/@network/tools/tps" class="header__category">Transactions per second</a>
+                        </div>
+                    </div>
+                </nav>
+                <div class="block_search">
+                    <form action="~/@network/monitor/search" method="post">
+                        <input type="text" name="query" placeholder="Search transaction, block, account, etc">
+                        <input type="image" name="submit" src="/img/loupe.svg" border="0" alt="Submit" class="search_submit" />
+                    </form>
+                </div>                
+            </div>
+            <div class="container">
+                <nav class="header__nav hrow" style="margin-left: 10px;width:  305px;">
+                    <a class="header__category">Choose network:</a>
+                </nav>
+                <div class="block_search">
+                    <form action="~/@network/monitor/SelectNetwork" method="post">
+                        <select name="network" onchange="this.form.submit();">
+                            @foreach (var n in Network.Networks)
+                            {
+                                if (n.Id == network)
+                                {
+                                    <option value="@n.Id" selected>@n.Title</option>
+                                }
+                                else
+                                {
+                                    <option value="@n.Id">@n.Title</option>
+                                }
+                            }
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="app" class="contain">
+        @RenderBody()
+    </div>
+
+    <div class="empty_height"></div>
+
+    <footer>
+        <div class="contain">
+            <div class="sub_menu">
+                <div>
+                    <div class="title">Credits monitor</div>
+                    <div class="sub_text">
+                        Supported by<br>
+                        CREDITS.COM PTE.LTD<br>
+                        Singapore
+                    </div>
+                </div>
+                <div style="visibility: hidden">
+                    <div class="title"></div>
+                    <div class="sub_text"></div>
+                </div>
+            </div>
+            <div class="socLink">
+                <a target="_blank" href="https://t.me/creditscom">
+                    <img src="/img/telegram.png" alt="">
+                </a>
+                <a target="_blank" href="https://t.me/CREDITSoffical">
+                    <img src="/img/telegram.png" alt="">
+                </a>
+                <a target="_blank" href="https://www.facebook.com/creditscom/">
+                    <img src="/img/facebook.png" alt="">
+                </a>
+                <a target="_blank" href="http://www.linkedin.com/company/13370238/">
+                    <img src="/img/in.png" alt="">
+                </a>
+                <a target="_blank" href="https://medium.com/@@credits">
+                    <img src="/img/medium.png" alt="">
+                </a>
+                <a target="_blank" href="https://twitter.com/creditscom">
+                    <img src="/img/twitter.png" alt="">
+                </a>
+                <a target="_blank" href="https://bitcointalk.org/index.php?topic=2401248.0">
+                    <img src="/img/bitcoin.png" alt="">
+                </a>
+                <a target="_blank" href="https://www.youtube.com/channel/UCD9jHWhwq4l03Yu5XnOPEhg?sub_confirmation=1">
+                    <img src="/img/youtube.png" alt="">
+                </a>
+                <a target="_blank" href="https://www.reddit.com/r/CreditsOfficial/">
+                    <img src="/img/reddit.png" alt="">
+                </a>
+            </div>
+        </div>
+    </footer>
+    <div class="copyright">
+        Copyright © 2018
+    </div>
+    <script>
+        const M_API = "@m_api";
+        const M_NET = "/@network";
+    </script>
+    @RenderSection("script", false)
+    <script>
+        $('.drop_list').on('click', function () {
+            var item = $(this).find('.list');
+            var stat = item.css('display');
+            $('.list').css('display', 'none');
+            item.css('display', (stat === 'none' ? 'block' : 'none'));
+        });
+    </script>
+</body>
+</html>

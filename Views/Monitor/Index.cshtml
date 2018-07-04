@@ -1,0 +1,137 @@
+﻿@using Microsoft.AspNetCore.Routing
+@{
+    var network = Context.GetRouteData().Values["network"].ToString();
+}
+@section script
+{
+    <script>
+        var model = @Html.Raw(Json.Serialize(Model));
+        const numPerPage = 10;
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                activeTab: "last24Hours",
+                model: model,
+                page: 1,
+                haveNextPage: false,
+                lastPage: 1,
+                pools: [],
+                filterEmpty: false,
+                timer: '',
+                counter: 4,
+                lastBlock: model.lastBlock
+            },
+            methods: {
+                getPools: function(p) {
+                    const filteredPools = this.model.lastBlocks
+                        .filter(function(pool) {
+                            return !vm.filterEmpty || pool.txCount > 0;
+                        });
+                    this.lastPage = Math.ceil(filteredPools.length / numPerPage);
+                    if (this.lastPage === 0) this.lastPage = 1;
+                    const pg = p > this.lastPage ? this.lastPage : p;
+                    this.pools = filteredPools.slice(numPerPage * (pg - 1), numPerPage * pg);
+                    this.page = pg;
+                    this.haveNextPage = pg < this.lastPage;
+                },
+                getData: function() {
+                    if (this.counter > 4) {
+                        this.counter--;
+                    } else if (this.counter == 4) {
+                        this.counter = 4 * 60;
+                        $.get(`${M_API}/IndexData`)
+                            .done(function(data) {
+                                vm.model = data;
+                                if (vm.lastBlock < data.lastBlock)
+                                    vm.lastBlock = data.lastBlock;
+                                vm.getPools(vm.page);
+                                vm.counter = 0;
+                            })
+                            .fail(function() {
+                                vm.counter = 10;
+                            });
+                    } else {
+                        if (this.lastBlock < this.model.lastBlock + 4) {
+                            if(this.model.pps >= 3)
+                                this.lastBlock++;
+                            else if (this.model.pps == 2 && this.counter == 2)
+                                this.lastBlock++;
+                        }
+                        this.counter++;
+                    }
+                }
+            },
+            created: function() {
+                this.timer = setInterval(this.getData, (M_NET === '/testnet' ? 1000 : 250));
+                this.getData();
+            },
+            beforeDestroy() {
+                clearInterval(this.timer);
+            }
+        });
+    </script>
+}
+
+<h1 class="margin_top_1_625em">CREDITS transaction explorer</h1>
+<h1 class="font_size_1_5_em">All transactions between accounts in CREDITS cryptocurrency must be verified here</h1>
+
+<div class="sub_text">Network Statistics</div>
+<div class="block_stat">
+    <div class="type">
+        <div v-bind:class="{active: activeTab === 'last24Hours'}" v-on:click="activeTab = 'last24Hours'">24 hours</div>
+        <div v-bind:class="{active: activeTab === 'lastWeek'}" v-on:click="activeTab = 'lastWeek'">Last week</div>
+        <div v-bind:class="{active: activeTab === 'lastMonth'}" v-on:click="activeTab = 'lastMonth'">Last month</div>
+        <div v-bind:class="{active: activeTab === 'total'}" v-on:click="activeTab = 'total'">Total</div>
+    </div>
+    <div class="info">
+        <div>
+            <div class="info">
+                <p>Last Block</p>
+                <p class="number">{{lastBlock}}</p>
+                <p>{{model.lastTime}}</p>
+            </div>
+            <div class="desc"></div>
+        </div><div>
+            <div class="info">
+                <p>Txs count</p>
+                <p class="number">{{model[activeTab].allTransactions.value}}</p>
+                <p>transactions</p>
+            </div>
+            <div class="desc"></div>
+        </div><div>
+            <div class="info">
+                <p>All blocks</p>
+                <p class="number">{{model[activeTab].allLedgers.value}}</p>
+                <p>units</p>
+            </div>
+            <div class="desc"></div>
+        </div><div>
+            <div class="info">
+                <p>Volume</p>
+                <p class="number">{{model[activeTab].csVolume.value}}</p>
+                <p>CS</p>
+            </div>
+            <div class="desc"></div>
+        </div><div>
+            <div class="info">
+                <p>Smart contracts</p>
+                <p class="number">{{model[activeTab].smartContracts.value}}</p>
+                <p>units</p>
+            </div>
+            <div class="desc"></div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <h2>Recent {{model.lastBlocks.length}} blocks</h2>
+    <div class="sub_text">
+        <label><input type="checkbox" v-model="filterEmpty" v-on:change="getPools(page);" />Show only blocks with transactions</label>
+    </div>
+    <pager :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage"></pager>
+    <pools :network="net" :source="pools"></pools>
+    <pager :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage"></pager>
+    <div class="link_to_all"><a href="/@network/monitor/ledgers">See all blocks</a></div>
+</div>
+

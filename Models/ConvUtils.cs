@@ -18,7 +18,13 @@ namespace csmon.Models
         public static string GetAge(long time)
         {
             //return UnixTimeStampToDateTime(time).ToString("dd.MM.yyyy hh:mm:ss.fff");
+            if (time == 0) return "0";
             var span = DateTime.Now - UnixTimeStampToDateTime(time);
+            return AgeStr(span);
+        }
+
+        public static string AgeStr(TimeSpan span)
+        {
             if (!AllowNegativeTime && span < TimeSpan.Zero) span = TimeSpan.Zero;
             var res = span.Days != 0 ? span.Days + "d " : "";
             res += span.Hours != 0 || span.Days != 0 ? span.Hours + "h " : "";
@@ -42,14 +48,73 @@ namespace csmon.Models
             return bytes.ToArray();
         }
 
-        public static string FormatAmount(Amount value)
+        public static string ConvertHashAscii(byte[] hash)
+        {
+            return Encoding.ASCII.GetString(hash);
+        }
+
+        public static byte[] ConvertHashBackAscii(string hash)
+        {
+            return Encoding.ASCII.GetBytes(hash);
+        }
+
+        public static string FormatAmount(NodeApi.Amount value)
         {
             if (value.Fraction == 0) return $"{value.Integral}.0";
 
             var fraction = value.Fraction.ToString();
             while (fraction.Length < 18)
                 fraction = "0" + fraction;
-            return $"{value.Integral}.{fraction}";
+            
+            return $"{value.Integral}.{fraction.TrimEnd('0')}";
+        }
+
+        public static string FormatSrc(string code)
+        {
+            if (code.Contains(Environment.NewLine)) return code;
+
+            var sb = new StringBuilder();
+            const int ident = 4;
+            var level = 0;
+            var newl = true;
+            foreach (var c in code)
+            {
+                if (c == '{')
+                {
+                    //sb.AppendLine();
+                    //sb.Append(' ', level * ident);
+                    sb.Append(c);
+                    level++;
+                    newl = true;
+                }
+                else if (c == '}')
+                {
+                    level--;
+                    sb.AppendLine();
+                    sb.Append(' ', level * ident);
+                    sb.Append(c);
+                    newl = true;
+                }
+                else if (c == ';')
+                {
+                    sb.Append(c);
+                    newl = true;
+                }
+                else if (c == ' ' && newl)
+                {
+                }
+                else
+                {
+                    if (newl)
+                    {
+                        sb.AppendLine();
+                        sb.Append(' ', level * ident);
+                        newl = false;
+                    }
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Net;
 using System.Threading;
 using csmon.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -8,68 +9,34 @@ namespace csmon.Controllers
 {
     public class MonitorController : Controller
     {
-        private readonly API.ISync _client;
-        private readonly ITpsSource _tpsSource;
-        private readonly bool _filter;
-
-        public MonitorController(API.ISync client, ITpsSource tpsSource, IConfiguration configuration)
+        public MonitorController(IConfiguration configuration)
         {
-            _client = client;
-            _tpsSource = tpsSource;
-            _filter = bool.Parse(configuration["FilterEmptyPools"]);
         }
 
         public IActionResult Index()
-        {            
-            var data = ApiManager.GetIndexData(_client, _filter);
-            return View(data);
+        {
+            return View(new IndexData());
         }
 
-        public IActionResult Ledger(string id)
+        [Route("{network}/[controller]/[action]/{id}/{page:int=1}")]
+        public IActionResult Ledger(string id, int page=1)
         {
             ViewData["blockId"] = id;
-            var data = ApiManager.GetPoolData(_client, id);
-            return View(data);
+            ViewData["page"] = page;
+            return View(new TransactionsData());
         }
 
         public IActionResult Account(string id)
         {
-            var balance = _client.BalanceGet(id, "cs");            
             ViewData["accId"] = id;
-            ViewData["accIdEnc"] = System.Net.WebUtility.UrlEncode(id);
-            ViewData["balance"] = ConvUtils.FormatAmount(balance.Amount);
+            ViewData["accIdEnc"] = WebUtility.UrlEncode(id);
             return View();
-        }
-
-        [HttpPost]
-        public IActionResult Search(string query)
-        {            
-            if (string.IsNullOrEmpty(query))
-                return Redirect(Request.Headers["Referer"].ToString());
-
-            if (query.Contains("."))
-                return RedirectToAction(nameof(Transaction), new { id = query });
-
-            if (query.Length > 16 || !query.All("0123456789abcdefABCDEF".Contains))
-                return Redirect($"/{nameof(Monitor)}/{nameof(Account)}?id={System.Net.WebUtility.UrlEncode(query)}");
-
-            return RedirectToAction(nameof(Ledger), new { id = query });
         }
 
         public IActionResult Transaction(string id)
         {
             ViewData["id"] = id;
-            var tr = _client.TransactionGet(id);
-            var tInfo = new TransactionInfo(0, id, tr.Transaction);
-            if (!tr.Found)
-                return View("NotFound");
-            if (!id.Contains(".")) return View();
-            tInfo.PoolHash = id.Split(".")[0];            
-            if (string.IsNullOrEmpty(tInfo.PoolHash)) return View();
-            var pool = _client.PoolGet(ConvUtils.ConvertHashBack(tInfo.PoolHash));
-            tInfo.Age = ConvUtils.UnixTimeStampToDateTime(pool.Pool.Time).ToString("G");
-            
-            return View(tInfo);
+            return View(new TransactionInfo());
         }
 
         public IActionResult Ledgers(int id = 1)
@@ -78,15 +45,60 @@ namespace csmon.Controllers
             return View();
         }
 
+        [HttpPost]
+        public IActionResult Search(string query)
+        {
+            var network = RouteData.Values["network"].ToString();            
+            if (string.IsNullOrEmpty(query))
+                return Redirect(Request.Headers["Referer"].ToString());
+
+            if (IPAddress.TryParse(query, out _))
+                return RedirectToAction("Node", "Tools", new {id = query, netwok = network});
+
+            if (query.Contains("."))
+                return RedirectToAction(nameof(Transaction), new {id = query, netwok = network});
+
+            if (query.Length == 64 && query.All("0123456789abcdefABCDEF".Contains))
+                return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Ledger)}/{query}");
+
+            if(query.All("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".Contains))
+                return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Contract)}/{query}");
+
+            return View("NotFound", new {id = query});
+                
+            //Redirect($"/{network}/{nameof(Monitor)}/{nameof(Account)}?id={WebUtility.UrlEncode(query)}");
+
+        }
+
         public IActionResult Error()
-        {            
+        {
             return View();
         }
 
-        public IActionResult Tps()
+        public IActionResult NotFound(string id)
         {
-            var tpsInfo = _tpsSource.GetTpsInfo();
-            return View(tpsInfo);
+            ViewData["id"] = id;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult SelectNetwork(string network)
+        {
+            return RedirectToAction(nameof(Index), new {network});
+        }
+
+        public IActionResult Contracts(int id = 1, string from="", string to = "")
+        {
+            ViewData["page"] = id;
+            ViewData["from"] = from;
+            ViewData["to"] = to;
+            return View();
+        }
+
+        public IActionResult Contract(string id)
+        {
+            ViewData["id"] = id;
+            return View(new ContractInfo());
         }
     }
 }

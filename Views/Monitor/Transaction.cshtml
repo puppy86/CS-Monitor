@@ -1,0 +1,85 @@
+﻿
+@section script
+    {
+    <script>
+
+        var trId = "@ViewData["id"]";
+        var model = @Html.Raw(Json.Serialize(Model));
+
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                trans: model,
+                notFound: false
+            },
+            methods: {
+                getData: function() {
+                    $.get(`${M_API}/TransactionInfo/${trId}`)
+                        .done(function(data) {
+                            vm.trans = data;
+                            vm.notFound = !data.found;
+                        }).fail(function() {
+                            vm.notFound = true;
+                        });
+                }
+            },
+            created: function() {
+                this.getData();
+            }
+        });
+    </script>
+}
+
+<div v-show="trans.found">
+    <h2 class="margin_top_1_625em">Transaction</h2>
+    <div class="sub_text color_grey"></div>
+    <div class="whitepanel">
+        <div class="block_stat grey_line_bottom">
+            <div class="type">
+                <div class="active">Information</div>
+            </div>
+        </div>
+        <table class="table_info">
+            <thead>
+                <tr></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Id:</td>
+                    <td>{{trans.id}}</td>
+                </tr>
+                <tr>
+                    <td>Tx status:</td>
+                    <td class="success">Success</td>
+                </tr>
+                <tr>
+                    <td>Block:</td>
+                    <td><a :href="net + '/monitor/ledger/' + trans.poolHash">{{trans.poolHash}}</a></td>
+                </tr>
+                <tr>
+                    <td>Time Stamp:</td>
+                    <td>{{trans.age}}</td>
+                </tr>
+                <tr>
+                    <td>From:</td>
+                    <td><a :href="net + '/monitor/account/' + trans.fromAccount">{{trans.fromAccount}}</a></td>
+                </tr>
+                <tr>
+                    <td>To:</td>
+                    <td><a :href="net + '/monitor/account/' + trans.toAccount">{{trans.toAccount}}</a></td>
+                </tr>
+                <tr>
+                    <td>Value:</td>
+                    <td>{{trans.value}} {{trans.currency}}</td>
+                </tr>
+                <tr>
+                    <td>Fee:</td>
+                    <td>{{trans.fee}} {{trans.currency}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h2 v-show="notFound" class='margin_top_1_625em'>Transaction not found:  <span class="sub_text color_grey">@ViewData["id"]</span></h2>

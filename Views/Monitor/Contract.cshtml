@@ -1,0 +1,112 @@
+﻿@section head
+{
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/styles/default.min.css">
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/highlight.min.js"></script>
+}
+
+@section script
+{   
+    <script>
+        Vue.directive('highlightjs', {
+            deep: true,
+            bind: function(el, binding) {
+                // on first bind, highlight all targets
+                let targets = el.querySelectorAll('code');
+                targets.forEach((target) => {
+                    // if a value is directly assigned to the directive, use this
+                    // instead of the element content.
+                    if (binding.value) {
+                        target.textContent = binding.value;
+                    }
+                    hljs.highlightBlock(target);
+                });
+            },
+            componentUpdated: function(el, binding) {
+                // after an update, re-fill the content and then highlight
+                let targets = el.querySelectorAll('code');
+                targets.forEach((target) => {
+                    if (binding.value) {
+                        target.textContent = binding.value;
+                        hljs.highlightBlock(target);
+                    }
+                });
+            }
+        });
+
+
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                id: '@ViewData["id"]',
+                model: @Html.Raw(Json.Serialize(Model)),
+                notFound: false,
+                loading: false
+            },
+            methods: {
+                getData: function () {
+                    this.loading = true;
+                    $.get(`${M_API}/ContractInfo/${this.id}`)
+                        .done(function(data) {
+                            vm.model = data;
+                            vm.notFound = !data.found;
+                        }).fail(function() {
+                            vm.notFound = true;
+                        }).always(function () {
+                            vm.loading = false;
+                        });
+                }
+            },
+            created: function() {
+                this.getData();
+            }
+        });
+    </script>
+}
+
+    <div v-show="model.found">
+        <h2 class="margin_top_1_625em">Smart Contract</h2>
+        <div class="sub_text color_grey"></div>
+        <div class="whitepanel">
+            <div class="block_stat grey_line_bottom">
+                <div class="type">
+                    <div class="active">Information</div>
+                </div>
+            </div>
+            <table class="table_info">
+                <thead>
+                    <tr></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Address:</td>
+                        <td>{{id}}</td>
+                    </tr>
+                    <tr>
+                        <td>HashState:</td>
+                        <td>{{model.hashState}}</td>
+                    </tr>
+                    <tr>
+                        <td>Byte code length:</td>
+                        <td>{{model.byteCodeLen}}</td>
+                    </tr>
+                    <tr>
+                        <td>Method:</td>
+                        <td>{{model.method}}</td>
+                    </tr>
+                    <tr>
+                        <td>Params:</td>
+                        <td>{{model.params}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h2 class="margin_top_1_625em">Source code:</h2>
+        <div>
+            <pre v-highlightjs="model.sourceCode"><code class="java"></code></pre>
+        </div>
+    </div>
+
+<h2 v-show="notFound" class='margin_top_1_625em'>Smart Contract not found:  <span class="sub_text color_grey">{{id}}</span></h2>
+
+<div class="loader" v-show="loading"></div>

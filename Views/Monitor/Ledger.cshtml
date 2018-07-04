@@ -1,0 +1,101 @@
+﻿
+@section script
+{
+    <script>
+        var poolData = @Html.Raw(Json.Serialize(Model));
+        const numPerPage = 50;
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                blockId: "@ViewData["blockId"]",
+                pool: poolData.info,
+                page: @ViewData["page"],
+                haveNextPage: false,
+                lastPage: 1,
+                transactions: poolData.transactions,
+                loading: true,
+                numStr: ''
+            },
+            methods: {
+                getPoolData: function() {
+                    $.get(`${M_API}/PoolData/${this.blockId}`)
+                        .done(function(data) {
+                            if (data.found !== true)
+                                window.location.href = `${M_NET}/monitor/account/${vm.blockId}`;
+                            else {
+                                vm.pool = data.info;
+                                vm.lastPage = Math.ceil(data.info.txCount / numPerPage);
+                                vm.getTransactions(vm.page);
+                            }
+                        });
+                },
+                getTransactions: function(p) {
+                    if (p > this.lastPage) p = lastPage;
+                    this.loading = true;
+                    $.get(`${M_API}/PoolTransactions?hash=${this.blockId}&page=${p}`)
+                        .done(function(data) {
+                            vm.transactions = data.transactions;
+                            vm.page = p;
+                            vm.haveNextPage = p < vm.lastPage;
+                            var offset = (p - 1) * numPerPage;
+                            vm.numStr = `${offset + 1} - ${offset + data.transactions.length} of ${vm.pool.txCount}`;
+                        })
+                        .always(function() {
+                            vm.loading = false;
+                        });
+                }
+            },
+            created: function() {
+                this.getPoolData();
+            }
+        });
+    </script>
+}
+
+    <div>
+        <h2 class="margin_top_1_625em">Block of transactions</h2>
+        <h1 class="font_size_1_5_em">The number of transactions processed in one round</h1>
+        <div class="whitepanel">
+            <div class="block_stat grey_line_bottom">
+                <div class="type">
+                    <div class="active">Information</div>
+                </div>
+            </div>
+            <table class="table_info">
+                <thead>
+                    <tr></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Number:</td>
+                        <td>{{pool.number}}</td>
+                    </tr>
+                    <tr>
+                        <td>Hash:</td>
+                        <td>{{pool.hash}}</td>
+                    </tr>
+                    <tr>
+                        <td>Status:</td>
+                        <td class="success">Success</td>
+                    </tr>
+                    <tr>
+                        <td>Timestamp:</td>
+                        <td>{{pool.timeStr}}</td>
+                    </tr>
+                    <tr>
+                        <td>Txs count:</td>
+                        <td>{{pool.txCount}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h2 class="margin_top_1_625em">List of transactions</h2>
+        <h1 class="font_size_1_5_em">Transactions: <span class="number">{{numStr}}</span></h1>
+
+        <pager :page="page" :getfn="getTransactions" :next="haveNextPage" :last="lastPage"></pager>
+        <transactions :network="net" :source="transactions"></transactions>
+        <div v-bind:hidden="transactions.length > 0 || loading" class="sub_text">No transactions in the block</div>
+        <div class="loader" v-show="loading"></div>
+        <pager :page="page" :getfn="getTransactions" :next="haveNextPage" :last="lastPage"></pager>
+    </div>

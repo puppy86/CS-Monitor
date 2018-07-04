@@ -1,0 +1,86 @@
+﻿
+@section script
+{
+    <script>
+
+        var nodeId = "@ViewData["id"]";
+
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                node: {},
+                notFound: false,
+                found: false
+            },
+            methods: {
+                getData: function() {
+                    $.get(`${M_API}/GetNodeData/${nodeId}`)
+                        .done(function(data) {
+                            if (data === undefined)
+                                vm.notFound = true;
+                            else {
+                                vm.node = data;
+                                vm.found = true;
+                            }
+                        });
+                }
+            },
+            created: function() {
+                this.getData();
+            }
+        });
+
+    </script>
+}
+
+<div v-show="found">
+	<a href="#" onclick="history.back();" class="blue_button">< back</a>
+	<h1 class="margin_top_1_625em">Credits Network Node</h1>
+	<h1 class="font_size_1_5_em"> </h1>
+	<div class="whitepanel">
+		<div class="block_stat grey_line_bottom">
+			<div class="type">
+		 		<div class="active">Information</div>
+			</div>
+		</div>
+		<table class="table_info">
+			<thead>
+		 		<tr></tr>
+			</thead>
+			<tbody>
+			    <tr>
+			        <td>IP:</td>
+			        <td>{{node.ip}}</td>
+			    </tr>
+			    <tr>
+			        <td>City:</td>
+                    <td>{{node.city}}</td>
+			    </tr>
+			    <tr>
+			        <td>Region:</td>
+			        <td>{{node.region}}</td>
+			    </tr>
+			    <tr>
+                    <td>Country:</td>
+                    <td>{{node.country_name}}</td>
+			    </tr>
+			    <tr>
+                    <td>Org:</td>
+                    <td>{{node.org}}</td>
+			    </tr>
+			    <tr>
+                    <td>Latitude:</td>
+                    <td>{{node.latitude}}</td>
+			    </tr>
+			    <tr>
+                    <td>Longitude:</td>
+                    <td>{{node.longitude}}</td>
+			    </tr>
+			</tbody>
+		</table>
+	</div>
+
+</div>
+
+<h2 v-show="notFound" class='margin_top_1_625em'>Item not found:  <span class="sub_text color_grey">@ViewData["id"]</span></h2>

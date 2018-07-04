@@ -1,2 +1,0 @@
-# CSMONITOR
-CSMonitor source code

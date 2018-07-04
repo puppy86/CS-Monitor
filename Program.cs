@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
@@ -38,7 +39,12 @@ namespace csmon
 
             return WebHost.CreateDefaultBuilder(args)
                 .UseIISIntegration()
-                .UseKestrel()
+                .UseKestrel(options =>
+                {
+                    options.Limits.MaxRequestBodySize = 10 * 1024;
+                    options.Limits.MinRequestBodyDataRate =
+                        new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
+                })
                 .UseConfiguration(config)
                 .UseStartup<Startup>()
                 .ConfigureLogging(logging =>
@@ -46,7 +52,7 @@ namespace csmon
                     logging.ClearProviders();
                     logging.SetMinimumLevel(LogLevel.Trace);
                 })
-                .UseNLog()  // NLog: setup NLog for Dependency injection
+                .UseNLog() // NLog: setup NLog for Dependency injection
                 .Build();
         }
     }
