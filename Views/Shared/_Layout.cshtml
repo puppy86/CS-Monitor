@@ -1,0 +1,295 @@
+﻿@using Microsoft.AspNetCore.Routing
+@{
+    var network = Context.GetRouteData().Values["network"].ToString();
+    // ReSharper disable once InconsistentNaming
+    var networkObj = Network.GetById(network);
+    // ReSharper disable once InconsistentNaming
+    var m_api = networkObj.Api;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="Title" content="CREDITS Monitor network explorer - FAQ | credits.com">
+    <meta name="Description" content="CREDITS Monitor network explorer  - FAQ | credits.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>CREDITS cryptocurrency blockchain transaction explorer | credits.com</title>
+    <environment include="Development">
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-110018170-3"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() { dataLayer.push(arguments); }
+
+            gtag('js', new Date());
+            gtag('config', 'UA-110018170-3');
+        </script>
+
+        <!-- Google Tag Manager -->
+        <script>
+            (function (w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({
+                    'gtm.start':
+                        new Date().getTime(),
+                    event: 'gtm.js'
+                });
+                var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s),
+                    dl = l != 'dataLayer' ? '&l=' + l : '';
+                j.async = true;
+                j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', 'GTM-PPF66RB');
+        </script>
+        <!-- End Google Tag Manager -->
+        <!-- Yandex.Metrika counter -->
+        <script type="text/javascript">
+            (function (d, w, c) {
+                (w[c] = w[c] || []).push(function () {
+                    try {
+                        w.yaCounter44398234 = new Ya.Metrika2({
+                            id: 44398234,
+                            clickmap: true,
+                            trackLinks: true,
+                            accurateTrackBounce: true,
+                            webvisor: true,
+                            trackHash: true
+                        });
+                    } catch (e) { }
+                });
+
+                var n = d.getElementsByTagName("script")[0],
+                    s = d.createElement("script"),
+                    f = function () { n.parentNode.insertBefore(s, n); };
+                s.type = "text/javascript";
+                s.async = true;
+                s.src = "https://mc.yandex.ru/metrika/tag.js";
+
+                if (w.opera == "[object Opera]") {
+                    d.addEventListener("DOMContentLoaded", f, false);
+                } else { f(); }
+            })(document, window, "yandex_metrika_callbacks2");
+        </script>
+        <!-- /Yandex.Metrika counter -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.min.js"></script>
+    </environment>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-ui@1.12.1/ui/widget.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700,800,900&amp;subset=cyrillic" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css" asp-append-version="true">    
+    <script type="text/javascript" src="/components.js" asp-append-version="true"></script>
+    @RenderSection("head", false)
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PPF66RB"
+                height="0" width="0" style="display: none; visibility: hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <!-- Yandex.Metrika counter (noscript) -->
+    <noscript><div><img src="https://mc.yandex.ru/watch/44398234" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter (noscript)-->
+
+    <div class="wrap">
+        <header class="header">
+            <div class="menuBurger textAlignRight"></div>
+            <div class="menuBurgerClose textAlignRight height40 displayNone" style="text-align: right; ">X</div>
+            <div class="top_head_menu menu2 displayNone">
+                <div class="content inner-wrap">
+                    <div class="top_head_menu_wrap">
+                        <nav class="wrap_menu wrap_menuFix">
+                            <div class="menu_item">
+                                <a href="https://support.credits.com" target="_blank">Support</a>
+                            </div>
+                            <div class="menu_item">
+                                <a href="https://support.credits.com/en/Home/Contacts" target="_blank">Contacts</a>
+                            </div>
+                            <form action="~/@network/monitor/SelectNetwork" method="post">
+                                <div class="NetworkSelect_Box">
+                                    <span class="netw_item norm_font NetworkSelect">Network:</span>
+                                    <select class="selectTopMenu NetworkSelect" name="network" onchange="this.form.submit();">
+                                        @foreach (var n in Network.Networks) {
+                                            if (n.Id == network) {
+                                                <option value="@n.Id" selected>@n.Title</option>
+                                            }
+                                            else {
+                                                <option value="@n.Id">@n.Title</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </form>
+                            <div class="menu_item netw_item norm_font strelka">Network
+                                <div class="dropMenu">
+                                    @foreach (var n in Network.Networks) {
+                                        <a href="~/@n.Id/monitor/index" class="dropMenuItem">@n.Title</a>
+                                    }
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <div class="content inner-wrap menu2 bg_Gray displayNone">
+                <div class="logo-wrap">
+                    <a href="~/@network/monitor/index" class="logo">
+                        <img src="/img/logo.png" alt="">
+                    </a>
+                </div>
+                <div class="header-wrap">
+                    <nav class="menu">
+                        <div class="wrap_menu main_men">
+                            <div class="menu_item"><a href="~/@network/monitor/index">Home</a></div>
+                            <div class="menu_item"><a href="https://wallet.credits.com" target="_blank">Wallet</a></div>
+                            <div class="menu_item"><a href="~/@network/monitor/ledgers">All Blocks</a></div>
+                            <div class="menu_item"><a href="~/@network/monitor/contracts">Smart contracts</a></div>
+                            <div class="menu_item tools strelka">
+                                Tools
+                                <div class="dropMenu">
+                                    <a href="~/@network/tools/nodes" class="dropMenuItem">Network nodes</a>
+                                    <a href="~/@network/tools/tps" class="dropMenuItem">Transactions per second</a>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+                <div class="mobile_menu">
+                    <div class="menu_icon">
+                        <span class="burg_line"></span>
+                        <span class="burg_line"></span>
+                        <span class="burg_line"></span>
+                        <span class="burg_line"></span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div id="app">
+            @RenderBody()
+        </div>
+
+    </div>
+    <footer>
+        <div class="wrap_foot">
+            <div class="footer_items">
+                <div class="row footermenu">
+                    <div class="menu_col_foot">
+                        <div class="footer_menu_item"><a href="https://support.credits.com" target="_blank">Support</a></div>
+                        <div class="footer_menu_item"><a href="https://support.credits.com/en/Home/Contacts" target="_blank">Contacts</a></div>                             
+                        <form action="~/@network/monitor/SelectNetwork" method="post">
+                            <div class="NetworkSelect_Box">
+                                <span class="netw_item norm_font NetworkSelect">Network:</span>
+                                <select class="selectTopMenu NetworkSelect" name="network" onchange="this.form.submit();">
+                                    @foreach (var n in Network.Networks) {
+                                        if (n.Id == network) {
+                                            <option value="@n.Id" selected>@n.Title</option>
+                                        }
+                                        else {
+                                            <option value="@n.Id">@n.Title</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </form>
+                        <div class="netw_itemFooter_Box">
+                            <div class="footer_menu_item netw_itemFooter norm_font strelkaFooter">Network
+                                <div class="dropMenu">
+                                    @foreach (var n in Network.Networks) {
+                                        <a href="~/@n.Id/monitor/index" class="dropMenuItem">@n.Title</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu_col_foot margin_left_60">
+                        <div class="footer_menu_item"><a href="~/@network/monitor/index">Home</a></div>
+                        <div class="footer_menu_item"><a href="https://wallet.credits.com" target="_blank">Wallet</a></div>
+                        <div class="footer_menu_item"><a href="~/@network/monitor/ledgers">All Blocks</a></div>
+                        <div class="footer_menu_item"><a href="~/@network/monitor/contracts">Smart contracts</a></div>
+                        <div class="footer_menu_item strelkaFooter toolsFooter">
+                            Tools
+                            <div class="dropMenu">
+                                <a href="~/@network/tools/nodes" class="dropMenuItem">Network nodes</a>
+                                <a href="~/@network/tools/tps" class="dropMenuItem">Transactions per second</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="row copy">
+                <div class="copyright">
+                    <p>&copy; 2018 copyright. Supported by CREDITS.COM PTE.LTD Singapore</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const M_API = "@m_api";
+        const M_NET = "/@network";
+    </script>
+    @RenderSection("script", false)
+    <script>
+        //header-nav
+        $(".menu_item").mouseenter(function () {
+            $(this).addClass("menu_itemActiv");
+        });
+        $(".menu_item").mouseleave(function () {
+            $(this).removeClass("menu_itemActiv");
+        });
+
+        // footer-nav     netw_itemFooter
+        $(".netw_itemFooter").mouseenter(function () {
+            $(this).addClass("menu_itemActiv");
+        });
+        $(".netw_itemFooter").mouseleave(function () {
+            $(this).removeClass("menu_itemActiv");
+        });
+
+        // footer-nav     toolsFooter
+        $(".toolsFooter").mouseenter(function () {
+            $(this).addClass("menu_itemActiv");
+        });
+        $(".toolsFooter").mouseleave(function () {
+            $(this).removeClass("menu_itemActiv");
+        });
+   
+        $(".footer_menu_item").mouseenter(function () {
+            if ($(window).outerWidth() > 1023) {
+                $(this).addClass("footer_menu_itemActiv");
+            }
+        });
+        $(".footer_menu_item").mouseleave(function () {
+            if ($(window).outerWidth() > 1023) {
+                $(this).removeClass("footer_menu_itemActiv");
+            }
+        });
+
+        $(".menuBurger").click(function () {
+            $(this).hide();
+            $(".menu2").show();
+            $(".menuBurgerClose").show();
+            $(".header").removeClass(".height40");
+            $(".header").addClass(".height100");
+            $(".NetworkSelect").hide();
+        });
+
+        $(".menuBurgerClose").click(function () {
+            $(this).hide();
+            $(".menu2").hide();
+            $(".menuBurger").show();
+            $(".header").addClass("height40");
+        });
+    </script>
+</body>
+</html>

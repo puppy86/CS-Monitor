@@ -1,0 +1,143 @@
+﻿
+@section script
+    {
+    <script>
+        var initTokens = (localStorage["tokens"]) ? JSON.parse(localStorage["tokens"]) : [];
+        const numPerPage = 15;
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                page: 1,
+                accId: "@ViewData["accId"]",
+                accIdEnc: "@ViewData["accIdEnc"]",
+                balance: "",
+                transData: { transactions: [] },
+                numStr: '',
+                loading: false,
+                token: "",
+                tokens: initTokens,
+                tokenAmounts: { tokens: [] }
+            },
+            methods: {
+                getBalance: function () {
+                    $.get(`${M_API}/Balance?id=${this.accIdEnc}`)
+                        .done(function (data) {
+                            vm.balance = data;
+                        });
+                },
+                getTransactions: function(p) {
+                    this.loading = true;
+                    $.get(`${M_API}/AccountTransactions?id=${this.accIdEnc}&page=${p}`)
+                        .done(function(data) {
+                            vm.page = data.page;
+                            vm.transData = data;
+                            var offset = (data.page - 1) * numPerPage;
+                            vm.numStr = `${offset + 1} - ${offset + data.transactions.length}`;
+                            //if (data.transactions.length > 0)
+                            //    vm.getTime(0);
+                        })
+                        .always(function() {
+                            vm.loading = false;
+                        });
+                },
+
+                getTime: function(i) {
+                    $.get(`${M_API}/GetTransactionTime?id=${this.transData.transactions[i].id}`)
+                        .done(function(data) {
+                            vm.transData.transactions[i++].time = data;
+                            if (i < vm.transData.transactions.length)
+                                vm.getAge(i);
+                        });
+                },
+
+                getTokens: function() {
+                    $.get(`${M_API}/AccountTokens?id=${this.accIdEnc}&tokens=${this.tokens.join()}`)
+                        .done(function(data) {
+                            vm.tokenAmounts = data;
+                        });
+                },
+
+                addToken: function() {
+                    if (this.token && this.tokens.indexOf(this.token) < 0) {
+                        this.tokens.push(this.token);
+                        localStorage["tokens"] = JSON.stringify(this.tokens);
+                    }
+                    this.token = "";
+                    this.getTokens();
+                },
+
+                delToken: function() {
+                    const idx = this.tokens.indexOf(this.token);
+                    if (idx > -1) {
+                        this.tokens.splice(idx, 1);
+                        localStorage["tokens"] = JSON.stringify(this.tokens);
+                    }
+                    this.token = "";
+                    this.getTokens();
+                }
+            },
+            created: function () {
+                this.getBalance();
+                this.getTransactions(this.page);
+                this.getTokens();
+            }
+        });
+
+    </script>
+}
+
+<div class="content std">
+    <h1 class="main_title padding_top_60 p_bot20">Account</h1>
+</div>
+<div class="content padding_top_10">
+    <div class="whitepanel">
+        <div class="block_stat grey_line_bottom">
+            <div class="type">
+                <div class="active">Information</div>
+            </div>
+        </div>
+        <table>
+            <thead>
+            <tr></tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Account: </td>
+                <td>{{accId}}</td>
+            </tr>
+            <tr>
+                <td>Balance: </td>
+                <td>{{balance}} CS</td>
+            </tr>
+            <tr v-for="item in tokenAmounts.tokens">
+                <td>{{item.token}}</td>
+                <td>{{item.value}}</td>
+            </tr>
+            <tr>
+                <td>Token: </td>
+                <td>
+                    <div>
+                        <input type="text" v-model="token" class="input_token" />
+                        <a href="#" v-on:click="addToken" style="display: inline; margin-left: 5px">Add</a>
+                        <a href="#" v-on:click="delToken" style="display: inline; margin-left: 5px">Del</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="content std">
+    <h2 class="main_title padding_top_60 p_bot20">List of transactions</h2>
+    <div class="subtitle_line">
+        <span class="suttext p_bot20">Transactions: {{numStr}}</span>
+        <pager :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pager>
+    </div>
+    <transactions :network="net" :source="transData.transactions"></transactions>
+    <div class="loader" v-show="loading"></div>
+    <div class="padding_bottom_60">
+        <pager :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pager>
+    </div>
+</div>

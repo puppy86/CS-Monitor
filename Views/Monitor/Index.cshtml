@@ -1,0 +1,154 @@
+﻿@using Microsoft.AspNetCore.Routing
+@{
+    var network = Context.GetRouteData().Values["network"].ToString();
+}
+@section head
+{
+    <script src="https://cdn.jsdelivr.net/npm/greensock@1.20.2/dist/TweenMax.min.js"></script>
+}
+@section script
+{
+    <script>
+        var model = @Html.Raw(Json.Serialize(Model));
+        var st = @Html.Raw(Json.Serialize(ViewData["stats"]));
+        const numPerPage = 10;
+
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                activeTab: "last24Hours",
+                stats: st,
+                model: model,
+                page: 1,
+                haveNextPage: false,
+                lastPage: 1,
+                allPools: [],
+                pools: [],
+                filterEmpty: false,                
+                lastBlock: 0                
+            },
+            computed: {
+                animatedLastBlock: function() {
+                    return this.lastBlock.toFixed(0);
+                }
+            },
+            methods: {
+                getPools: function(p) {
+                    var filteredPools = this.allPools.filter(function(pool) {
+                            return !vm.filterEmpty || pool.txCount > 0;
+                        });
+                    this.lastPage = Math.ceil(filteredPools.length / numPerPage);
+                    if (this.lastPage === 0) this.lastPage = 1;
+                    const pg = p > this.lastPage ? this.lastPage : p;
+                    this.pools = filteredPools.slice(numPerPage * (pg - 1), numPerPage * pg);
+                    this.page = pg;
+                    this.haveNextPage = pg < this.lastPage;
+                },
+                getData: function() {
+                    $.get(`${M_API}/IndexData?id=${this.model.lastBlockData.lastBlock}`)
+                        .done(function(data) {
+                            vm.model = data;
+                            vm.allPools = data.lastBlocks.concat(vm.allPools).slice(0, 100);
+                            vm.getPools(vm.page);
+                            if (vm.lastBlock === 0)
+                                vm.lastBlock = data.lastBlockData.lastBlock - 4;
+                            TweenLite.to(vm.$data, 1.25, { lastBlock: data.lastBlockData.lastBlock }, 0, Linear);                            
+                        })
+                        .always(function() {
+                            setTimeout(vm.getData, 1000);
+                        });
+                },
+                getAge: function(time) {
+                    var daysDiffInMilliSec = new Date(this.model.lastBlockData.now) - new Date(time);
+                    if (daysDiffInMilliSec < 0) return "0";
+                    var daysLeft = Math.floor(daysDiffInMilliSec / 86400000);
+                    daysDiffInMilliSec -= daysLeft * 86400000;
+                    var hoursLeft = Math.floor(daysDiffInMilliSec / 3600000);
+                    daysDiffInMilliSec -= hoursLeft * 3600000;
+                    var minsLeft = Math.floor(daysDiffInMilliSec / 60000);
+                    daysDiffInMilliSec -= minsLeft * 60000;
+                    var secLeft = Math.floor(daysDiffInMilliSec / 1000);
+                    var res = daysLeft !== 0 ? daysLeft + "d " : "";
+                    res += hoursLeft !== 0 || daysLeft !== 0 ? hoursLeft + "h " : "";
+                    res += minsLeft + "m " + secLeft + "s";
+                    return res;
+                }
+            },
+            created: function() {
+                this.getData();
+            }
+        });
+    </script>
+}
+
+<form id="searchform" action="~/@network/monitor/search" method="post" >
+    <div class="content search">
+        <input type="text" name="query" placeholder="Search transaction, block, account, etc" class="main_search" mane="main_search">
+    </div>
+</form>
+
+<div class="content">
+    <div class="info_head">
+        <span v-bind:class="{info_title:true, active: activeTab === 'last24Hours'}" v-on:click="activeTab = 'last24Hours'">24 hours</span>
+        <span v-bind:class="{info_title:true, active: activeTab === 'lastWeek'}" v-on:click="activeTab = 'lastWeek'">Last week</span>
+        <span v-bind:class="{info_title:true, active: activeTab === 'lastMonth'}" v-on:click="activeTab = 'lastMonth'">Last month</span>
+        <span v-bind:class="{info_title:true, active: activeTab === 'total'}" v-on:click="activeTab = 'total'">Total</span>
+    </div>
+    <div class="info_content">
+        <div class="subblock">
+            <span class="bluetx">{{animatedLastBlock}}</span><span class="subbie"> Last Block</span>
+        </div>
+        <div class="subblock">
+            <span class="bluetx">{{stats[activeTab].allTransactions.value}}</span><span class="subbie"> Txs count</span>
+        </div>
+        <div class="subblock">
+            <span class="bluetx">{{stats[activeTab].allLedgers.value}}</span><span class="subbie"> All blocks</span>
+        </div>
+        <div class="subblock">
+            <span class="bluetx">{{stats[activeTab].csVolume.value}}</span><span class="subbie"> Volume</span>
+        </div>
+        <div>
+            <span class="bluetx">{{stats[activeTab].smartContracts.value}}</span><span class="subbie"> Trns smart contracts</span>
+        </div>
+    </div>
+</div>
+<div class="content std">
+    <h1 class="main_title padding_top_60 p_bot20">Recent {{allPools.length}} blocks</h1>
+    <div class="subtitle_line">
+        <div class="subsub_line">
+            <label><input type="checkbox" class="checka" v-model="filterEmpty" v-on:change="getPools(page);" /><span class="suttext p_bot20">Show only blocks with transactions</span></label>
+        </div>
+        <pager :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage"></pager>
+    </div>
+    <div class="container_table tabler mb-20">
+        <table class="table_info_trans">
+            <thead>
+            <tr>
+                <th>№</th>
+                <th>Age</th>
+                <th>Status</th>
+                <th>Hash</th>				    
+                <th>Quant txs</th>
+                <th>All value</th>
+                <th>All fee</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="item in pools">
+                <td>{{item.number}}</td>
+                <td>{{getAge(item.time)}}</td>
+                <td class="success">Success</td>
+                <td class="hash"><a :href="net + '/monitor/ledger/' + item.hash">{{item.hash}}</a></td>				    
+                <td>{{item.txCount}}</td>
+                <td>{{item.value}}</td>
+                <td>{{item.fee}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="p_bot20">
+        <pager :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage"></pager>
+    </div>
+    <div class="margin_bottom_70 text-center"><a class="bold-link bttn" href="/@network/monitor/ledgers">MORE BLOCKS</a></div>
+</div>

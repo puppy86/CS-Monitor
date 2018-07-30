@@ -1,0 +1,67 @@
+﻿
+@section script
+{
+    <script>
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                page: @ViewData["page"],
+                loading: false,
+                contractsData: { contracts: [], haveNextPage: false }
+            },
+            methods: {
+                getContracts: function(p) {
+                    this.loading = true;
+                    $.get(`${M_API}/getContracts?page=${p}`)
+                        .done(function(data) {
+                            vm.page = data.page;
+                            vm.contractsData = data;
+                        })
+                        .always(function() {
+                            vm.loading = false;
+                        });
+                }
+            },
+            created: function () {
+                this.getContracts(this.page);
+            }
+        });        
+    </script>
+}
+
+<div class="content std">
+    <h1 class="main_title padding_top_50 p_bot20">Smart contracts</h1>
+    <div class="subtitle_line">
+        <span class="suttext p_bot20">Recent smart contracts processed in the network</span>
+    </div>
+    <div class="subtitle_line">
+        <span class="suttext p_bot20">№ of contracts: {{contractsData.contracts.length}} items</span>
+        <pager :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" ></pager>
+    </div>
+    <div class="container_table tabler mb-20">
+        <table class="table_info_trans">
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Address</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in contractsData.contracts">
+                    <td>{{item.index}}</td>
+                    <td class="hash"><a :href="net + '/monitor/contract/' + item.address">{{item.address}}</a></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="loader" v-show="loading"></div>
+    <div class="padding_bottom_70">
+        <pager :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" ></pager>
+    </div>
+</div>
+

@@ -1,0 +1,162 @@
+﻿@section head
+{
+
+    <style>
+        #map {
+            width: 100%;
+            height: 600px;
+        }
+
+        .num_nodes_bold {
+            font-weight: bold;
+        }
+         
+        .gm-style-pbc{
+            background: transparent!important;
+        }
+    </style>
+}
+
+@section script
+{
+    <script>
+        var nodesData = @Html.Raw(Json.Serialize(Model));
+        const numPerPage = 15;
+
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                nodesData: nodesData,
+                page: 1,
+                haveNextPage: false,
+                lastPage: 1,
+                nodes: []
+            },
+            methods: {
+                getNodes: function (p) {
+                    this.lastPage = Math.ceil(this.nodesData.nodes.length / numPerPage);
+                    this.nodes = this.nodesData.nodes.slice(numPerPage * (p - 1), numPerPage * p);
+                    this.page = p;
+                    this.haveNextPage = this.nodesData.nodes.length > (numPerPage * p);
+                },
+                getData: function () {
+                    $.get(`${M_API}/GetNodesData`)
+                        .done(function(data) {
+                            vm.nodesData = data;
+                            vm.getNodes(vm.page);
+                            //initMap();
+                        });
+                }
+            },
+            created: function() {
+                this.getData();
+            }
+        });
+
+        function initMap() {
+
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 2,
+                center: { lat: 0, lng: 0 }
+            });
+
+
+            // ReSharper disable once UnusedParameter
+            const markers = vm.nodesData.nodes.map(function (location, i) {
+                const contentString = `${location.ip}<table>
+                                            <tr>
+                                                <th>Version:</th>
+                                                <td>v${location.version}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Platform:</th>
+                                                <td>MS Windows</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Port:</th>
+                                                <td>8080</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Country:</th>
+                                                <td>${location.country_name}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>City/town:</th>
+                                                <td>${location.city}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Sum of all transactions:</th>
+                                                <td>1500 CS</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Total of transactions:</th>
+                                                <td>125</td>
+                                            </tr>
+                                        </table>`;
+
+                var infowindow = new google.maps.InfoWindow({
+                    content: contentString
+                });
+                var marker = new google.maps.Marker({
+                    position: { lat: location.latitude, lng: location.longitude },
+                    label: location.ip
+                });
+                marker.addListener('click', function () {
+                    infowindow.open(map, marker);
+                });
+                return marker;
+            });
+
+            // ReSharper disable once UnusedLocals
+            const markerCluster = new MarkerClusterer(map, markers,
+                { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
+        }
+
+    </script>
+
+    @*<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB86wLJLpWIilKtb4olAjfUT9HV35J5Tt0&callback=initMap&language=en"></script>*@
+
+}
+
+<div class="content std">
+    <h1 class="main_title padding_top_50 p_bot20">Credits Network Nodes</h1>
+    <div class="subtitle_line">
+        <span class="suttext p_bot20">All working nodes in the network</span>
+    </div>
+    @*<div id="map"></div>*@
+    <div class="subtitle_line">
+        <span class="suttext p_bot20">Number of nodes: {{nodesData.nodes.length}}</span>
+        <pager :page="page" :getfn="getNodes" :next="haveNextPage" :last="lastPage"></pager>
+    </div>
+    <div class="container_table tabler mb-20">
+        <table class="table_info_trans table_node">
+            <thead>
+                <tr>
+                    <th>IP</th>
+                    @*
+                    <th>City</th>
+                    <th>Country</th>*@
+                    <th>Version</th>
+                    <th>Platform</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in nodes">
+                    @*
+                    <td><a :href="net + '/tools/node/' + item.ip">{{item.ip}}</a></td>*@
+                    <td>{{item.ipCut}}</td>
+                    @*
+                    <td>{{item.city}}</td>
+                    <td>{{item.country_name}}</td>*@
+                    <td>v{{item.version}}</td>
+                    <td><img src="/img/Windows.png" alt="win"> Windows</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="padding_bottom_70">
+        <pager :page="page" :getfn="getNodes" :next="haveNextPage" :last="lastPage"></pager>
+    </div>
+</div>

@@ -1,0 +1,74 @@
+﻿@section head
+{	
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.7.2/dist/Chart.bundle.min.js"></script>
+}
+
+@section script
+{
+    <script>
+        function UpdChart() {
+                $.get(`${M_API}/GetTpsData`)
+                    .done(function(model) {
+
+                        $('#txt').text(`Points count: ${model.points.length}`);
+
+                        var chart = new Chart($("#chart"),
+                            {
+                                type: 'line',
+                                data: {
+                                    datasets: [
+                                        {
+                                            label: 'Transactions per second',
+                                            data: model.points,
+                                            backgroundColor: [
+                                                'rgba(32, 96, 196, 0.2)'
+                                            ],
+                                            borderColor: [
+                                                'rgba(32, 96, 196, 1)'
+                                            ],
+                                            borderWidth: 1
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    scales: {
+                                        xAxes: [
+                                            {
+                                                type: 'time',
+                                                time: {
+                                                    unit: 'second'
+                                                },
+                                                distribution: 'linear'
+                                            }
+                                        ]
+                                    },
+                                    elements: {
+                                        line: {
+                                            tension: 0
+                                        }
+                                    },
+                                    animation: {
+                                        duration: 0
+                                    },
+                                    hover: {
+                                        animationDuration: 0
+                                    },
+                                    responsiveAnimationDuration: 0
+                                }
+                            });
+
+                    });
+        }
+
+        UpdChart();
+        setInterval(UpdChart, 2000);
+    </script>
+}
+
+<div class="content std p_bot20">
+    <h1 class="main_title padding_top_50 p_bot20">Transactions per second</h1>
+    <div class="subtitle_line">
+        <span id="txt" class="suttext p_bot20"></span>
+    </div>        
+    <canvas id="chart" width="800" height="400"></canvas>
+</div>
