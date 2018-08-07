@@ -119,7 +119,7 @@
         <div class="subsub_line">
             <label><input type="checkbox" class="checka" v-model="filterEmpty" v-on:change="getPools(page);" /><span class="suttext p_bot20">Show only blocks with transactions</span></label>
         </div>
-        <pager :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage"></pager>
+        <pager :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage" :hidelast="true"></pager>
     </div>
     <div class="container_table tabler mb-20">
         <table class="table_info_trans">
@@ -148,7 +148,7 @@
         </table>
     </div>
     <div class="p_bot20">
-        <pager :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage"></pager>
+        <pager :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage" :hidelast="true"></pager>
     </div>
     <div class="margin_bottom_70 text-center"><a class="bold-link bttn" href="/@network/monitor/ledgers">MORE BLOCKS</a></div>
 </div>
