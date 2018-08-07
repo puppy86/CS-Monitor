@@ -27,9 +27,11 @@ namespace csmon
                 {
                     Id = netSection["Id"],
                     Title = netSection["Title"],
+                    Api = $"/{netSection["Id"]}/{netSection["API"]}",
                     Ip = netSection["Ip"],
                     SignalIp = netSection["SignalIp"],
-                    CachePools = bool.Parse(netSection["CachePools"])
+                    CachePools = bool.Parse(netSection["CachePools"]),
+                    RandomNodes = bool.Parse(netSection["RandomNodes"])
                 });
         }
 
