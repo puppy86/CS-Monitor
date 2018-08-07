@@ -19,7 +19,7 @@ namespace csmon.Models.Services
         public int Node2 { get; set; }
     }
 
-    //Contains graph data
+    // Contains graph data
     public class GraphData
     {
         public List<GraphNode> Nodes = new List<GraphNode>();
@@ -32,7 +32,6 @@ namespace csmon.Models.Services
         GraphData GetGraphData();
     }
 
-    
     // Data generator for activity graph
     public class GraphService : IHostedService, IDisposable, IGraphService
     {
