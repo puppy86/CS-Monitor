@@ -101,8 +101,13 @@
 
     <div class="wrap">
         <header class="header">
+            <div class="mobilogo">
+                <a href="~/@network/monitor/index" class="logo">
+                    <img src="img/logo.png" alt="">
+                </a>
+            </div>
             <div class="menuBurger textAlignRight"></div>
-            <div class="menuBurgerClose textAlignRight height40 displayNone" style="text-align: right; ">X</div>
+            <div class="menuBurgerClose textAlignRight height40 displayNone" style="text-align: right;">X</div>
             <div class="top_head_menu menu2 displayNone">
                 <div class="content inner-wrap">
                     <div class="top_head_menu_wrap">
@@ -117,11 +122,14 @@
                                 <div class="NetworkSelect_Box">
                                     <span class="netw_item norm_font NetworkSelect">Network:</span>
                                     <select class="selectTopMenu NetworkSelect" name="network" onchange="this.form.submit();">
-                                        @foreach (var n in Network.Networks) {
-                                            if (n.Id == network) {
+                                        @foreach (var n in Network.Networks)
+                                        {
+                                            if (n.Id == network)
+                                            {
                                                 <option value="@n.Id" selected>@n.Title</option>
                                             }
-                                            else {
+                                            else
+                                            {
                                                 <option value="@n.Id">@n.Title</option>
                                             }
                                         }
@@ -130,7 +138,8 @@
                             </form>
                             <div class="menu_item netw_item norm_font strelka">Network
                                 <div class="dropMenu">
-                                    @foreach (var n in Network.Networks) {
+                                    @foreach (var n in Network.Networks)
+                                    {
                                         <a href="~/@n.Id/monitor/index" class="dropMenuItem">@n.Title</a>
                                     }
                                 </div>
@@ -172,11 +181,18 @@
                 </div>
             </div>
         </header>
-
-        <div id="app">
-            @RenderBody()
-        </div>
-
+        @if (networkObj.Updating)
+        {
+            <div class="content std">
+                <h2 class="main_title padding_top_60 p_bot20">We are updating the service. Please try again later.</h2>
+            </div>
+        }
+        else
+        {
+            <div id="app">
+                @RenderBody()
+            </div>
+        }
     </div>
     <footer>
         <div class="wrap_foot">
