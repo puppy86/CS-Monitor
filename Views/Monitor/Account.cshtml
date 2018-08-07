@@ -1,6 +1,6 @@
 ﻿
 @section script
-    {
+{
     <script>
         var initTokens = (localStorage["tokens"]) ? JSON.parse(localStorage["tokens"]) : [];
         const numPerPage = 15;
@@ -12,7 +12,7 @@
                 accId: "@ViewData["accId"]",
                 accIdEnc: "@ViewData["accIdEnc"]",
                 balance: "",
-                transData: { transactions: [] },
+                transData: { transactions: [], haveNextPage: false },
                 numStr: '',
                 loading: false,
                 token: "",
@@ -20,9 +20,9 @@
                 tokenAmounts: { tokens: [] }
             },
             methods: {
-                getBalance: function () {
+                getBalance: function() {
                     $.get(`${M_API}/Balance?id=${this.accIdEnc}`)
-                        .done(function (data) {
+                        .done(function(data) {
                             vm.balance = data;
                         });
                 },
@@ -32,8 +32,11 @@
                         .done(function(data) {
                             vm.page = data.page;
                             vm.transData = data;
-                            var offset = (data.page - 1) * numPerPage;
-                            vm.numStr = `${offset + 1} - ${offset + data.transactions.length}`;
+                            if (data.transactions.length > 0) {
+                                var offset = (data.page - 1) * numPerPage;
+                                vm.numStr = `${offset + 1} - ${offset + data.transactions.length}`;
+                            }
+                            else vm.numStr = '0';
                             //if (data.transactions.length > 0)
                             //    vm.getTime(0);
                         })
@@ -77,7 +80,7 @@
                     this.getTokens();
                 }
             },
-            created: function () {
+            created: function() {
                 this.getBalance();
                 this.getTransactions(this.page);
                 this.getTokens();
