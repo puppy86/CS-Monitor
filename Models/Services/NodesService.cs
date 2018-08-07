@@ -112,12 +112,14 @@ namespace csmon.Models.Services
 
         public NodesData GetNodes(string network)
         {
+            var net = Network.GetById(network);
             using (var db = GetDbContext())
             {
                 var result = new NodesData
                 {
                     Nodes = db.Nodes.Where(n => (n.Network == network) &&
-                            (network == "tetris" || (n.ModifyTime.AddMinutes(LiveTimeMinutes) >= DateTime.Now)))
+                            (net.RandomNodes || (n.ModifyTime.AddMinutes(LiveTimeMinutes) >= DateTime.Now)))
+                        .OrderBy(n => n.ModifyTime)
                         .Take(1000).ToList()
                 };
                 return result;
