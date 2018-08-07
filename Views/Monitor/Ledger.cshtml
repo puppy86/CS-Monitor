@@ -19,32 +19,34 @@
                 numStr: ''
             },
             methods: {
-                
-                getPoolData: function () {
+                getPoolData: function() {
                     this.loading = true;
                     $.get(`${M_API}/PoolData/${this.blockId}`)
                         .done(function(data) {
                             if (data.found === true) {
                                 vm.pool = data.info;
                                 vm.lastPage = Math.ceil(data.info.txCount / numPerPage);
+                                if (vm.lastPage === 0) vm.lastPage = 1;
                                 vm.getTransactions(vm.page);
                             } else
-                                window.location.href = `${M_NET}/monitor/contract/${vm.blockId}`;
+                                window.location.href = `${M_NET}/monitor/notfound/${vm.blockId}`;
                         })
-                        .always(function () {
+                        .always(function() {
                             vm.loading = false;
                         });
                 },
                 getTransactions: function(p) {
-                    if (p > this.lastPage) p = lastPage;
+                    if (p > this.lastPage) p = this.lastPage;
                     this.loading_t = true;
                     $.get(`${M_API}/PoolTransactions?hash=${this.blockId}&page=${p}`)
                         .done(function(data) {
                             vm.transactions = data.transactions;
                             vm.page = p;
                             vm.haveNextPage = p < vm.lastPage;
-                            var offset = (p - 1) * numPerPage;
-                            vm.numStr = `${offset + 1} - ${offset + data.transactions.length} of ${vm.pool.txCount}`;
+                            if (data.transactions.length > 0) {
+                                var offset = (p - 1) * numPerPage;
+                                vm.numStr = `${offset + 1} - ${offset + data.transactions.length} of ${vm.pool.txCount}`;
+                            } else vm.numStr = '0';
                         })
                         .always(function() {
                             vm.loading_t = false;
@@ -110,8 +112,7 @@
         <span class="suttext p_bot20">Transactions: {{numStr}}</span>
         <pager :page="page" :getfn="getTransactions" :next="haveNextPage" :last="lastPage"></pager>
     </div>
-    <transactions :network="net" :source="transactions"></transactions>
-    <div v-bind:hidden="transactions.length > 0 || loading" class="sub_text">No transactions in the block</div>
+    <transactions :network="net" :source="transactions"></transactions>    
     <div class="loader" v-show="loading_t"></div>
     <div class="padding_bottom_60">
         <pager :page="page" :getfn="getTransactions" :next="haveNextPage" :last="lastPage"></pager>

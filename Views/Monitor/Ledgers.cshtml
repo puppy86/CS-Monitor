@@ -37,7 +37,7 @@
     </div>
     <div class="subtitle_line">
         <span class="suttext p_bot20">№ of blocks: {{ledgersData.ledgers.length}} items</span>
-        <pager :page="page" :getfn="getLedgers" :next="ledgersData.haveNextPage" ></pager>
+        <pager :page="page" :getfn="getLedgers" :next="ledgersData.haveNextPage" :hidelast="true"></pager>
     </div>
     <div class="container_table tabler mb-20">
         <table class="table_info_trans">
@@ -67,6 +67,6 @@
     </div>   
     <div class="loader" v-show="loading"></div>
     <div class="padding_bottom_70">
-        <pager :page="page" :getfn="getLedgers" :next="ledgersData.haveNextPage" ></pager>
+        <pager :page="page" :getfn="getLedgers" :next="ledgersData.haveNextPage" :hidelast="true"></pager>
     </div>
 </div>
