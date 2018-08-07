@@ -4,7 +4,7 @@ namespace csmon.Models.Db
 {
     public class CsmonDbContext : DbContext
     {
-        public const string ConnectionString = "Data Source=csmon.db";
+        public const string ConnectionString = "Data Source=localhost;Initial Catalog=csmon;Integrated Security=True";
         public DbSet<Node> Nodes { get; set; }
 
         public CsmonDbContext(DbContextOptions options)
@@ -14,7 +14,7 @@ namespace csmon.Models.Db
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite(ConnectionString);
+            optionsBuilder.UseSqlServer(ConnectionString);
         }
     }
 }
