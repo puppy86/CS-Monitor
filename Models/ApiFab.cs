@@ -18,15 +18,6 @@ namespace csmon.Models
             return client;
         }
 
-        public static TestApi.API.Client CreateTestApi(string addr)
-        {
-            TTransport transport = new TSocket(addr, 9090, 60000);
-            TProtocol protocol = new TBinaryProtocol(transport);
-            var client = new TestApi.API.Client(protocol);
-            transport.Open();
-            return client;
-        }
-
         public static ServerApi.API.Client CreateSignalApi(string addr)
         {
             TTransport transport = new TSocket(addr, 8080, 20000);
