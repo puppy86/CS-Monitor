@@ -54,7 +54,7 @@
                             if (data.found)
                                 vm.getTransactions(vm.page);
                             else
-                                window.location.href = `${M_NET}/monitor/account/${vm.id}`;
+                                window.location.href = `${M_NET}/monitor/notfound/${vm.id}`;
                             vm.loading = false;
                         }).fail(function() {
                             vm.notFound = true;
@@ -63,7 +63,7 @@
                 },
                 getTransactions: function (p) {
                     this.loading_t = true;
-                    $.get(`${M_API}/AccountTransactions?id=${this.id}&page=${p}`)
+                    $.get(`${M_API}/ContractTransactions?id=${this.id}&page=${p}`)
                         .done(function (data) {
                             vm.page = data.page;
                             vm.transData = data;
