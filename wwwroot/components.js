@@ -29,13 +29,13 @@ Vue.component("transactions", {
 });
 
 Vue.component("pager", {
-	props: ["page", "getfn", "next", "last"],
+	props: ["page", "getfn", "next", "last", "hidelast"],
 	template:
 	    `<div class="pagination">
 			<button class="page_control" v-on:click="getfn(1)" v-bind:disabled="page<=1">First</button>
 			<button class="page_control" v-on:click="getfn(page - 1)" v-bind:disabled="page<=1">Prev</button>
 	        <span class="page_select">Page {{page}}</span>
 			<button class="page_control" v-on:click="getfn(page + 1)" v-bind:disabled="!next">Next</button>
-			<button class="page_control" v-bind:disabled="last === undefined || page >= last" v-on:click="getfn(last)">Last</button>
+			<button class="page_control" v-show="hidelast === undefined" v-bind:disabled="last === undefined || page >= last" v-on:click="getfn(last)">Last</button>
 		</div>`
 });
