@@ -59,7 +59,7 @@ namespace csmon.Controllers
         {
             using (var client = CreateApi())
             {
-                var poolHash = ConvUtils.ConvertHashBackBase58(id);
+                var poolHash = ConvUtils.ConvertHashBackAscii(id);
                 var pool = client.PoolInfoGet(poolHash, 0);
 
                 var result = new TransactionsData
@@ -74,12 +74,13 @@ namespace csmon.Controllers
 
         public TransactionsData PoolTransactions(string hash, int page)
         {
+            if (page <= 0) page = 1;
             using (var client = CreateApi())
             {
                 var result = new TransactionsData {Page = page};
                 const int numPerPage = 50;
                 var offset = numPerPage * (page - 1);
-                var poolTr = client.PoolTransactionsGet(ConvUtils.ConvertHashBackBase58(hash), 0, offset, numPerPage);
+                var poolTr = client.PoolTransactionsGet(ConvUtils.ConvertHashBackAscii(hash), 0, offset, numPerPage);
                 var i = offset + 1;
                 foreach (var t in poolTr.Transactions)
                 {
@@ -106,26 +107,27 @@ namespace csmon.Controllers
             using (var client = CreateApi())
             {
                 var ids = id.Split('.');
-                var trId = $"{ConvUtils.ConvertHashBackPartial(ids[0])}:{int.Parse(ids[1]) - 1}";
+                var trId = $"{ids[0]}:{int.Parse(ids[1]) - 1}";
                 var tr = client.TransactionGet(trId);
                 var tInfo = new TransactionInfo(0, id, tr.Transaction) {Found = tr.Found};
                 if (!tr.Found)
                     return tInfo;
                 if (string.IsNullOrEmpty(tInfo.PoolHash)) return tInfo;
-                var pool = client.PoolInfoGet(ConvUtils.ConvertHashBackBase58(tInfo.PoolHash), 0);
+                var pool = client.PoolInfoGet(ConvUtils.ConvertHashBackAscii(tInfo.PoolHash), 0);
                 tInfo.Time = ConvUtils.UnixTimeStampToDateTime(pool.Pool.Time);
                 return tInfo;
             }
         }
         
-        public TransactionsData AccountTransactions(string id, int page)
+        public TransactionsData AccountTransactions(string id, int page, bool conv = true)
         {
+            if (page <= 0) page = 1;
             using (var client = CreateApi())
             {
                 const int itemsPerPage = 15;
                 var result = new TransactionsData {Page = page, Transactions = new List<TransactionInfo>()};
                 var offset = itemsPerPage * (page - 1);
-                var trs = client.TransactionsGet(ConvUtils.ConvertHashBackPartial(id), offset, itemsPerPage + 1);
+                var trs = client.TransactionsGet(conv ? ConvUtils.ConvertHashBackPartial(id) : id, offset, itemsPerPage + 1);
                 result.HaveNextPage = trs.Transactions.Count > itemsPerPage;
                 var count = Math.Min(itemsPerPage, trs.Transactions.Count);
                 for (var i = 0; i < count; i++)
@@ -134,9 +136,13 @@ namespace csmon.Controllers
                     var tInfo = new TransactionInfo(i + offset + 1, "_", t);
                     result.Transactions.Add(tInfo);
                 }
-
                 return result;
             }
+        }
+
+        public TransactionsData ContractTransactions(string id, int page)
+        {
+            return AccountTransactions(id, page, false);
         }
 
         public DateTime GetTransactionTime(string id)
@@ -144,7 +150,7 @@ namespace csmon.Controllers
             using (var client = CreateApi())
             {
                 var poolHash = id.Split(".")[0];
-                var pool = client.PoolInfoGet(ConvUtils.ConvertHashBackBase58(poolHash), 0);
+                var pool = client.PoolInfoGet(ConvUtils.ConvertHashBackAscii(poolHash), 0);
                 return ConvUtils.UnixTimeStampToDateTime(pool.Pool.Time);
             }
         }
@@ -165,21 +171,34 @@ namespace csmon.Controllers
         }
 
         public ContractsData GetContracts(int page)
-        {
-            const int itemsPerPage = 20;
+        {            
             if (page <= 0) page = 1;
-            var result = new ContractsData
+            var result = new ContractsData { Page = page };
+            if (Net == "main")
             {
-                Page = page,
-            };
-            if (Net == "tetris")
+                result.Contracts.Add(new ContractLinkInfo(1, "CSTGboyCmKyn4ka8LEMO5yYkkwnIUHcv"));
+                result.Contracts.Add(new ContractLinkInfo(2, "CSTaON5ONVBy0vJ2pOgvrkjFtdBYKzt7"));
+                result.Contracts.Add(new ContractLinkInfo(3, "CSTFuZZ8fT3zvy6nqLY1PFX4rWkJAcXp"));
+                result.Contracts.Add(new ContractLinkInfo(4, "CSTziilAbO1bK3cnQyquT5t8rFTq2knj"));
+                result.Contracts.Add(new ContractLinkInfo(5, "CSTO17Z6ks2koM78g0miCWoC3gHCjNXJ"));
+                result.Contracts.Add(new ContractLinkInfo(6, "CSTIc2JIkShV8sgVcvCUF3jNe3Q24jRe"));
+                result.Contracts.Add(new ContractLinkInfo(7, "CST7BPyTc0KGL7Us0TdcSJwVhq5mFtYz"));
+                result.Contracts.Add(new ContractLinkInfo(8, "CSTMCEUYTFleV9Q7kFPnYYKJHS2yLIxg"));
+                result.Contracts.Add(new ContractLinkInfo(9, "CSTMaPMRuOqrYU4ifpbMiszykakglawg"));
+            }
+            else if (Net == "test")
+            {
+                result.Contracts.Add(new ContractLinkInfo(1, "CSTFCmq0iypplnlz4a1Y4GRaxJNstEhG"));
+                result.Contracts.Add(new ContractLinkInfo(2, "CSTxUxPUyX0BHRDzXGascQ7BmFWnmUHQ"));
+            }
+            else if (Net == "tetris")
             {
                 using (var client = CreateApi())
                 {
-                    var offset = itemsPerPage * (page - 1);
-                    var res = client.SmartContractsAllListGet(offset, itemsPerPage + 1);
-                    result.HaveNextPage = res.SmartContractsList.Count > itemsPerPage;
-                    var count = Math.Min(itemsPerPage, res.SmartContractsList.Count);
+                    var offset = result.NumPerPage * (page - 1);
+                    var res = client.SmartContractsAllListGet(offset, result.NumPerPage + 1);
+                    result.HaveNextPage = res.SmartContractsList.Count > result.NumPerPage;
+                    var count = Math.Min(result.NumPerPage, res.SmartContractsList.Count);
                     for (var i = 0; i < count; i++)
                     {
                         var c = res.SmartContractsList[i];
@@ -187,15 +206,6 @@ namespace csmon.Controllers
                         result.Contracts.Add(cInfo);
                     }
                 }
-            }
-            else if (Net == "main")
-            {
-                result.Contracts.Add(new ContractLinkInfo(1, "3SHCtvpLkBWytVSqkuhnNk9z1LyjQJaRTBiTFZFwKkXb"));
-            }
-            else if (Net == "test")
-            {
-                result.Contracts.Add(new ContractLinkInfo(1, "CSTFCmq0iypplnlz4a1Y4GRaxJNstEhG"));
-                result.Contracts.Add(new ContractLinkInfo(2, "CSTxUxPUyX0BHRDzXGascQ7BmFWnmUHQ"));
             }
             return result;
         }
