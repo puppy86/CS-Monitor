@@ -60,8 +60,14 @@ namespace csmon.Controllers
             if (query.Contains("."))
                 return RedirectToAction(nameof(Transaction), new {id = query, netwok = network});
 
-            if(query.All("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".Contains))
+            if (query.StartsWith("CS"))
+                return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Contract)}/{query}");
+
+            if (query.All("0123456789ABCDEF".Contains))
                 return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Ledger)}/{query}");
+
+            if (query.All("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".Contains))
+                return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Account)}/{query}");
 
             ViewData["id"] = query;
             return View("NotFound");
