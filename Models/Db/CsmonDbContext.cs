@@ -6,6 +6,7 @@ namespace csmon.Models.Db
     {
         public const string ConnectionString = "Data Source=localhost;Initial Catalog=csmon;Integrated Security=True";
         public DbSet<Node> Nodes { get; set; }
+        public DbSet<Smart> Smarts { get; set; }
 
         public CsmonDbContext(DbContextOptions options)
             : base(options)
