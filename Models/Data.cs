@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace csmon.Models
 {
-    // Contains data for main page
+    //Contains data for main page
     public class IndexData
     {
         public LastBlockData LastBlockData = new LastBlockData();
@@ -177,8 +177,8 @@ namespace csmon.Models
             Index = idx;
             Id = id;
             Value = ConvUtils.FormatAmount(tr.Amount);
-            FromAccount = ConvUtils.ConvertHashBase58(tr.Source);
-            ToAccount = ConvUtils.ConvertHashBase58(tr.Target);
+            FromAccount = Base58Encoding.Encode(tr.Source);
+            ToAccount = Base58Encoding.Encode(tr.Target);
             Currency = tr.Currency;
             Fee = "0";
             if (tr.SmartContract == null) return;
@@ -268,11 +268,11 @@ namespace csmon.Models
 
         public ContractInfo(TestApi.SmartContract sc)
         {
-            Address = ConvUtils.ConvertHashBase58(sc.Address);
+            Address = Base58Encoding.Encode(sc.Address);
             SourceCode = ConvUtils.FormatSrc(sc.SourceCode);
             HashState = sc.HashState;
             ByteCodeLen = sc.ByteCode.Length;
-            Deployer = ConvUtils.ConvertHashBase58(sc.Deployer);
+            Deployer = Base58Encoding.Encode(sc.Deployer);
         }
     }
 
