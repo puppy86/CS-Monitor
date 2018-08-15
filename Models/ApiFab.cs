@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using csmon.Models.Db;
+using Microsoft.EntityFrameworkCore;
 using Thrift.Protocol;
 using Thrift.Transport;
 
@@ -36,5 +38,9 @@ namespace csmon.Models
             return client;
         }
 
+        public  static  CsmonDbContext GetDbContext()
+        {
+            return new CsmonDbContext(new DbContextOptions<CsmonDbContext>());
+        }
     }
 }
