@@ -30,43 +30,43 @@
 </script>
 }
 
-<div class="content std">
-    <h1 class="main_title padding_top_50 p_bot20">All blocks</h1>
-    <div class="subtitle_line">
-        <span class="suttext p_bot20">All blocks processed in the network</span>
-    </div>
-    <div class="subtitle_line">
-        <span class="suttext p_bot20">№ of blocks: {{ledgersData.ledgers.length}} items</span>
-        <pager :page="page" :getfn="getLedgers" :next="ledgersData.haveNextPage" :hidelast="true"></pager>
-    </div>
-    <div class="container_table tabler mb-20">
-        <table class="table_info_trans">
-            <thead>
-            <tr>
-                <th>№</th>
-                <th>Time</th>
-                <th>Status</th>
-                <th>Hash</th>				    
-                <th>Quant txs</th>
-                <th>All value</th>
-                <th>All fee</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="item in ledgersData.ledgers">
-                <td>{{item.number}}</td>
-                <td>{{new Date(item.time).toLocaleString()}}</td>
-                <td class="success">Success</td>
-                <td class="hash"><a :href="net + '/monitor/ledger/' + item.hash">{{item.hash}}</a></td>				    
-                <td>{{item.txCount}}</td>
-                <td>{{item.value}}</td>
-                <td>{{item.fee}}</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>   
-    <div class="loader" v-show="loading"></div>
-    <div class="padding_bottom_70">
-        <pager :page="page" :getfn="getLedgers" :next="ledgersData.haveNextPage" :hidelast="true"></pager>
-    </div>
+
+<h1 class="main_title padding_top_50 p_bot20">All blocks</h1>
+<div class="subtitle_line">
+    <span class="suttext p_bot20">All blocks processed in the network</span>
 </div>
+<div class="subtitle_line">
+    <span class="suttext p_bot20">№ of blocks: {{ledgersData.ledgers.length}} items</span>
+    <pager :page="page" :getfn="getLedgers" :next="ledgersData.haveNextPage" :hidelast="true"></pager>
+</div>
+<div class="container_table tabler mb-20">
+    <table class="table_info_trans">
+        <thead>
+        <tr>
+            <th>№</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Hash</th>				    
+            <th>Quant txs</th>
+            <th>All value</th>
+            <th>All fee</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="item in ledgersData.ledgers">
+            <td>{{item.number}}</td>
+            <td>{{new Date(item.time).toLocaleString()}}</td>
+            <td class="success">Success</td>
+            <td class="hash"><a :href="net + '/monitor/ledger/' + item.hash">{{item.hash}}</a></td>				    
+            <td>{{item.txCount}}</td>
+            <td>{{item.value}}</td>
+            <td>{{item.fee}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>   
+<div class="loader" v-show="loading"></div>
+<div class="padding_bottom_70">
+    <pager :page="page" :getfn="getLedgers" :next="ledgersData.haveNextPage" :hidelast="true"></pager>
+</div>
+

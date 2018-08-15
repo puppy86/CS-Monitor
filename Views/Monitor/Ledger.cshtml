@@ -63,13 +63,13 @@
 <div v-show="loading" class="padding_top_60 p_bot20">
     <div class="loader"></div>
 </div>
-<div v-show="!loading" class="content std">
+<div v-show="!loading">
     <h1 class="main_title padding_top_60 p_bot20">Block of transactions</h1>
     <div class="subtitle_line">
         <span class="suttext p_bot20">The information about transactions in the block</span>
     </div>
 </div>
-<div v-show="!loading" class="content padding_top_10">
+<div v-show="!loading" class="padding_top_10">
     <div class="whitepanel">
         <div class="block_stat grey_line_bottom">
             <div class="type">
@@ -106,15 +106,15 @@
     </div>
 </div>
 
-<div class="content std">
-    <h2 class="main_title padding_top_60 p_bot20">List of transactions</h2>
-    <div class="subtitle_line">
-        <span class="suttext p_bot20">Transactions: {{numStr}}</span>
-        <pager :page="page" :getfn="getTransactions" :next="haveNextPage" :last="lastPage"></pager>
-    </div>
-    <transactions :network="net" :source="transactions"></transactions>    
-    <div class="loader" v-show="loading_t"></div>
-    <div class="padding_bottom_60">
-        <pager :page="page" :getfn="getTransactions" :next="haveNextPage" :last="lastPage"></pager>
-    </div>
+
+<h2 class="main_title padding_top_60 p_bot20">List of transactions</h2>
+<div class="subtitle_line">
+    <span class="suttext p_bot20">Transactions: {{numStr}}</span>
+    <pager :page="page" :getfn="getTransactions" :next="haveNextPage" :last="lastPage"></pager>
 </div>
+<transactions :network="net" :source="transactions"></transactions>    
+<div class="loader" v-show="loading_t"></div>
+<div class="padding_bottom_60">
+    <pager :page="page" :getfn="getTransactions" :next="haveNextPage" :last="lastPage"></pager>
+</div>
+

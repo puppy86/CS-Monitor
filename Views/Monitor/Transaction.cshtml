@@ -31,10 +31,10 @@
     </script>
 }
 
-<div v-show="trans.found" class="content std">
+<div v-show="trans.found">
     <h2 class="main_title padding_top_60 p_bot20">Transaction</h2>
 </div>
-<div v-show="trans.found" class="content padding_top_10">
+<div v-show="trans.found" class="padding_top_10">
     <div class="whitepanel">
         <div class="block_stat grey_line_bottom">
             <div class="type">
@@ -82,6 +82,6 @@
         </table>
     </div>
 </div>
-<div v-show="notFound" class="content std">
+<div v-show="notFound" >
     <h2 class="main_title padding_top_60 p_bot20">Transaction not found:  @ViewData["id"]</h2>
 </div>

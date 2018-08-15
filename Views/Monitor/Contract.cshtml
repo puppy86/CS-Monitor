@@ -33,7 +33,7 @@
             }
         });
 
-
+        const numPerPage = 15;
         var vm = new Vue({
             el: "#app",
             data: {
@@ -43,6 +43,7 @@
                 loading: false,
                 loading_t: false,
                 page: 1,
+                numStr: '',
                 transData: { transactions: [] }
             },
             methods: {
@@ -54,7 +55,7 @@
                             if (data.found)
                                 vm.getTransactions(vm.page);
                             else
-                                window.location.href = `${M_NET}/monitor/notfound/${vm.id}`;
+                                window.location.href = `${M_NET}/monitor/account/${vm.id}`;
                             vm.loading = false;
                         }).fail(function() {
                             vm.notFound = true;
@@ -67,6 +68,11 @@
                         .done(function (data) {
                             vm.page = data.page;
                             vm.transData = data;
+                            if (data.transactions.length > 0) {
+                                var offset = (data.page - 1) * numPerPage;
+                                vm.numStr = `${offset + 1} - ${offset + data.transactions.length}`;
+                            }
+                            else vm.numStr = '0';
                         })
                         .always(function () {
                             vm.loading_t = false;
@@ -79,65 +85,65 @@
         });
     </script>
 }
-<div class="content std">
-    <div v-show="loading" class="padding_top_60 p_bot20">
-        <div class="loader"></div>
-    </div>
-    <div v-show="model.found">
-        <h2 class="main_title padding_top_60 p_bot20">Smart Contract</h2>
-        <div class="whitepanel">
-            <div class="block_stat grey_line_bottom">
-                <div class="type">
-                    <div class="active">Information</div>
-                </div>
+
+<div v-show="loading" class="padding_top_60 p_bot20">
+    <div class="loader"></div>
+</div>
+<div v-show="model.found">
+    <h2 class="main_title padding_top_60 p_bot20">Smart Contract</h2>
+    <div class="whitepanel">
+        <div class="block_stat grey_line_bottom">
+            <div class="type">
+                <div class="active">Information</div>
             </div>
-            <table>
-                <thead>
-                    <tr></tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Address:</td>
-                        <td>{{id}}</td>
-                    </tr>
-                    <tr>
-                        <td>Deployer:</td>
-                        <td>{{model.deployer}}</td>
-                    </tr>
-                    <tr>
-                        <td>HashState:</td>
-                        <td>{{model.hashState}}</td>
-                    </tr>
-                    <tr>
-                        <td>Byte code length:</td>
-                        <td>{{model.byteCodeLen}}</td>
-                    </tr>
-                    <tr>
-                        <td>Method:</td>
-                        <td>{{model.method}}</td>
-                    </tr>
-                    <tr>
-                        <td>Params:</td>
-                        <td>{{model.params}}</td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
+        <table>
+            <thead>
+                <tr></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Address:</td>
+                    <td>{{id}}</td>
+                </tr>
+                <tr>
+                    <td>Deployer:</td>
+                    <td>{{model.deployer}}</td>
+                </tr>
+                <tr>
+                    <td>HashState:</td>
+                    <td>{{model.hashState}}</td>
+                </tr>
+                <tr>
+                    <td>Byte code length:</td>
+                    <td>{{model.byteCodeLen}}</td>
+                </tr>
+                <tr>
+                    <td>Method:</td>
+                    <td>{{model.method}}</td>
+                </tr>
+                <tr>
+                    <td>Params:</td>
+                    <td>{{model.params}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-        <h2 class="main_title padding_top_60 p_bot20">Source code:</h2>
-        <div class="list_info">
-            <pre v-highlightjs="model.sourceCode"><code class="java"></code></pre>
-        </div>
+    <h2 class="main_title padding_top_60 p_bot20">Source code:</h2>
+    <div class="list_info">
+        <pre v-highlightjs="model.sourceCode"><code class="java"></code></pre>
+    </div>
 
-        <h2 class="main_title padding_top_60 p_bot20">List of transactions</h2>
-        <div class="subtitle_line">
-            <span class="suttext p_bot20">Transactions: {{transData.transactions.length}}</span>
-            <pager :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pager>
-        </div>
-        <transactions :network="net" :source="transData.transactions"></transactions>
-        <div class="loader" v-show="loading_t"></div>
-        <div class="padding_bottom_60">
-            <pager :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pager>
-        </div>
+    <h2 class="main_title padding_top_60 p_bot20">List of transactions</h2>
+    <div class="subtitle_line">
+        <span class="suttext p_bot20">Transactions: {{numStr}}</span>
+        <pager :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pager>
+    </div>
+    <transactions :network="net" :source="transData.transactions"></transactions>
+    <div class="loader" v-show="loading_t"></div>
+    <div class="padding_bottom_60">
+        <pager :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pager>
     </div>
 </div>
+

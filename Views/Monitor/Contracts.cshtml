@@ -36,38 +36,38 @@
     </script>
 }
 
-<div class="content std">
-    <h1 class="main_title padding_top_50 p_bot20">Smart contracts</h1>
-    <div class="subtitle_line">
-        <span class="suttext p_bot20">Recent smart contracts processed in the network</span>
-    </div>
-    <div class="subtitle_line">
-        <span class="suttext p_bot20">Contracts: {{numStr}} items</span>
-        <pager :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" ></pager>
-    </div>
-    <div class="container_table tabler mb-20">
-        <table class="table_info_trans">
-            <thead>
-                <tr>
-                    <th>№</th>
-                    <th>Address</th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="item in contractsData.contracts">
-                    <td>{{item.index}}</td>
-                    <td class="hash"><a :href="net + '/monitor/contract/' + item.address">{{item.address}}</a></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="loader" v-show="loading"></div>
-    <div class="padding_bottom_70">
-        <pager :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" ></pager>
-    </div>
+
+<h1 class="main_title padding_top_50 p_bot20">Smart contracts</h1>
+<div class="subtitle_line">
+    <span class="suttext p_bot20">Recent smart contracts processed in the network</span>
 </div>
+<div class="subtitle_line">
+    <span class="suttext p_bot20">Contracts: {{numStr}} items</span>
+    <pager :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" ></pager>
+</div>
+<div class="container_table tabler mb-20">
+    <table class="table_info_trans">
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Address</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="item in contractsData.contracts">
+                <td>{{item.index}}</td>
+                <td class="hash"><a :href="net + '/monitor/contract/' + item.address">{{item.address}}</a></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="loader" v-show="loading"></div>
+<div class="padding_bottom_70">
+    <pager :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" ></pager>
+</div>
+
 

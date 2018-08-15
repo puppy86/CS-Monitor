@@ -88,67 +88,65 @@
     </div>
 </form>
 
-<div class="content">
-    <div class="info_head">
-        <span v-bind:class="{info_title:true, active: activeTab === 'last24Hours'}" v-on:click="activeTab = 'last24Hours'">24 hours</span>
-        <span v-bind:class="{info_title:true, active: activeTab === 'lastWeek'}" v-on:click="activeTab = 'lastWeek'">Last week</span>
-        <span v-bind:class="{info_title:true, active: activeTab === 'lastMonth'}" v-on:click="activeTab = 'lastMonth'">Last month</span>
-        <span v-bind:class="{info_title:true, active: activeTab === 'total'}" v-on:click="activeTab = 'total'">Total</span>
+<div class="info_head">
+    <span v-bind:class="{info_title:true, active: activeTab === 'last24Hours'}" v-on:click="activeTab = 'last24Hours'">24 hours</span>
+    <span v-bind:class="{info_title:true, active: activeTab === 'lastWeek'}" v-on:click="activeTab = 'lastWeek'">Last week</span>
+    <span v-bind:class="{info_title:true, active: activeTab === 'lastMonth'}" v-on:click="activeTab = 'lastMonth'">Last month</span>
+    <span v-bind:class="{info_title:true, active: activeTab === 'total'}" v-on:click="activeTab = 'total'">Total</span>
+</div>
+<div class="info_content">
+    <div class="subblock">
+        <span class="bluetx">{{animatedLastBlock}}</span><span class="subbie"> Last Block</span>
     </div>
-    <div class="info_content">
-        <div class="subblock">
-            <span class="bluetx">{{animatedLastBlock}}</span><span class="subbie"> Last Block</span>
-        </div>
-        <div class="subblock">
-            <span class="bluetx">{{stats[activeTab].allTransactions.value}}</span><span class="subbie"> Txs count</span>
-        </div>
-        <div class="subblock">
-            <span class="bluetx">{{stats[activeTab].allLedgers.value}}</span><span class="subbie"> All blocks</span>
-        </div>
-        <div class="subblock">
-            <span class="bluetx">{{stats[activeTab].csVolume.value}}</span><span class="subbie"> Volume</span>
-        </div>
-        <div>
-            <span class="bluetx">{{stats[activeTab].smartContracts.value}}</span><span class="subbie"> Trns smart contracts</span>
-        </div>
+    <div class="subblock">
+        <span class="bluetx">{{stats[activeTab].allTransactions.value}}</span><span class="subbie"> Txs count</span>
+    </div>
+    <div class="subblock">
+        <span class="bluetx">{{stats[activeTab].allLedgers.value}}</span><span class="subbie"> All blocks</span>
+    </div>
+    <div class="subblock">
+        <span class="bluetx">{{stats[activeTab].csVolume.value}}</span><span class="subbie"> Volume</span>
+    </div>
+    <div>
+        <span class="bluetx">{{stats[activeTab].smartContracts.value}}</span><span class="subbie"> Trns smart contracts</span>
     </div>
 </div>
-<div class="content std">
-    <h1 class="main_title padding_top_60 p_bot20">Recent {{allPools.length}} blocks</h1>
-    <div class="subtitle_line">
-        <div class="subsub_line">
-            <label><input type="checkbox" class="checka" v-model="filterEmpty" v-on:change="getPools(page);" /><span class="suttext p_bot20">Show only blocks with transactions</span></label>
-        </div>
-        <pager :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage" :hidelast="true"></pager>
+
+<h1 class="main_title padding_top_60 p_bot20">Recent {{allPools.length}} blocks</h1>
+<div class="subtitle_line">
+    <div class="subsub_line">
+        <label><input type="checkbox" class="checka" v-model="filterEmpty" v-on:change="getPools(page);" /><span class="suttext p_bot20">Show only blocks with transactions</span></label>
     </div>
-    <div class="container_table tabler mb-20">
-        <table class="table_info_trans">
-            <thead>
-            <tr>
-                <th>№</th>
-                <th>Age</th>
-                <th>Status</th>
-                <th>Hash</th>				    
-                <th>Quant txs</th>
-                <th>All value</th>
-                <th>All fee</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="item in pools">
-                <td>{{item.number}}</td>
-                <td>{{getAge(item.time)}}</td>
-                <td class="success">Success</td>
-                <td class="hash"><a :href="net + '/monitor/ledger/' + item.hash">{{item.hash}}</a></td>				    
-                <td>{{item.txCount}}</td>
-                <td>{{item.value}}</td>
-                <td>{{item.fee}}</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="p_bot20">
-        <pager :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage" :hidelast="true"></pager>
-    </div>
-    <div class="margin_bottom_70 text-center"><a class="bold-link bttn" href="/@network/monitor/ledgers">MORE BLOCKS</a></div>
+    <pager :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage" :hidelast="true"></pager>
 </div>
+<div class="container_table tabler mb-20">
+    <table class="table_info_trans">
+        <thead>
+        <tr>
+            <th>№</th>
+            <th>Age</th>
+            <th>Status</th>
+            <th>Hash</th>				    
+            <th>Quant txs</th>
+            <th>All value</th>
+            <th>All fee</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="item in pools">
+            <td>{{item.number}}</td>
+            <td>{{getAge(item.time)}}</td>
+            <td class="success">Success</td>
+            <td class="hash"><a :href="net + '/monitor/ledger/' + item.hash">{{item.hash}}</a></td>				    
+            <td>{{item.txCount}}</td>
+            <td>{{item.value}}</td>
+            <td>{{item.fee}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="p_bot20">
+    <pager :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage" :hidelast="true"></pager>
+</div>
+<div class="margin_bottom_70 text-center"><a class="bold-link bttn" href="/@network/monitor/ledgers">MORE BLOCKS</a></div>
+
