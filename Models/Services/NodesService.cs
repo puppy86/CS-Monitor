@@ -44,11 +44,6 @@ namespace csmon.Models.Services
             return Task.CompletedTask;
         }
 
-        private CsmonDbContext GetDbContext()
-        {
-            return new CsmonDbContext(new DbContextOptions<CsmonDbContext>());
-        }
-
         private void OnTimer(object state)
         {
             foreach (var network in Network.Networks)
@@ -61,7 +56,7 @@ namespace csmon.Models.Services
                         {
                             var result = client.GetActiveNodes();
                             var nodes = result.Nodes.Distinct((n1, n2) => n1.Ip.Equals(n2.Ip)).ToArray();
-                            using (var db = GetDbContext())
+                            using (var db = ApiFab.GetDbContext())
                             {
                                 var dbNodes = db.Nodes.ToArray();
                                 foreach (var serverNode in nodes)
@@ -103,7 +98,7 @@ namespace csmon.Models.Services
             _timer.Change(Period, 0);
         }
 
-        private static async Task<string> GetAsync(Uri uri)
+        public static async Task<string> GetAsync(Uri uri)
         {
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("User-Agent", "java-ipapi-client");
@@ -113,7 +108,7 @@ namespace csmon.Models.Services
         public NodesData GetNodes(string network)
         {
             var net = Network.GetById(network);
-            using (var db = GetDbContext())
+            using (var db = ApiFab.GetDbContext())
             {
                 var result = new NodesData
                 {
@@ -128,7 +123,7 @@ namespace csmon.Models.Services
 
         public Node FindNode(string id)
         {
-            using (var db = GetDbContext())
+            using (var db = ApiFab.GetDbContext())
             {
                 return db.Nodes.Find(id);
             }

@@ -203,7 +203,8 @@ namespace csmon.Models.Services
                                 for (var i = 0; i < 4; i++)
                                     statData.Pdata[i] = new PeriodData(statsSorted[i]);
                                 // Smart contracts count = n
-                                if (tpState.Net.Id == "main") statData.Correct(9);
+                                using (var db = ApiFab.GetDbContext())
+                                    statData.Correct(db.Smarts.Count(s => s.Network == tpState.Net.Id));
                                 tpState.StatData = statData;
                             }
                         }
