@@ -57,16 +57,6 @@ namespace csmon.Models
             return Encoding.ASCII.GetBytes(hash);
         }
 
-        public static string ConvertHashBase58(byte[] hash)
-        {
-            return Base58Encoding.Encode(ConvertHashBack(ConvertHashAscii(hash)));
-        }
-
-        public static byte[] ConvertHashBackBase58(string hash)
-        {
-            return ConvertHashBackAscii(ConvertHash(Base58Encoding.Decode(hash)));
-        }
-
         public static string ConvertHashPartial(string hash)
         {
             return Base58Encoding.Encode(ConvertHashBack(hash));
