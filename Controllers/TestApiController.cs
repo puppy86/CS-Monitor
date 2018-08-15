@@ -97,7 +97,7 @@ namespace csmon.Controllers
         {
             using (var client = CreateApi())
             {
-                var balance = client.BalanceGet(ConvUtils.ConvertHashBackBase58(id), "cs");
+                var balance = client.BalanceGet(Base58Encoding.Decode(id), "cs");
                 return ConvUtils.FormatAmount(balance.Amount);
             }
         }
@@ -131,7 +131,7 @@ namespace csmon.Controllers
                 const int itemsPerPage = 15;
                 var result = new TransactionsData {Page = page, Transactions = new List<TransactionInfo>()};
                 var offset = itemsPerPage * (page - 1);
-                var trs = client.TransactionsGet(ConvUtils.ConvertHashBackBase58(id), offset, itemsPerPage + 1);
+                var trs = client.TransactionsGet(Base58Encoding.Decode(id), offset, itemsPerPage + 1);
                 result.HaveNextPage = trs.Transactions.Count > itemsPerPage;
                 var count = Math.Min(itemsPerPage, trs.Transactions.Count);
                 for (var i = 0; i < count; i++)
@@ -167,7 +167,7 @@ namespace csmon.Controllers
                 if (id == null || tokens == null) return result;
                 foreach (var token in tokens.Split(","))
                 {
-                    var balance = client.BalanceGet(ConvUtils.ConvertHashBackBase58(id), token);
+                    var balance = client.BalanceGet(Base58Encoding.Decode(id), token);
                     result.Tokens.Add(new TokenAmount {Token = token, Value = ConvUtils.FormatAmount(balance.Amount)});
                 }
                 return result;
@@ -187,7 +187,7 @@ namespace csmon.Controllers
                 for (var i = 0; i < count; i++)
                 {
                     var c = res.SmartContractsList[i];
-                    var cInfo = new ContractLinkInfo(i + offset + 1, ConvUtils.ConvertHashBase58(c.Address));
+                    var cInfo = new ContractLinkInfo(i + offset + 1, Base58Encoding.Encode(c.Address));
                     result.Contracts.Add(cInfo);
                 }
             }
@@ -198,7 +198,7 @@ namespace csmon.Controllers
         {
             using (var client = CreateApi())
             {
-                var res = client.SmartContractGet(ConvUtils.ConvertHashBackBase58(id));
+                var res = client.SmartContractGet(Base58Encoding.Decode(id));
                 return new ContractInfo(res.SmartContract) { Found = res.Status.Code == 0 };
             }
         }
