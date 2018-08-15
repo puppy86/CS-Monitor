@@ -24,5 +24,6 @@ namespace csmon.Models.Db
         public string Version { get; set; }
         public string Platform { get; set; }
         public int Size { get; set; }
+        public string Country { get; set; }
     }
 }
