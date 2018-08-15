@@ -120,43 +120,43 @@
 
 }
 
-<div class="content std">
-    <h1 class="main_title padding_top_50 p_bot20">Credits Network Nodes</h1>
-    <div class="subtitle_line">
-        <span class="suttext p_bot20">All working nodes in the network</span>
-    </div>
-    @*<div id="map"></div>*@
-    <div class="subtitle_line">
-        <span class="suttext p_bot20">Number of nodes: {{nodesData.nodes.length}}</span>
-        <pager :page="page" :getfn="getNodes" :next="haveNextPage" :last="lastPage"></pager>
-    </div>
-    <div class="container_table tabler mb-20">
-        <table class="table_info_trans table_node">
-            <thead>
-                <tr>
-                    <th>IP</th>
-                    @*
-                    <th>City</th>
-                    <th>Country</th>*@
-                    <th>Version</th>
-                    <th>Platform</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="item in nodes">
-                    @*
-                    <td><a :href="net + '/tools/node/' + item.ip">{{item.ip}}</a></td>*@
-                    <td>{{item.ipCut}}</td>
-                    @*
-                    <td>{{item.city}}</td>
-                    <td>{{item.country_name}}</td>*@
-                    <td>v{{item.version}}</td>
-                    <td><img src="/img/Windows.png" alt="win"> Windows</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="padding_bottom_70">
-        <pager :page="page" :getfn="getNodes" :next="haveNextPage" :last="lastPage"></pager>
-    </div>
+
+<h1 class="main_title padding_top_50 p_bot20">Credits Network Nodes</h1>
+<div class="subtitle_line">
+    <span class="suttext p_bot20">All working nodes in the network</span>
 </div>
+@*<div id="map"></div>*@
+<div class="subtitle_line">
+    <span class="suttext p_bot20">Number of nodes: {{nodesData.nodes.length}}</span>
+    <pager :page="page" :getfn="getNodes" :next="haveNextPage" :last="lastPage"></pager>
+</div>
+<div class="container_table tabler mb-20">
+    <table class="table_info_trans">
+        <thead>
+            <tr>
+                <th>IP</th>
+                @*
+                <th>City</th>*@
+                <th>Country</th>
+                <th>Version</th>
+                <th>Platform</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="item in nodes">
+                @*
+                <td><a :href="net + '/tools/node/' + item.ip">{{item.ip}}</a></td>*@
+                <td>{{item.ipCut}}</td>
+                @*
+                <td>{{item.city}}</td>*@
+                <td><img :src="'https://www.countryflags.io/'+item.country+'/shiny/32.png'" alt=""> {{item.country_name}}</td>
+                <td>v{{item.version}}</td>
+                <td><img src="/img/Windows.png" alt="win"> Windows</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="padding_bottom_70">
+    <pager :page="page" :getfn="getNodes" :next="haveNextPage" :last="lastPage"></pager>
+</div>
+

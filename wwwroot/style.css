@@ -643,8 +643,9 @@ footer {
     display:flex;
 }
 .std {
-    padding-left:20px;
-    padding-right:20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    word-break: break-all;
 }
 .pagination {
     text-align:right;
@@ -674,16 +675,18 @@ footer {
     margin-right:10px;
 }
 table.table_info_trans {
-    background-color:#fff;
-    width:100%;
-    border-collapse:collapse;
-    text-align:left;
+    /*table-layout: fixed;*/
+    /*display: block;*/
+
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
     margin-top: -32px;
 }
-td,th {
-    background-color:#fff;
+td, th {    
     padding: 7px 15px;
-    font-size:15px;
+    font-size: 15px;
+    white-space: nowrap;
 }
 tr {
     border-bottom: 1px solid #c6c6c6;
@@ -691,12 +694,13 @@ tr {
 .tabler {
     padding-left: 30px;
     padding-right: 30px;
+    padding-bottom: 2px;
     background-color: #fff;
     border-top: 32px solid #4c4c4c;
     border-bottom: 2px solid #2d67b1;
+    
 }
 thead th {
-    background-color:#4c4c4c;
     color:#fff;
     border:none;
     font-size:14px;
@@ -724,7 +728,7 @@ td a {
     text-decoration:none;
 }
 td img {
-    width: 12px;
+    width: 16px;
 }
 .wrap_form {
     max-width: 490px;
@@ -784,9 +788,6 @@ input.main-input.in_text {
     margin: 0 20px;
     padding: 3px;
 }
-.table_node thead th {
-    text-align:center;
-}
 .subsub_line {
     width:100%;
     padding-bottom: 20px;
@@ -812,13 +813,7 @@ footer .selectTopMenu {
         display:block;
     }
     .tabler {
-        border-top: none;
-        padding:0;
-        overflow:auto;
-    }
-    table.table_info_trans {
-        margin-top:0;
-        
+        padding:0;        
     }
     .displayNone{
         display: none;
@@ -1009,7 +1004,10 @@ footer .selectTopMenu {
         padding-top:5px;
     }
 }
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 570px) {
+    .std {        
+        padding-right:5px;
+    }
     .menu_item {
         font-size: 12px;
     }
@@ -1089,16 +1087,6 @@ footer .selectTopMenu {
         display: none;
     }
 }
-
-@media (min-width:320px) and (max-width:500px){
-
-
-}
-
-
-
-
-
 
 
 .footer_menu_item{

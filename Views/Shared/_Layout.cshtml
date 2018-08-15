@@ -89,6 +89,7 @@
     @RenderSection("head", false)
 </head>
 <body>
+<environment exclude="Development">
     <!-- Google Tag Manager (noscript) -->
     <noscript>
         <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PPF66RB"
@@ -98,13 +99,15 @@
     <!-- Yandex.Metrika counter (noscript) -->
     <noscript><div><img src="https://mc.yandex.ru/watch/44398234" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <!-- /Yandex.Metrika counter (noscript)-->
-
+</environment>
     <div class="wrap">
         <header class="header">
+            <map name="image-map">
+                <area target="_blank" alt="Credits.com" title="Credits.com" href="https://credits.com" coords="1,1,165,42" shape="rect">
+                <area target="" alt="Home" title="Home" href="~/@network/monitor/index" coords="165,1,297,42" shape="rect">
+            </map>
             <div class="mobilogo">
-                <a href="~/@network/monitor/index" class="logo">
-                    <img src="img/logo.png" alt="">
-                </a>
+                <img src="/img/logo.png" usemap="#image-map" alt="">
             </div>
             <div class="menuBurger textAlignRight"></div>
             <div class="menuBurgerClose textAlignRight height40 displayNone" style="text-align: right;">X</div>
@@ -150,9 +153,7 @@
             </div>
             <div class="content inner-wrap menu2 bg_Gray displayNone">
                 <div class="logo-wrap">
-                    <a href="~/@network/monitor/index" class="logo">
-                        <img src="/img/logo.png" alt="">
-                    </a>
+                    <img src="/img/logo.png" usemap="#image-map" alt="">
                 </div>
                 <div class="header-wrap">
                     <nav class="menu">
@@ -189,7 +190,7 @@
         }
         else
         {
-            <div id="app">
+            <div id="app" class="content std">
                 @RenderBody()
             </div>
         }
