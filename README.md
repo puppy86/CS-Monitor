@@ -14,24 +14,24 @@ The CS monitor page contains the following information:</p>
 <p>The monitor is implemented on the basis of the Node architecture. To provide up-to-date information, the Monitor receives information about all the changes in the blocks, but does not participate in the rounds.</p>
 <h3>Resources</h3>
 
-<a href="website" src="https://credits.com//">CREDITS Website</a>
+<a href="https://credits.com//">CREDITS Website</a>
 
-<a href="Medium" src="https://medium.com/@credits">Medium</a>
+<a href="https://medium.com/@credits">Medium</a>
 
-<a href="Documentation" src="https://github.com/CREDITSCOM/DOCUMENTATION">Documentation</a>
+<a href="https://github.com/CREDITSCOM/DOCUMENTATION">Documentation</a>
 
-<a href="Whitepaper" src="https://credits.com/Content/Docs/TechnicalWhitePaperCREDITSEng.pdf">Whitepaper</a>
+<a href="https://credits.com/Content/Docs/TechnicalWhitePaperCREDITSEng.pdf">Whitepaper</a>
 
-<a href="Technical paper" src="https://credits.com/Content/Docs/TechnicalPaperENG.pdf">Technical paper</a>
+<a href="https://credits.com/Content/Docs/TechnicalPaperENG.pdf">Technical paper</a>
 
-<a href="Developers portal" src="https://developers.credits.com/">Developers portal</a>
+<a href="https://developers.credits.com/l">Developers portal</a>
 
-<a href="Credits forum" src="http://forum.credits.com/">Credits forum</a>
+<a href="http://forum.credits.com/">Credits forum</a>
 
 <h3>Community links</h3>
 
-<a href="Official Telegram group" src="https://t.me/creditscom">Official Telegram group</a>
+<a href="https://t.me/creditscom">Official Telegram group</a>
 
-<a href="Official Twitter" src="https://twitter.com/creditscom">Official Twitter</a>
+<a href="https://twitter.com/creditscom">Official Twitter</a>
 
-<a href="Reddit" src="https://www.reddit.com/r/CreditsOfficial/">Reddit</a>
+<a href="https://www.reddit.com/r/CreditsOfficial/">Reddit</a>
