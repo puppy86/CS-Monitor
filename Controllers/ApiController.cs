@@ -174,24 +174,7 @@ namespace csmon.Controllers
         {            
             if (page <= 0) page = 1;
             var result = new ContractsData { Page = page };
-            if (Net == "main")
-            {
-                result.Contracts.Add(new ContractLinkInfo(1, "CSTGboyCmKyn4ka8LEMO5yYkkwnIUHcv"));
-                result.Contracts.Add(new ContractLinkInfo(2, "CSTaON5ONVBy0vJ2pOgvrkjFtdBYKzt7"));
-                result.Contracts.Add(new ContractLinkInfo(3, "CSTFuZZ8fT3zvy6nqLY1PFX4rWkJAcXp"));
-                result.Contracts.Add(new ContractLinkInfo(4, "CSTziilAbO1bK3cnQyquT5t8rFTq2knj"));
-                result.Contracts.Add(new ContractLinkInfo(5, "CSTO17Z6ks2koM78g0miCWoC3gHCjNXJ"));
-                result.Contracts.Add(new ContractLinkInfo(6, "CSTIc2JIkShV8sgVcvCUF3jNe3Q24jRe"));
-                result.Contracts.Add(new ContractLinkInfo(7, "CST7BPyTc0KGL7Us0TdcSJwVhq5mFtYz"));
-                result.Contracts.Add(new ContractLinkInfo(8, "CSTMCEUYTFleV9Q7kFPnYYKJHS2yLIxg"));
-                result.Contracts.Add(new ContractLinkInfo(9, "CSTMaPMRuOqrYU4ifpbMiszykakglawg"));
-            }
-            else if (Net == "test")
-            {
-                result.Contracts.Add(new ContractLinkInfo(1, "CSTFCmq0iypplnlz4a1Y4GRaxJNstEhG"));
-                result.Contracts.Add(new ContractLinkInfo(2, "CSTxUxPUyX0BHRDzXGascQ7BmFWnmUHQ"));
-            }
-            else if (Net == "tetris")
+            if (Net == "tetris")
             {
                 using (var client = CreateApi())
                 {
@@ -205,6 +188,15 @@ namespace csmon.Controllers
                         var cInfo = new ContractLinkInfo(i + offset + 1, c.Address);
                         result.Contracts.Add(cInfo);
                     }
+                }
+            }
+            else
+            {
+                using (var db = ApiFab.GetDbContext())
+                {
+                    var i = 1;
+                    foreach (var s in db.Smarts.Where(s => s.Network == Net))
+                        result.Contracts.Add(new ContractLinkInfo(i++, s.Address));
                 }
             }
             return result;
