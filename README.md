@@ -12,6 +12,17 @@ The CS monitor page contains the following information:</p>
 <li>An overview of the open smart contract</li>
 </ul>
 <p>The monitor is implemented on the basis of the Node architecture. To provide up-to-date information, the Monitor receives information about all the changes in the blocks, but does not participate in the rounds.</p>
+<h2>Contribution</h2>
+<p>Thank you for considering to help out with the source code! We welcome contributions from anyone on the internet, and are grateful for even the smallest of fixes!
+If you'd like to contribute to CS-Monitor, please fork, fix, commit and send a pull request for the maintainers to review and merge into the main code base. If you wish to submit more complex changes though, please check up with the core devs first on our <a href="https://developers.credits.com/">Developers portal</a> and <a href="https://github.com/CREDITSCOM/Documentation/blob/master/Contribution.md"> Contribution file</a> to ensure those changes are in line with the general philosophy of the project and/or get some early feedback which can make both your efforts much lighter as well as our review and merge procedures quick and simple.
+Please make sure your contributions adhere to our coding guidelines:</p>
+<ul>
+<li>Code must adhere to the <a href="https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions">Microsoft C# Coding Conventions</a> for core changes</li>
+<li> For changes in frontend and other components-Google <a href="https://google.github.io/styleguide/jsguide.html">Javascript</a> and <a href="https://google.github.io/styleguide/htmlcssguide.html"> HTML/CSS</a> Style Guides</li>
+<li>Code must be well documented adhering to the Microsoft C# Coding Conventions and Google Style Guides</li>
+<li>Pull requests need to be based on and opened against the master branch</li>
+<li>Commit messages should be prefixed with the package(s) they modify</li>
+</ul>
 <h3>Resources</h3>
 
 <a href="https://credits.com//">CREDITS Website</a>
