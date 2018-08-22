@@ -3,7 +3,7 @@
 {
     <script>
         var initTokens = (localStorage["tokens"]) ? JSON.parse(localStorage["tokens"]) : [];
-        const numPerPage = 15;
+
         var vm = new Vue({
             el: "#app",
             data: {
@@ -32,11 +32,6 @@
                         .done(function(data) {
                             vm.page = data.page;
                             vm.transData = data;
-                            if (data.transactions.length > 0) {
-                                var offset = (data.page - 1) * numPerPage;
-                                vm.numStr = `${offset + 1} - ${offset + data.transactions.length}`;
-                            }
-                            else vm.numStr = '0';
                             //if (data.transactions.length > 0)
                             //    vm.getTime(0);
                         })
@@ -130,10 +125,9 @@
     </table>
 </div>
 
-
 <h2 class="main_title padding_top_60 p_bot20">List of transactions</h2>
 <div class="subtitle_line">
-    <span class="suttext p_bot20">Transactions: {{numStr}}</span>
+    <span class="suttext p_bot20">Transactions {{transData.numStr}}</span>
     <pager :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pager>
 </div>
 <transactions :network="net" :source="transData.transactions"></transactions>
@@ -141,4 +135,3 @@
 <div class="padding_bottom_60">
     <pager :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pager>
 </div>
-

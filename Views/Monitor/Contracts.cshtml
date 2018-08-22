@@ -8,7 +8,7 @@
                 net: M_NET,
                 page: @ViewData["page"],
                 loading: false,
-                contractsData: { contracts: [], haveNextPage: false, numPerPage: 0 },
+                contractsData: { },
                 numStr: ''
             },
             methods: {
@@ -18,11 +18,6 @@
                         .done(function(data) {
                             vm.page = data.page;
                             vm.contractsData = data;
-                            if (data.contracts.length > 0) {
-                                var offset = (data.page - 1) * data.numPerPage;
-                                vm.numStr = `${offset + 1} - ${offset + data.contracts.length}`;
-                            }
-                            else vm.numStr = '0';
                         })
                         .always(function() {
                             vm.loading = false;
@@ -36,13 +31,12 @@
     </script>
 }
 
-
 <h1 class="main_title padding_top_50 p_bot20">Smart contracts</h1>
 <div class="subtitle_line">
     <span class="suttext p_bot20">Recent smart contracts processed in the network</span>
 </div>
 <div class="subtitle_line">
-    <span class="suttext p_bot20">Contracts: {{numStr}} items</span>
+    <span class="suttext p_bot20">Contracts {{contractsData.numStr}}</span>
     <pager :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" ></pager>
 </div>
 <div class="container_table tabler mb-20">
@@ -69,5 +63,3 @@
 <div class="padding_bottom_70">
     <pager :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" ></pager>
 </div>
-
-

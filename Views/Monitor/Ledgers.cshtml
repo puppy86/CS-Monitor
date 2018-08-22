@@ -8,7 +8,7 @@
             net: M_NET,
             page: @ViewData["page"],
             loading: false,
-            ledgersData: { ledgers: [], haveNextPage: false, lastPage: 1 }
+            ledgersData: { }
 		},
 		methods: {
             getLedgers: function (p) {
@@ -21,7 +21,7 @@
 			},
 			onGetData: function (data) {
 				this.page = data.page;
-				this.ledgersData = data;
+                this.ledgersData = data;
 			}
 		}
 	});
@@ -36,7 +36,7 @@
     <span class="suttext p_bot20">All blocks processed in the network</span>
 </div>
 <div class="subtitle_line">
-    <span class="suttext p_bot20">№ of blocks: {{ledgersData.ledgers.length}} items</span>
+    <span class="suttext p_bot20">Blocks {{ledgersData.numStr}}</span>
     <pager :page="page" :getfn="getLedgers" :next="ledgersData.haveNextPage" :hidelast="true"></pager>
 </div>
 <div class="container_table tabler mb-20">
