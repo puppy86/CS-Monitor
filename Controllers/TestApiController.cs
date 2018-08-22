@@ -44,13 +44,14 @@ namespace csmon.Controllers
             const int limit = 100;
             if (id <= 0) id = 1;
             var ledgers = _indexService.GetPools(Net, (id - 1) * limit, limit);
-            const int lastPage = IndexService.SizeOutAll / limit;
+            var lastPage = ConvUtils.GetNumPages(IndexService.SizeOutAll, limit);
             var result = new LedgersData
             {
                 Page = id,
                 Ledgers = ledgers,
                 HaveNextPage = id < lastPage,
-                LastPage = lastPage
+                LastPage = lastPage,
+                NumStr = ledgers.Any() ? $"{ledgers.Last().Number} - {ledgers.First().Number}" : "-"
             };
             return result;
         }
@@ -72,23 +73,30 @@ namespace csmon.Controllers
             }
         }
 
-        public TransactionsData PoolTransactions(string hash, int page)
+        public TransactionsData PoolTransactions(string hash, int page, int txcount)
         {
+            const int numPerPage = 50;
             if (page <= 0) page = 1;
             using (var client = CreateApi())
             {
-                var result = new TransactionsData {Page = page};
-                const int numPerPage = 50;
+                var lastPage = ConvUtils.GetNumPages(txcount, numPerPage);
+                if (page > lastPage) page = lastPage;
+                var result = new TransactionsData
+                {
+                    Page = page,
+                    LastPage = lastPage,
+                    HaveNextPage = page < lastPage
+                };
                 var offset = numPerPage * (page - 1);
                 var poolTr = client.PoolTransactionsGet(ConvUtils.ConvertHashBack(hash), offset, numPerPage);
                 var i = offset + 1;
                 foreach (var t in poolTr.Transactions)
                 {
-                    var tInfo = new TransactionInfo(i, $"{hash}.{i}", t.Trxn);
+                    var tInfo = new TransactionInfo(i, t.Id, t.Trxn);
                     result.Transactions.Add(tInfo);
                     i++;
                 }
-
+                result.NumStr = poolTr.Transactions.Any() ? $"{offset + 1} - {offset + poolTr.Transactions.Count} of {txcount}" : "0";
                 return result;
             }
         }
@@ -113,7 +121,7 @@ namespace csmon.Controllers
                     PoolHash = ConvUtils.ConvertHashBack(ids[0])
                 };
                 var tr = client.TransactionGet(trId);
-                var tInfo = new TransactionInfo(0, id, tr.Transaction.Trxn) {Found = tr.Found};
+                var tInfo = new TransactionInfo(0, null, tr.Transaction.Trxn) { Id = id, Found = tr.Found };
                 if (!tr.Found)
                     return tInfo;
                 if (string.IsNullOrEmpty(tInfo.PoolHash)) return tInfo;
@@ -125,21 +133,27 @@ namespace csmon.Controllers
         
         public TransactionsData AccountTransactions(string id, int page, bool conv = true)
         {
+            const int numPerPage = 15;
             if (page <= 0) page = 1;
             using (var client = CreateApi())
-            {
-                const int itemsPerPage = 15;
-                var result = new TransactionsData {Page = page, Transactions = new List<TransactionInfo>()};
-                var offset = itemsPerPage * (page - 1);
-                var trs = client.TransactionsGet(Base58Encoding.Decode(id), offset, itemsPerPage + 1);
-                result.HaveNextPage = trs.Transactions.Count > itemsPerPage;
-                var count = Math.Min(itemsPerPage, trs.Transactions.Count);
+            {                
+                
+                var offset = numPerPage * (page - 1);
+                var trs = client.TransactionsGet(Base58Encoding.Decode(id), offset, numPerPage + 1);
+                var result = new TransactionsData
+                {
+                    Page = page,
+                    Transactions = new List<TransactionInfo>(),
+                    HaveNextPage = trs.Transactions.Count > numPerPage
+                };
+                var count = Math.Min(numPerPage, trs.Transactions.Count);
                 for (var i = 0; i < count; i++)
                 {
                     var t = trs.Transactions[i];
-                    var tInfo = new TransactionInfo(i + offset + 1, "_", t.Trxn);
+                    var tInfo = new TransactionInfo(i + offset + 1, t.Id, t.Trxn);
                     result.Transactions.Add(tInfo);
                 }
+                result.NumStr = count > 0 ? $"{offset + 1} - {offset + count}" : "-";
                 return result;
             }
         }
@@ -175,15 +189,16 @@ namespace csmon.Controllers
         }
 
         public ContractsData GetContracts(int page)
-        {            
+        {
+            const int numPerPage = 20;
             if (page <= 0) page = 1;
             var result = new ContractsData { Page = page };
             using (var client = CreateApi())
             {
-                var offset = result.NumPerPage * (page - 1);
-                var res = client.SmartContractsAllListGet(offset, result.NumPerPage + 1);
-                result.HaveNextPage = res.SmartContractsList.Count > result.NumPerPage;
-                var count = Math.Min(result.NumPerPage, res.SmartContractsList.Count);
+                var offset = numPerPage * (page - 1);
+                var res = client.SmartContractsAllListGet(offset, numPerPage + 1);
+                result.HaveNextPage = res.SmartContractsList.Count > numPerPage;
+                var count = Math.Min(numPerPage, res.SmartContractsList.Count);
                 for (var i = 0; i < count; i++)
                 {
                     var c = res.SmartContractsList[i];
@@ -191,6 +206,7 @@ namespace csmon.Controllers
                     result.Contracts.Add(cInfo);
                 }
             }
+            result.NumStr = result.Contracts.Any() ? $"{result.Contracts.First().Index} - {result.Contracts.Last().Index}" : "0";
             return result;
         }
 
