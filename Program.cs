@@ -17,7 +17,7 @@ namespace csmon
             try
             {
                 logger.Debug("init main");
-                BuildWebHost(args).Run();
+                CreateWebHostBuilder(args).Build().Run();
             }
             catch (Exception ex)
             {
@@ -27,17 +27,11 @@ namespace csmon
             finally
             {
                 NLog.LogManager.Shutdown();
-            }
+            }            
         }
 
-        public static IWebHost BuildWebHost(string[] args)
-        {
-            var config = new ConfigurationBuilder()
-                .AddCommandLine(args)
-                .AddJsonFile("appsettings.json", true)
-                .Build();
-
-            return WebHost.CreateDefaultBuilder(args)
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
                 .UseIISIntegration()
                 .UseKestrel(options =>
                 {
@@ -45,15 +39,16 @@ namespace csmon
                     options.Limits.MinRequestBodyDataRate =
                         new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
                 })
-                .UseConfiguration(config)
+                .UseConfiguration(new ConfigurationBuilder()
+                    .AddCommandLine(args)
+                    .AddJsonFile("appsettings.json", true)
+                    .Build())
                 .UseStartup<Startup>()
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
                     logging.SetMinimumLevel(LogLevel.Trace);
                 })
-                .UseNLog() // NLog: setup NLog for Dependency injection
-                .Build();
-        }
+                .UseNLog(); // NLog: setup NLog for Dependency injection;
     }
 }
