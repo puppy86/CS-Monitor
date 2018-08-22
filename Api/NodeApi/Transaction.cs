@@ -29,7 +29,6 @@ namespace NodeApi
     private Amount _amount;
     private Amount _balance;
     private string _currency;
-    private string _signature;
     private SmartContract _smartContract;
 
     public string InnerId
@@ -110,19 +109,6 @@ namespace NodeApi
       }
     }
 
-    public string Signature
-    {
-      get
-      {
-        return _signature;
-      }
-      set
-      {
-        __isset.signature = true;
-        this._signature = value;
-      }
-    }
-
     public SmartContract SmartContract
     {
       get
@@ -148,7 +134,6 @@ namespace NodeApi
       public bool amount;
       public bool balance;
       public bool currency;
-      public bool signature;
       public bool smartContract;
     }
 
@@ -215,13 +200,6 @@ namespace NodeApi
               }
               break;
             case 7:
-              if (field.Type == TType.String) {
-                Signature = iprot.ReadString();
-              } else { 
-                TProtocolUtil.Skip(iprot, field.Type);
-              }
-              break;
-            case 8:
               if (field.Type == TType.Struct) {
                 SmartContract = new SmartContract();
                 SmartContract.Read(iprot);
@@ -298,18 +276,10 @@ namespace NodeApi
           oprot.WriteString(Currency);
           oprot.WriteFieldEnd();
         }
-        if (Signature != null && __isset.signature) {
-          field.Name = "signature";
-          field.Type = TType.String;
-          field.ID = 7;
-          oprot.WriteFieldBegin(field);
-          oprot.WriteString(Signature);
-          oprot.WriteFieldEnd();
-        }
         if (SmartContract != null && __isset.smartContract) {
           field.Name = "smartContract";
           field.Type = TType.Struct;
-          field.ID = 8;
+          field.ID = 7;
           oprot.WriteFieldBegin(field);
           SmartContract.Write(oprot);
           oprot.WriteFieldEnd();
@@ -361,12 +331,6 @@ namespace NodeApi
         __first = false;
         __sb.Append("Currency: ");
         __sb.Append(Currency);
-      }
-      if (Signature != null && __isset.signature) {
-        if(!__first) { __sb.Append(", "); }
-        __first = false;
-        __sb.Append("Signature: ");
-        __sb.Append(Signature);
       }
       if (SmartContract != null && __isset.smartContract) {
         if(!__first) { __sb.Append(", "); }

@@ -24,7 +24,6 @@ namespace NodeApi
   public partial class TransactionFlowResult : TBase
   {
     private APIResponse _status;
-    private NodeApi.Variant _smart_contract_result;
 
     public APIResponse Status
     {
@@ -39,19 +38,6 @@ namespace NodeApi
       }
     }
 
-    public NodeApi.Variant Smart_contract_result
-    {
-      get
-      {
-        return _smart_contract_result;
-      }
-      set
-      {
-        __isset.smart_contract_result = true;
-        this._smart_contract_result = value;
-      }
-    }
-
 
     public Isset __isset;
     #if !SILVERLIGHT
@@ -59,7 +45,6 @@ namespace NodeApi
     #endif
     public struct Isset {
       public bool status;
-      public bool smart_contract_result;
     }
 
     public TransactionFlowResult() {
@@ -84,14 +69,6 @@ namespace NodeApi
               if (field.Type == TType.Struct) {
                 Status = new APIResponse();
                 Status.Read(iprot);
-              } else { 
-                TProtocolUtil.Skip(iprot, field.Type);
-              }
-              break;
-            case 2:
-              if (field.Type == TType.Struct) {
-                Smart_contract_result = new NodeApi.Variant();
-                Smart_contract_result.Read(iprot);
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -125,14 +102,6 @@ namespace NodeApi
           Status.Write(oprot);
           oprot.WriteFieldEnd();
         }
-        if (Smart_contract_result != null && __isset.smart_contract_result) {
-          field.Name = "smart_contract_result";
-          field.Type = TType.Struct;
-          field.ID = 2;
-          oprot.WriteFieldBegin(field);
-          Smart_contract_result.Write(oprot);
-          oprot.WriteFieldEnd();
-        }
         oprot.WriteFieldStop();
         oprot.WriteStructEnd();
       }
@@ -150,12 +119,6 @@ namespace NodeApi
         __first = false;
         __sb.Append("Status: ");
         __sb.Append(Status== null ? "<null>" : Status.ToString());
-      }
-      if (Smart_contract_result != null && __isset.smart_contract_result) {
-        if(!__first) { __sb.Append(", "); }
-        __first = false;
-        __sb.Append("Smart_contract_result: ");
-        __sb.Append(Smart_contract_result== null ? "<null>" : Smart_contract_result.ToString());
       }
       __sb.Append(")");
       return __sb.ToString();

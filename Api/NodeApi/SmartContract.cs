@@ -23,29 +23,14 @@ namespace NodeApi
   #endif
   public partial class SmartContract : TBase
   {
-    private string _deployer;
     private string _sourceCode;
     private byte[] _byteCode;
     private byte[] _contractState;
     private string _hashState;
     private string _method;
     private List<string> _params;
-    private bool _forgetNewState;
 
     public string Address { get; set; }
-
-    public string Deployer
-    {
-      get
-      {
-        return _deployer;
-      }
-      set
-      {
-        __isset.deployer = true;
-        this._deployer = value;
-      }
-    }
 
     public string SourceCode
     {
@@ -125,33 +110,18 @@ namespace NodeApi
       }
     }
 
-    public bool ForgetNewState
-    {
-      get
-      {
-        return _forgetNewState;
-      }
-      set
-      {
-        __isset.forgetNewState = true;
-        this._forgetNewState = value;
-      }
-    }
-
 
     public Isset __isset;
     #if !SILVERLIGHT
     [Serializable]
     #endif
     public struct Isset {
-      public bool deployer;
       public bool sourceCode;
       public bool byteCode;
       public bool contractState;
       public bool hashState;
       public bool method;
       public bool @params;
-      public bool forgetNewState;
     }
 
     public SmartContract() {
@@ -181,13 +151,6 @@ namespace NodeApi
               if (field.Type == TType.String) {
                 Address = iprot.ReadString();
                 isset_address = true;
-              } else { 
-                TProtocolUtil.Skip(iprot, field.Type);
-              }
-              break;
-            case 9:
-              if (field.Type == TType.String) {
-                Deployer = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -240,13 +203,6 @@ namespace NodeApi
                   }
                   iprot.ReadListEnd();
                 }
-              } else { 
-                TProtocolUtil.Skip(iprot, field.Type);
-              }
-              break;
-            case 8:
-              if (field.Type == TType.Bool) {
-                ForgetNewState = iprot.ReadBool();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -337,22 +293,6 @@ namespace NodeApi
           }
           oprot.WriteFieldEnd();
         }
-        if (__isset.forgetNewState) {
-          field.Name = "forgetNewState";
-          field.Type = TType.Bool;
-          field.ID = 8;
-          oprot.WriteFieldBegin(field);
-          oprot.WriteBool(ForgetNewState);
-          oprot.WriteFieldEnd();
-        }
-        if (Deployer != null && __isset.deployer) {
-          field.Name = "deployer";
-          field.Type = TType.String;
-          field.ID = 9;
-          oprot.WriteFieldBegin(field);
-          oprot.WriteString(Deployer);
-          oprot.WriteFieldEnd();
-        }
         oprot.WriteFieldStop();
         oprot.WriteStructEnd();
       }
@@ -366,10 +306,6 @@ namespace NodeApi
       StringBuilder __sb = new StringBuilder("SmartContract(");
       __sb.Append(", Address: ");
       __sb.Append(Address);
-      if (Deployer != null && __isset.deployer) {
-        __sb.Append(", Deployer: ");
-        __sb.Append(Deployer);
-      }
       if (SourceCode != null && __isset.sourceCode) {
         __sb.Append(", SourceCode: ");
         __sb.Append(SourceCode);
@@ -393,10 +329,6 @@ namespace NodeApi
       if (Params != null && __isset.@params) {
         __sb.Append(", Params: ");
         __sb.Append(Params);
-      }
-      if (__isset.forgetNewState) {
-        __sb.Append(", ForgetNewState: ");
-        __sb.Append(ForgetNewState);
       }
       __sb.Append(")");
       return __sb.ToString();
