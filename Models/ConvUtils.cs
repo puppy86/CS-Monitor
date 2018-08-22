@@ -134,5 +134,12 @@ namespace csmon.Models
             }
             return sb.ToString();
         }
+
+        public static int GetNumPages(int count, int numPerPage)
+        {
+            if (count <= 0) return 1;
+            if (count % numPerPage == 0) return count / numPerPage;
+            return count / numPerPage + 1;
+        }
     }
 }
