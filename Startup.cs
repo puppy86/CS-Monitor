@@ -4,22 +4,21 @@ using csmon.Models.Db;
 using csmon.Models.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace csmon
 {
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        // ReSharper disable once NotAccessedField.Local
-        private readonly ILogger _logger;
 
-        public Startup(IConfiguration configuration, ILogger<Startup> logger)
+        public Startup(IConfiguration configuration)
         {
-            _logger = logger;
             Configuration = configuration;
             ConvUtils.AllowNegativeTime = bool.Parse(Configuration["AllowNegativeTime"]);
             foreach (var netSection in Configuration.GetSection("Networks").GetChildren())
@@ -35,25 +34,29 @@ namespace csmon
                 });
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddDataProtection(opts =>
-            {
-                opts.ApplicationDiscriminator = "csmon";
-            });
-            services.AddDbContext<CsmonDbContext>();
-            AddHostedService<IIndexService, IndexService>(services);
-            AddHostedService<INodesService, NodesService>(services);
-            AddHostedService<IGraphService, GraphService>(services);
-            services.AddMvc();
-        }
-
         private static void AddHostedService<TService, TImplementation>(IServiceCollection services)
             where TService : class where TImplementation : class, TService
         {
             services.AddSingleton<TService, TImplementation>();
             services.AddSingleton(provider => provider.GetService<TService>() as IHostedService);
+        }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+
+            services.AddDbContext<CsmonDbContext>();
+            AddHostedService<IIndexService, IndexService>(services);
+            AddHostedService<INodesService, NodesService>(services);
+            AddHostedService<IGraphService, GraphService>(services);
+
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,21 +65,27 @@ namespace csmon
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
             }
             else
             {
                 app.UseExceptionHandler("/Monitor/Error");
+                app.UseHsts();
             }
-            
+
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseCookiePolicy();
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute("default", "{network}/{controller}/{action}/{id?}",
-                    new { network = Network.Networks.First().Id,
-                          controller = "monitor",
-                          action = "index" });
-            });              
+                    new
+                    {
+                        network = Network.Networks.First().Id,
+                        controller = "monitor",
+                        action = "index"
+                    });
+            });
         }
     }
 }
