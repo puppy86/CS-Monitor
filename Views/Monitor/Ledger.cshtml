@@ -3,7 +3,7 @@
 {
     <script>
         var poolData = @Html.Raw(Json.Serialize(Model));
-        const numPerPage = 50;
+
         var vm = new Vue({
             el: "#app",
             data: {
@@ -11,12 +11,10 @@
                 blockId: "@ViewData["blockId"]",
                 pool: poolData.info,
                 page: @ViewData["page"],
-                haveNextPage: false,
-                lastPage: 1,
-                transactions: poolData.transactions,
+                transData: {},
                 loading: false,
                 loading_t: false,
-                numStr: ''
+                found: true
             },
             methods: {
                 getPoolData: function() {
@@ -25,28 +23,20 @@
                         .done(function(data) {
                             if (data.found === true) {
                                 vm.pool = data.info;
-                                vm.lastPage = Math.ceil(data.info.txCount / numPerPage);
-                                if (vm.lastPage === 0) vm.lastPage = 1;
                                 vm.getTransactions(vm.page);
                             } else
-                                window.location.href = `${M_NET}/monitor/notfound/${vm.blockId}`;
+                                vm.found = false;
                         })
                         .always(function() {
                             vm.loading = false;
                         });
                 },
                 getTransactions: function(p) {
-                    if (p > this.lastPage) p = this.lastPage;
                     this.loading_t = true;
-                    $.get(`${M_API}/PoolTransactions?hash=${this.blockId}&page=${p}`)
-                        .done(function(data) {
-                            vm.transactions = data.transactions;
-                            vm.page = p;
-                            vm.haveNextPage = p < vm.lastPage;
-                            if (data.transactions.length > 0) {
-                                var offset = (p - 1) * numPerPage;
-                                vm.numStr = `${offset + 1} - ${offset + data.transactions.length} of ${vm.pool.txCount}`;
-                            } else vm.numStr = '0';
+                    $.get(`${M_API}/PoolTransactions?hash=${this.blockId}&page=${p}&txcount=${this.pool.txCount}`)
+                        .done(function (data) {
+                            vm.page = data.page;
+                            vm.transData = data;
                         })
                         .always(function() {
                             vm.loading_t = false;
@@ -63,13 +53,19 @@
 <div v-show="loading" class="padding_top_60 p_bot20">
     <div class="loader"></div>
 </div>
-<div v-show="!loading">
+<div v-show="!found">
+    <h1 class="main_title padding_top_60 p_bot20">Block not found</h1>
+    <div class="subtitle_line">
+        <span class="suttext p_bot20">{{blockId}}</span>
+    </div>
+</div>
+<div v-show="found && !loading">
     <h1 class="main_title padding_top_60 p_bot20">Block of transactions</h1>
     <div class="subtitle_line">
         <span class="suttext p_bot20">The information about transactions in the block</span>
     </div>
 </div>
-<div v-show="!loading" class="padding_top_10">
+<div v-show="found && !loading" class="padding_top_10">
     <div class="whitepanel">
         <div class="block_stat grey_line_bottom">
             <div class="type">
@@ -106,15 +102,15 @@
     </div>
 </div>
 
-
-<h2 class="main_title padding_top_60 p_bot20">List of transactions</h2>
-<div class="subtitle_line">
-    <span class="suttext p_bot20">Transactions: {{numStr}}</span>
-    <pager :page="page" :getfn="getTransactions" :next="haveNextPage" :last="lastPage"></pager>
+<div v-show="found && !loading">
+    <h2 class="main_title padding_top_60 p_bot20">List of transactions</h2>
+    <div class="subtitle_line">
+        <span class="suttext p_bot20">Transactions {{transData.numStr}}</span>
+        <pager :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pager>
+    </div>
+    <transactions :network="net" :source="transData.transactions"></transactions>
+    <div class="loader" v-show="loading_t"></div>
+    <div class="padding_bottom_60">
+        <pager :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pager>
+    </div>
 </div>
-<transactions :network="net" :source="transactions"></transactions>    
-<div class="loader" v-show="loading_t"></div>
-<div class="padding_bottom_60">
-    <pager :page="page" :getfn="getTransactions" :next="haveNextPage" :last="lastPage"></pager>
-</div>
-
