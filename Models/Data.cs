@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace csmon.Models
 {
-    //Contains data for main page
+    // Contains data for main page
     public class IndexData
     {
         public LastBlockData LastBlockData = new LastBlockData();
@@ -172,10 +172,11 @@ namespace csmon.Models
             SmartContractHashState = tr.SmartContract.HashState;
         }
 
-        public TransactionInfo(int idx, string id, TestApi.Transaction tr)
+        public TransactionInfo(int idx, TestApi.TransactionId id, TestApi.Transaction tr)
         {
             Index = idx;
-            Id = id;
+            if(id != null)
+                Id = $"{ConvUtils.ConvertHash(id.PoolHash)}.{id.Index + 1}";
             Value = ConvUtils.FormatAmount(tr.Amount);
             FromAccount = Base58Encoding.Encode(tr.Source);
             ToAccount = Base58Encoding.Encode(tr.Target);
@@ -187,20 +188,24 @@ namespace csmon.Models
         }
     }
 
-    // Contains list of ledgers
-    public class LedgersData
+    // Base class for some other classes
+    public class PageData
     {
         public int Page;
         public bool HaveNextPage;
         public int LastPage;
+        public string NumStr;
+    }
+
+    // Contains list of ledgers
+    public class LedgersData : PageData
+    {
         public List<PoolInfo> Ledgers = new List<PoolInfo>();
     }
 
     // Contains list of transactions
-    public class TransactionsData
+    public class TransactionsData : PageData
     {
-        public int Page;
-        public bool HaveNextPage;
         public bool Found;
         public PoolInfo Info = new PoolInfo();
         public List<TransactionInfo> Transactions = new List<TransactionInfo>();
@@ -263,7 +268,6 @@ namespace csmon.Models
             Method = sc.Method;
             Params = string.Join(", ", sc.Params);
             ByteCodeLen = sc.ByteCode.Length;
-            Deployer = sc.Deployer;
         }
 
         public ContractInfo(TestApi.SmartContract sc)
@@ -290,11 +294,8 @@ namespace csmon.Models
     }
 
     // List of contracts
-    public class ContractsData
+    public class ContractsData : PageData
     {
-        public int Page;
-        public bool HaveNextPage;
-        public int NumPerPage = 20;
         public List<ContractLinkInfo> Contracts = new List<ContractLinkInfo>();
     }
 }
