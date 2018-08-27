@@ -275,7 +275,7 @@ select option{
 .top_head_menu_wrap .menu_item {
 	font-size:14px;
 }
-.top_head_menu_wrap .menu_item:hover, footer_menu_item:hover {
+.top_head_menu_wrap .menu_item:hover, .footer_menu_item a:hover {
 	color: #eee;
     text-decoration: unset;
 }
@@ -723,6 +723,9 @@ td.hash {
 td.success {
     color: green;
 }
+td.nosuccess {
+    color: red;
+}
 td a {
     color:#2d67b1;
     text-decoration:none;
@@ -1047,9 +1050,6 @@ footer .selectTopMenu {
 }
 
 @media (min-width:501px){
-    .menuBurgerClose{
-        display: none;
-    }
     .netw_item{
         display: none;
     }
@@ -1081,9 +1081,6 @@ footer .selectTopMenu {
         display: flex;
     }
     .netw_itemFooter_Box{
-        display: none;
-    }
-    .menuBurgerClose{
         display: none;
     }
 }

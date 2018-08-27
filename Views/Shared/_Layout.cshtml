@@ -110,7 +110,6 @@
                 <img src="/img/logo.png" usemap="#image-map" alt="">
             </div>
             <div class="menuBurger textAlignRight"></div>
-            <div class="menuBurgerClose textAlignRight height40 displayNone" style="text-align: right;">X</div>
             <div class="top_head_menu menu2 displayNone">
                 <div class="content inner-wrap">
                     <div class="top_head_menu_wrap">
@@ -245,7 +244,7 @@
             </div>
             <div class="row copy">
                 <div class="copyright">
-                    <p>&copy; 2018 copyright. Supported by CREDITS.COM PTE.LTD Singapore</p>
+                    <p>&copy; 2018 copyright. Supported by CREDITS.COM</p>
                 </div>
             </div>
         </div>
@@ -257,56 +256,18 @@
     </script>
     @RenderSection("script", false)
     <script>
-        //header-nav
-        $(".menu_item").mouseenter(function () {
-            $(this).addClass("menu_itemActiv");
-        });
-        $(".menu_item").mouseleave(function () {
-            $(this).removeClass("menu_itemActiv");
-        });
-
-        // footer-nav     netw_itemFooter
-        $(".netw_itemFooter").mouseenter(function () {
-            $(this).addClass("menu_itemActiv");
-        });
-        $(".netw_itemFooter").mouseleave(function () {
-            $(this).removeClass("menu_itemActiv");
-        });
-
-        // footer-nav     toolsFooter
-        $(".toolsFooter").mouseenter(function () {
-            $(this).addClass("menu_itemActiv");
-        });
-        $(".toolsFooter").mouseleave(function () {
-            $(this).removeClass("menu_itemActiv");
-        });
-   
-        $(".footer_menu_item").mouseenter(function () {
-            if ($(window).outerWidth() > 1023) {
-                $(this).addClass("footer_menu_itemActiv");
-            }
-        });
-        $(".footer_menu_item").mouseleave(function () {
-            if ($(window).outerWidth() > 1023) {
-                $(this).removeClass("footer_menu_itemActiv");
-            }
-        });
 
         $(".menuBurger").click(function () {
-            $(this).hide();
-            $(".menu2").show();
-            $(".menuBurgerClose").show();
-            $(".header").removeClass(".height40");
-            $(".header").addClass(".height100");
-            $(".NetworkSelect").hide();
+            if ($(".menu2").is(":visible")) {
+                $(".menu2").hide();
+                $(".header").removeClass("height100");
+            } else {
+                $(".menu2").show();
+                $(".header").addClass("height100");
+                $(".NetworkSelect").hide();
+            }
         });
 
-        $(".menuBurgerClose").click(function () {
-            $(this).hide();
-            $(".menu2").hide();
-            $(".menuBurger").show();
-            $(".header").addClass("height40");
-        });
     </script>
 </body>
 </html>
