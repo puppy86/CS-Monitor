@@ -81,6 +81,15 @@ namespace csmon.Models
             SmartContracts = new StatItem(stat.SmartContractsCount);
             Period = stat.PeriodDuration;
         }
+
+        public PeriodData(TestApi2.PeriodStats stat)
+        {
+            AllLedgers = new StatItem(stat.PoolsCount);
+            AllTransactions = new StatItem(stat.TransactionsCount);
+            CSVolume = new StatItem(stat.BalancePerCurrency.Integral);
+            SmartContracts = new StatItem(stat.SmartContractsCount);
+            Period = stat.PeriodDuration;
+        }
     }
 
     // Statistics item
@@ -122,6 +131,14 @@ namespace csmon.Models
         }
 
         public PoolInfo(TestApi.Pool pool)
+        {
+            Time = ConvUtils.UnixTimeStampToDateTime(pool.Time);
+            Hash = ConvUtils.ConvertHash(pool.Hash);
+            TxCount = pool.TransactionsCount;
+            Number = pool.PoolNumber;
+        }
+
+        public PoolInfo(TestApi2.Pool pool)
         {
             Time = ConvUtils.UnixTimeStampToDateTime(pool.Time);
             Hash = ConvUtils.ConvertHash(pool.Hash);
@@ -181,6 +198,21 @@ namespace csmon.Models
             FromAccount = Base58Encoding.Encode(tr.Source);
             ToAccount = Base58Encoding.Encode(tr.Target);
             Currency = tr.Currency;
+            Fee = "0";
+            if (tr.SmartContract == null) return;
+            SmartContractSource = tr.SmartContract.SourceCode;
+            SmartContractHashState = tr.SmartContract.HashState;
+        }
+
+        public TransactionInfo(int idx, TestApi2.TransactionId id, TestApi2.Transaction tr)
+        {
+            Index = idx;
+            if (id != null)
+                Id = $"{ConvUtils.ConvertHash(id.PoolHash)}.{id.Index + 1}";
+            Value = ConvUtils.FormatAmount(tr.Amount);
+            FromAccount = Base58Encoding.Encode(tr.Source);
+            ToAccount = Base58Encoding.Encode(tr.Target);
+            Currency = "CS";
             Fee = "0";
             if (tr.SmartContract == null) return;
             SmartContractSource = tr.SmartContract.SourceCode;
@@ -271,6 +303,15 @@ namespace csmon.Models
         }
 
         public ContractInfo(TestApi.SmartContract sc)
+        {
+            Address = Base58Encoding.Encode(sc.Address);
+            SourceCode = ConvUtils.FormatSrc(sc.SourceCode);
+            HashState = sc.HashState;
+            ByteCodeLen = sc.ByteCode.Length;
+            Deployer = Base58Encoding.Encode(sc.Deployer);
+        }
+
+        public ContractInfo(TestApi2.SmartContract sc)
         {
             Address = Base58Encoding.Encode(sc.Address);
             SourceCode = ConvUtils.FormatSrc(sc.SourceCode);
