@@ -209,8 +209,47 @@ namespace csmon.Models.Services
                             }
                         }
                     }
-                else 
+                else if (tpState.Net.Api.EndsWith("/TestApi"))
                     using (var client = ApiFab.CreateTestApi(tpState.Net.Ip))
+                    {
+                        // Service available
+                        if (tpState.Net.Updating) tpState.Net.Updating = false;
+
+                        // Request blocks
+                        if ((!tpState.PoolsOut.Any() && !tpState.PoolsIn.Any()))
+                        {
+                            var result = client.PoolListGet(0, SizeOut);
+                            tpState.PoolsOut = result.Pools.Where(p => p.PoolNumber > 0).Select(p => new PoolInfo(p)).ToList();
+                        }
+                        else
+                        {
+                            var result = client.PoolListGet(0, 20);
+                            lock (tpState.PoolsLock)
+                            {
+                                var firstPoolNum = tpState.PoolsIn.Any()
+                                    ? tpState.PoolsIn[0].Number
+                                    : tpState.PoolsOut[0].Number;
+                                var nPools = result.Pools.Where(p => p.PoolNumber > 0).TakeWhile(p => (p.PoolNumber > firstPoolNum) || (p.PoolNumber < firstPoolNum - 1000)).Select(p => new PoolInfo(p)).ToList();
+                                tpState.PoolsIn = nPools.Concat(tpState.PoolsIn).ToList();
+                            }
+                        }
+
+                        // Request stats
+                        if (tpState.StatRequestCounter == 0)
+                        {
+                            var stats = client.StatsGet();
+                            if (stats != null && stats.Stats.Count >= 4)
+                            {
+                                var statsSorted = stats.Stats.OrderBy(s => s.PeriodDuration).ToList();
+                                var statData = new StatData();
+                                for (var i = 0; i < 4; i++)
+                                    statData.Pdata[i] = new PeriodData(statsSorted[i]);
+                                tpState.StatData = statData;
+                            }
+                        }
+                    }
+                else if (tpState.Net.Api.EndsWith("/TestApi2"))
+                    using (var client = ApiFab.CreateTestApi2(tpState.Net.Ip))
                     {
                         // Service available
                         if (tpState.Net.Updating) tpState.Net.Updating = false;
