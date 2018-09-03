@@ -89,6 +89,17 @@ namespace csmon.Models
             return $"{value.Integral}.{fraction.TrimEnd('0')}";
         }
 
+        public static string FormatAmount(TestApi2.Amount value)
+        {
+            if (value.Fraction == 0) return $"{value.Integral}.0";
+
+            var fraction = value.Fraction.ToString();
+            while (fraction.Length < 18)
+                fraction = "0" + fraction;
+
+            return $"{value.Integral}.{fraction.TrimEnd('0')}";
+        }
+
         public static string FormatSrc(string code)
         {
             if (code.Contains(Environment.NewLine)) return code;
