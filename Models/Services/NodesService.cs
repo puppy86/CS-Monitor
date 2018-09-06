@@ -29,8 +29,8 @@ namespace csmon.Models.Services
     public class NodesService : IHostedService, IDisposable, INodesService
     {        
         private readonly ILogger _logger;
-        public const int LiveTimeMinutes = 4;
-        private const int Period = 1000*60*2;
+        public const int LiveTimeMinutes = 3;
+        private const int Period = 1000*60;
         private Timer _timer;
 
         public NodesService(ILogger<NodesService> logger)
@@ -44,7 +44,7 @@ namespace csmon.Models.Services
             return Task.CompletedTask;
         }
 
-        private void OnTimer(object state)
+        private async void OnTimer(object state)
         {
             foreach (var network in Network.Networks)
             {
@@ -68,19 +68,22 @@ namespace csmon.Models.Services
                                     {
                                         exnode.ModifyTime = DateTime.Now;
                                         exnode.Version = serverNode.Version;
+                                        exnode.Platform = serverNode.Platform;
+                                        exnode.Size = result.Nodes.Count(n => n.Ip.Equals(ip));
                                         db.Nodes.Update(exnode);
                                     }
                                     else
                                     {
-                                        var node = new Node
-                                        {
-                                            Ip = ip,
-                                            Version = serverNode.Version,
-                                            Network = network.Id
-                                        };
+                                        var uri = new Uri($"https://ipapi.co/{ip}/json/");
+                                        var nodestr = await GetAsync(uri);
+                                        var node = JsonConvert.DeserializeObject<Node>(nodestr);                                    
+                                        node.Ip = ip;
+                                        node.Version = serverNode.Version;
+                                        node.Network = network.Id;
+                                        node.Platform = serverNode.Platform;
+                                        node.Size = result.Nodes.Count(n => n.Ip.Equals(ip));
                                         db.Nodes.Add(node);
                                     }
-
                                     db.SaveChanges();
                                 }
                             }
@@ -110,13 +113,11 @@ namespace csmon.Models.Services
             var net = Network.GetById(network);
             using (var db = ApiFab.GetDbContext())
             {
-                var result = new NodesData
-                {
-                    Nodes = db.Nodes.Where(n => (n.Network == network) &&
+                var nodes = db.Nodes.Where(n => (n.Network == network) &&
                             (net.RandomNodes || (n.ModifyTime.AddMinutes(LiveTimeMinutes) >= DateTime.Now)))
                         .OrderBy(n => n.ModifyTime)
-                        .Take(1000).ToList()
-                };
+                        .Take(1000).ToList();
+                var result = new NodesData { Nodes = nodes };
                 return result;
             }
         }
