@@ -1,6 +1,5 @@
 ﻿@section head
 {
-
     <style>
         #map {
             width: 100%;
@@ -10,9 +9,13 @@
         .num_nodes_bold {
             font-weight: bold;
         }
-         
-        .gm-style-pbc{
-            background: transparent!important;
+
+        .gm-style-pbc {
+            background: transparent !important;
+        }
+
+        td img {
+            width: 16px;
         }
     </style>
 }
@@ -20,14 +23,14 @@
 @section script
 {
     <script>
-        var nodesData = @Html.Raw(Json.Serialize(Model));
+
         const numPerPage = 15;
 
         var vm = new Vue({
             el: "#app",
             data: {
                 net: M_NET,
-                nodesData: nodesData,
+                allNodes: [],
                 page: 1,
                 haveNextPage: false,
                 lastPage: 1,
@@ -35,15 +38,22 @@
             },
             methods: {
                 getNodes: function (p) {
-                    this.lastPage = Math.ceil(this.nodesData.nodes.length / numPerPage);
-                    this.nodes = this.nodesData.nodes.slice(numPerPage * (p - 1), numPerPage * p);
+                    this.lastPage = Math.ceil(this.allNodes.length / numPerPage);
+                    this.nodes = this.allNodes.slice(numPerPage * (p - 1), numPerPage * p);
                     this.page = p;
-                    this.haveNextPage = this.nodesData.nodes.length > (numPerPage * p);
+                    this.haveNextPage = this.allNodes.length > (numPerPage * p);
                 },
                 getData: function () {
                     $.get(`${M_API}/GetNodesData`)
-                        .done(function(data) {
-                            vm.nodesData = data;
+                        .done(function (data) {
+                            let nodes = [];
+                            for (let i = 0; i < data.nodes.length; i++) {
+                                let node = data.nodes[i];
+                                let n = node.size > 0 ? node.size : 1;
+                                for (let k = 0; k < n; k++)
+                                    nodes.push(node);
+                            }
+                            vm.allNodes = nodes;
                             vm.getNodes(vm.page);
                             //initMap();
                         });
@@ -63,7 +73,7 @@
 
 
             // ReSharper disable once UnusedParameter
-            const markers = vm.nodesData.nodes.map(function (location, i) {
+            const markers = vm.allNodes.map(function (location, i) {
                 const contentString = `${location.ip}<table>
                                             <tr>
                                                 <th>Version:</th>
@@ -116,27 +126,23 @@
     </script>
 
     @*<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB86wLJLpWIilKtb4olAjfUT9HV35J5Tt0&callback=initMap&language=en"></script>*@
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB86wLJLpWIilKtb4olAjfUT9HV35J5Tt0&callback=initMap&language=en"></script>*@
 
 }
 
 
-<h1 class="main_title padding_top_50 p_bot20">Credits Network Nodes</h1>
-<div class="subtitle_line">
-    <span class="suttext p_bot20">All working nodes in the network</span>
-</div>
+<h4 class="my-3">Credits Network Nodes</h4>
+<h6 class="my-2">All working nodes in the network</h6>
+
 @*<div id="map"></div>*@
-<div class="subtitle_line">
-    <span class="suttext p_bot20">Number of nodes: {{nodesData.nodes.length}}</span>
-    <pager :page="page" :getfn="getNodes" :next="haveNextPage" :last="lastPage"></pager>
-</div>
-<div class="container_table tabler mb-20">
-    <table class="table_info_trans">
-        <thead>
+
+<div class="mt-4">Number of nodes: {{allNodes.length}}</div>
+<pb :page="page" :getfn="getNodes" :next="haveNextPage" :last="lastPage"></pb>
+<div class="table-responsive">
+    <table class="table table-sm table-striped border-bottom border-primary table_info_trans">
+        <thead class="thead-light">
             <tr>
                 <th>IP</th>
-                @*
-                <th>City</th>*@
                 <th>Country</th>
                 <th>Version</th>
                 <th>Platform</th>
@@ -144,19 +150,14 @@
         </thead>
         <tbody>
             <tr v-for="item in nodes">
-                @*
-                <td><a :href="net + '/tools/node/' + item.ip">{{item.ip}}</a></td>*@
                 <td>{{item.ipCut}}</td>
-                @*
-                <td>{{item.city}}</td>*@
                 <td><img :src="'https://www.countryflags.io/'+item.country+'/shiny/32.png'" alt=""> {{item.country_name}}</td>
                 <td>v{{item.version}}</td>
-                <td><img src="/img/Windows.png" alt="win"> Windows</td>
+                <td v-if="item.platform=='0'"><img src="/img/Linux.png" alt=""> Linux</td>
+                <td v-else><img src="/img/Windows.png" alt=""> Windows</td>
             </tr>
         </tbody>
     </table>
 </div>
-<div class="padding_bottom_70">
-    <pager :page="page" :getfn="getNodes" :next="haveNextPage" :last="lastPage"></pager>
-</div>
+<pb :page="page" :getfn="getNodes" :next="haveNextPage" :last="lastPage"></pb>
 
