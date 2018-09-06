@@ -17,12 +17,6 @@ namespace csmon.Controllers
 
         public IActionResult Nodes()
         {            
-            return View(new NodesData());
-        }
-
-        public IActionResult Node(string id)
-        {
-            ViewData["id"] = id;
             return View();
         }
 

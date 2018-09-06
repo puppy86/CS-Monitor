@@ -28,20 +28,19 @@ namespace csmon.Controllers
         {
             ViewData["blockId"] = id;
             ViewData["page"] = page;
-            return View(new TransactionsData());
+            return View();
         }
 
         public IActionResult Account(string id)
         {
             ViewData["accId"] = id;
-            ViewData["accIdEnc"] = WebUtility.UrlEncode(id);
             return View();
         }
 
         public IActionResult Transaction(string id)
         {
             ViewData["id"] = id;
-            return View(new TransactionInfo());
+            return View();
         }
 
         public IActionResult Ledgers(int id = 1)
@@ -95,12 +94,6 @@ namespace csmon.Controllers
             return View();
         }
 
-        [HttpPost]
-        public IActionResult SelectNetwork(string network)
-        {
-            return RedirectToAction(nameof(Index), new {network});
-        }
-
         public IActionResult Contracts(int id = 1)
         {
             ViewData["page"] = id;
@@ -110,7 +103,7 @@ namespace csmon.Controllers
         public IActionResult Contract(string id)
         {
             ViewData["id"] = id;
-            return View(new ContractInfo());
+            return View();
         }
     }
 }
