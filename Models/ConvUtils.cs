@@ -89,7 +89,7 @@ namespace csmon.Models
             return $"{value.Integral}.{fraction.TrimEnd('0')}";
         }
 
-        public static string FormatAmount(TestApi2.Amount value)
+        public static string FormatAmount(Release.Amount value)
         {
             if (value.Fraction == 0) return $"{value.Integral}.0";
 
@@ -106,8 +106,9 @@ namespace csmon.Models
 
             var sb = new StringBuilder();
             const int ident = 4;
-            var level = 0;
-            var newl = true;
+            #pragma warning disable 219
+            int level = 0, line = 1;
+            var newl = false;
             foreach (var c in code)
             {
                 if (c == '{')

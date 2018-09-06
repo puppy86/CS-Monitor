@@ -82,11 +82,11 @@ namespace csmon.Models
             Period = stat.PeriodDuration;
         }
 
-        public PeriodData(TestApi2.PeriodStats stat)
+        public PeriodData(Release.PeriodStats stat)
         {
             AllLedgers = new StatItem(stat.PoolsCount);
             AllTransactions = new StatItem(stat.TransactionsCount);
-            CSVolume = new StatItem(stat.BalancePerCurrency.Integral);
+            CSVolume = new StatItem(stat.BalancePerCurrency[1].Integral);
             SmartContracts = new StatItem(stat.SmartContractsCount);
             Period = stat.PeriodDuration;
         }
@@ -138,7 +138,7 @@ namespace csmon.Models
             Number = pool.PoolNumber;
         }
 
-        public PoolInfo(TestApi2.Pool pool)
+        public PoolInfo(Release.Pool pool)
         {
             Time = ConvUtils.UnixTimeStampToDateTime(pool.Time);
             Hash = ConvUtils.ConvertHash(pool.Hash);
@@ -204,7 +204,7 @@ namespace csmon.Models
             SmartContractHashState = tr.SmartContract.HashState;
         }
 
-        public TransactionInfo(int idx, TestApi2.TransactionId id, TestApi2.Transaction tr)
+        public TransactionInfo(int idx, Release.TransactionId id, Release.Transaction tr)
         {
             Index = idx;
             if (id != null)
@@ -311,7 +311,7 @@ namespace csmon.Models
             Deployer = Base58Encoding.Encode(sc.Deployer);
         }
 
-        public ContractInfo(TestApi2.SmartContract sc)
+        public ContractInfo(Release.SmartContract sc)
         {
             Address = Base58Encoding.Encode(sc.Address);
             SourceCode = ConvUtils.FormatSrc(sc.SourceCode);
