@@ -248,8 +248,8 @@ namespace csmon.Models.Services
                             }
                         }
                     }
-                else if (tpState.Net.Api.EndsWith("/TestApi2"))
-                    using (var client = ApiFab.CreateTestApi2(tpState.Net.Ip))
+                else if (tpState.Net.Api.EndsWith("/ReleaseApi"))
+                    using (var client = ApiFab.CreateReleaseApi(tpState.Net.Ip))
                     {
                         // Service available
                         if (tpState.Net.Updating) tpState.Net.Updating = false;
@@ -295,11 +295,11 @@ namespace csmon.Models.Services
             catch (Thrift.Transport.TTransportException e)
             {
                 tpState.Net.Updating = true;
-                _logger.LogError(e, "TTransportException in TpsSource.OnCacheTimer");
+                _logger.LogError(e, "");
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Exception in TpsSource.OnCacheTimer");
+                _logger.LogError(e, "");
             }
             tpState.TimerForCache.Change(Period, 0);
         }
@@ -371,7 +371,7 @@ namespace csmon.Models.Services
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Exception in TpsSource.OnDataTimer");
+                _logger.LogError(e, "");
             }
             tpState.TimerForData.Change(Period, 0);
         }
