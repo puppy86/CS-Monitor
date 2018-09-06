@@ -28,6 +28,7 @@ namespace ServerApi
     private string _version;
     private string _hash;
     private string _publicKey;
+    private string _platform;
 
     public string Ip
     {
@@ -94,6 +95,19 @@ namespace ServerApi
       }
     }
 
+    public string Platform
+    {
+      get
+      {
+        return _platform;
+      }
+      set
+      {
+        __isset.platform = true;
+        this._platform = value;
+      }
+    }
+
 
     public Isset __isset;
     #if !SILVERLIGHT
@@ -105,6 +119,7 @@ namespace ServerApi
       public bool version;
       public bool hash;
       public bool publicKey;
+      public bool platform;
     }
 
     public ServerNode() {
@@ -156,6 +171,13 @@ namespace ServerApi
             case 5:
               if (field.Type == TType.String) {
                 PublicKey = iprot.ReadString();
+              } else { 
+                TProtocolUtil.Skip(iprot, field.Type);
+              }
+              break;
+            case 6:
+              if (field.Type == TType.String) {
+                Platform = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -221,6 +243,14 @@ namespace ServerApi
           oprot.WriteString(PublicKey);
           oprot.WriteFieldEnd();
         }
+        if (Platform != null && __isset.platform) {
+          field.Name = "platform";
+          field.Type = TType.String;
+          field.ID = 6;
+          oprot.WriteFieldBegin(field);
+          oprot.WriteString(Platform);
+          oprot.WriteFieldEnd();
+        }
         oprot.WriteFieldStop();
         oprot.WriteStructEnd();
       }
@@ -262,6 +292,12 @@ namespace ServerApi
         __first = false;
         __sb.Append("PublicKey: ");
         __sb.Append(PublicKey);
+      }
+      if (Platform != null && __isset.platform) {
+        if(!__first) { __sb.Append(", "); }
+        __first = false;
+        __sb.Append("Platform: ");
+        __sb.Append(Platform);
       }
       __sb.Append(")");
       return __sb.ToString();
