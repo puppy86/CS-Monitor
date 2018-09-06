@@ -1,6 +1,6 @@
 ﻿
 @section script
-{
+    {
     <script>
         var vm = new Vue({
             el: "#app",
@@ -31,35 +31,37 @@
     </script>
 }
 
-<h1 class="main_title padding_top_50 p_bot20">Smart contracts</h1>
-<div class="subtitle_line">
-    <span class="suttext p_bot20">Recent smart contracts processed in the network</span>
+<div class="row justify-content-center" v-show="loading">
+    <div class="col-auto">
+        <h6>Loading...</h6>
+        <div class="progress mt-1">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
 </div>
-<div class="subtitle_line">
-    <span class="suttext p_bot20">Contracts {{contractsData.numStr}}</span>
-    <pager :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" ></pager>
-</div>
-<div class="container_table tabler mb-20">
-    <table class="table_info_trans">
-        <thead>
+<div v-show="!loading">
+    <h4 class="my-3">Smart contracts</h4>
+    <div class="mt-4">Contracts {{contractsData.numStr}}</div>
+    <pb :page="page" :getfn="getContracts" :next="contractsData.haveNextPage"></pb>
+    <div class="table-responsive">
+        <table class="table table-sm table-striped border-bottom border-primary table_info_trans">
+            <thead class="thead-light">
             <tr>
                 <th>№</th>
-                <th>Address</th>
-                <th></th>
-                <th></th>
+                <th>Address</th>                                
+                <th> </th>
+                <th> </th>
             </tr>
-        </thead>
-        <tbody>
-            <tr v-for="item in contractsData.contracts">
-                <td>{{item.index}}</td>
-                <td class="hash"><a :href="net + '/monitor/contract/' + item.address">{{item.address}}</a></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-<div class="loader" v-show="loading"></div>
-<div class="padding_bottom_70">
-    <pager :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" ></pager>
+            </thead>
+            <tbody>
+                <tr v-for="item in contractsData.contracts">
+                    <td>{{item.index}}</td>
+                    <td class="hash"><a :href="net + '/monitor/contract/' + item.address">{{item.address}}</a></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <pb :page="page" :getfn="getContracts" :next="contractsData.haveNextPage"></pb>
 </div>

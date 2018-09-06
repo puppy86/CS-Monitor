@@ -2,14 +2,12 @@
 @section script
 {
     <script>
-        var poolData = @Html.Raw(Json.Serialize(Model));
-
         var vm = new Vue({
             el: "#app",
             data: {
                 net: M_NET,
                 blockId: "@ViewData["blockId"]",
-                pool: poolData.info,
+                pool: {},
                 page: @ViewData["page"],
                 transData: {},
                 loading: false,
@@ -50,29 +48,27 @@
     </script>
 }
 
-<div v-show="loading" class="padding_top_60 p_bot20">
-    <div class="loader"></div>
-</div>
-<div v-show="!found">
-    <h1 class="main_title padding_top_60 p_bot20">Block not found</h1>
-    <div class="subtitle_line">
-        <span class="suttext p_bot20">{{blockId}}</span>
+<div class="row justify-content-center" v-show="loading">
+    <div class="col-auto">
+        <h6>Loading block info...</h6>
+        <div class="progress mt-1">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
     </div>
+</div>
+
+<div v-show="!found">
+    <h4 class="main_title padding_top_60 p_bot20">Block not found: {{blockId}}</h4>
 </div>
 <div v-show="found && !loading">
-    <h1 class="main_title padding_top_60 p_bot20">Block of transactions</h1>
-    <div class="subtitle_line">
-        <span class="suttext p_bot20">The information about transactions in the block</span>
-    </div>
-</div>
-<div v-show="found && !loading" class="padding_top_10">
-    <div class="whitepanel">
-        <div class="block_stat grey_line_bottom">
-            <div class="type">
-                <div class="active">Information</div>
-            </div>
-        </div>       
-        <table>
+    <h4 class="main_title padding_top_60 p_bot20">Block #{{pool.number}}</h4>
+    <ul class="nav nav-tabs mt-3">
+        <li class="nav-item">
+            <a class="nav-link active text-info">Block Info</a>
+        </li>
+    </ul>
+    <div class="tab-content table-responsive">
+        <table class="table table-sm border-bottom ">
             <thead>
             <tr></tr>
             </thead>
@@ -87,7 +83,7 @@
             </tr>
             <tr>
                 <td>Status:</td>
-                <td class="success">Success</td>
+                <td class="text-success">Success</td>
             </tr>
             <tr>
                 <td>Time stamp:</td>
@@ -100,17 +96,19 @@
             </tbody>
         </table>
     </div>
-</div>
 
-<div v-show="found && !loading">
-    <h2 class="main_title padding_top_60 p_bot20">List of transactions</h2>
-    <div class="subtitle_line">
-        <span class="suttext p_bot20">Transactions {{transData.numStr}}</span>
-        <pager :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pager>
-    </div>
+    <h4 class="my-3">List of transactions</h4>
+    <div class="mt-4">Transactions {{transData.numStr}}</div>
+    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pb>
+
     <transactions :network="net" :source="transData.transactions"></transactions>
-    <div class="loader" v-show="loading_t"></div>
-    <div class="padding_bottom_60">
-        <pager :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pager>
+
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <div class="progress mt-1" v-show="loading_t">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
     </div>
+    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pb>
 </div>
