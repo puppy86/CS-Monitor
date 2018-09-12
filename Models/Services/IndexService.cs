@@ -52,8 +52,7 @@ namespace csmon.Models.Services
         private const int Period = 1000;
         private const int SizeIn = 300;
         private const int SizeOut = 100;
-        public const int SizeOutAll = 100000;
-        private const int TpsInterval = 10;
+        public const int SizeOutAll = 100000;        
         private readonly Dictionary<string, IndexServiceState> _states = new Dictionary<string, IndexServiceState>();
 
         public IndexService(ILogger<IndexService> logger)
@@ -198,13 +197,11 @@ namespace csmon.Models.Services
                             var stats = client.StatsGet();
                             if (stats != null && stats.Stats.Count >= 4)
                             {
+
                                 var statsSorted = stats.Stats.OrderBy(s => s.PeriodDuration).ToList();
                                 var statData = new StatData();
                                 for (var i = 0; i < 4; i++)
                                     statData.Pdata[i] = new PeriodData(statsSorted[i]);
-                                // Smart contracts count = n
-                                using (var db = ApiFab.GetDbContext())
-                                    statData.Correct(db.Smarts.Count(s => s.Network == tpState.Net.Id));
                                 tpState.StatData = statData;
                             }
                         }
@@ -287,7 +284,7 @@ namespace csmon.Models.Services
                             }
                         }
                     }
-                if (tpState.StatRequestCounter < (120000 / Period))
+                if (tpState.StatRequestCounter < Settings.UpdStatsPeriodSec*1000 / Period)
                     tpState.StatRequestCounter++;
                 else
                     tpState.StatRequestCounter = 0;
@@ -345,11 +342,11 @@ namespace csmon.Models.Services
                 var lastPoolInfos = tpState.PoolsOut.Take(SizeOut).ToList();
 
                 // Calculate TPS point
-                if ((int)(curTime - curTime.Date).TotalSeconds % TpsInterval == 0)
+                if ((int)(curTime - curTime.Date).TotalSeconds % Settings.TpsIntervalSec == 0)
                 {
                     while (tpState.Points.Count >= 100) tpState.Points.TryDequeue(out _);
-                    var txCount = lastPoolInfos.Where(p => p.Time > curTime.AddSeconds(-TpsInterval)).Sum(p => p.TxCount);
-                    tpState.Points.Enqueue(new Point { X = curTime, Y = txCount / TpsInterval });
+                    var txCount = lastPoolInfos.Where(p => p.Time > curTime.AddSeconds(-Settings.TpsIntervalSec)).Sum(p => p.TxCount);
+                    tpState.Points.Enqueue(new Point { X = curTime, Y = txCount / Settings.TpsIntervalSec });
                 }
 
                 // Prepare data for main page

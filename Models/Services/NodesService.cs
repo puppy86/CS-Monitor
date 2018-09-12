@@ -30,7 +30,7 @@ namespace csmon.Models.Services
     {        
         private readonly ILogger _logger;
         public const int LiveTimeMinutes = 3;
-        private const int Period = 1000*60;
+        private readonly int _period = Settings.UpdNodesPeriodSec * 1000;
         private Timer _timer;
 
         public NodesService(ILogger<NodesService> logger)
@@ -40,7 +40,7 @@ namespace csmon.Models.Services
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _timer = new Timer(OnTimer, null, Period, 0);
+            _timer = new Timer(OnTimer, null, _period, 0);
             return Task.CompletedTask;
         }
 
@@ -52,6 +52,8 @@ namespace csmon.Models.Services
                 {
                     try
                     {
+                        if(string.IsNullOrEmpty(network.SignalIp)) break;
+
                         using (var client = ApiFab.CreateSignalApi(network.SignalIp))
                         {
                             var result = client.GetActiveNodes();
@@ -88,6 +90,7 @@ namespace csmon.Models.Services
                                 }
                             }
                         }
+
                         break;
                     }
                     catch (Exception e)
@@ -98,7 +101,7 @@ namespace csmon.Models.Services
                 }
             }
 
-            _timer.Change(Period, 0);
+            _timer.Change(_period, 0);
         }
 
         public static async Task<string> GetAsync(Uri uri)
@@ -113,8 +116,9 @@ namespace csmon.Models.Services
             var net = Network.GetById(network);
             using (var db = ApiFab.GetDbContext())
             {
-                var nodes = db.Nodes.Where(n => (n.Network == network) &&
-                            (net.RandomNodes || (n.ModifyTime.AddMinutes(LiveTimeMinutes) >= DateTime.Now)))
+                var now = DateTime.Now;
+                var nodes = db.Nodes.Where(n => n.Network == network &&
+                            (net.RandomNodes || n.ModifyTime.AddSeconds(Settings.NodesLivePeriodSec) >= now))
                         .OrderBy(n => n.ModifyTime)
                         .Take(1000).ToList();
                 var result = new NodesData { Nodes = nodes };
