@@ -154,6 +154,7 @@
                 <td><img :src="'https://www.countryflags.io/'+item.country+'/shiny/32.png'" alt=""> {{item.country_name}}</td>
                 <td>v{{item.version}}</td>
                 <td v-if="item.platform=='0'"><img src="/img/Linux.png" alt=""> Linux</td>
+                <td v-else-if="item.platform=='1'"><img src="/img/macos.png" alt=""> Mac OS</td>
                 <td v-else><img src="/img/Windows.png" alt=""> Windows</td>
             </tr>
         </tbody>

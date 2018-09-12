@@ -105,23 +105,8 @@
     <header class="fixed-top mw1000" >
         <nav class="navbar navbar-light bg-light">       
             <ul class="nav ml-auto">
-                <li class="nav-item topnav d-none d-sm-block">
-                    <a href="https://support.credits.com" target="_blank">Support</a>
-                </li>
-                <li class="nav-item topnav d-none d-sm-block">
-                    <a href="https://support.credits.com/en/Home/Contacts" target="_blank">Contacts</a>
-                </li>
                 <li class="nav-item topnav dropdown">
                     <strong>Network: </strong>
-                    @*<a class="dropdown-toggle" href="#" id="netDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        @networkObj.Title
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="netDropdown">
-                        @foreach (var n in Network.Networks)
-                        {
-                            <a class="dropdown-item" href="~/@n.Id/monitor/index">@n.Title</a>
-                        }
-                    </div>*@
                     <div class="btn-group">
                         <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle py-0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             @networkObj.Title
@@ -147,19 +132,20 @@
                         <a class="nav-link" href="~/@network/monitor/index">Home</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="https://credits.com/en/Home/Contacts" target="_blank">Contacts</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="https://wallet.credits.com" target="_blank">Wallet</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="~/@network/monitor/ledgers">Blocks</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="~/@network/monitor/contracts">Smart contracts</a>
                     </li>
                     <li class="nav-item dropdown d-none d-md-block">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Tools
                         </a>
                         <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item " href="~/@network/monitor/contracts">Smart contracts</a>
                             <a class="dropdown-item " href="~/@network/tools/nodes">Network nodes</a>
                             <a class="dropdown-item " href="~/@network/tools/tps">Transactions per second</a>
                         </div>
@@ -199,10 +185,7 @@
                                 <a class="nav-link" href="https://wallet.credits.com" target="_blank">Wallet</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="https://support.credits.com" target="_blank">Support</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="https://support.credits.com/en/Home/Contacts" target="_blank">Contacts</a>
+                                <a class="nav-link" href="https://credits.com/en/Home/Contacts" target="_blank">Contacts</a>
                             </li>
                         </ul>
                     </div>
