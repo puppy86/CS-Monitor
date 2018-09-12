@@ -5,14 +5,27 @@ using System.Linq;
 
 namespace csmon.Models.Db
 {
-// ReSharper disableInconsistentNaming
-
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Global
     public class Node
     {
         [Key]
         [MaxLength(50)]
         public string Ip { get; set; }
-        [NotMapped] public string IpCut => string.Join('.', Ip.Split('.').Take(2)) + ".*.*";
+        [NotMapped]
+        public string IpCut
+        {
+            get
+            {
+                if (!Ip.Contains(":"))
+                    return string.Join('.', Ip.Split('.').Take(2)) + ".*.*";
+
+                // Ipv6
+                var split = Ip.Split(':');
+                var take = split.Length > 2 ? split.Length - 2 : split.Length;
+                return string.Join(':', split.Take(take)) + ":*:*";
+            }
+        }
         public string Network { get; set; }
         public float Latitude { get; set; }
         public float Longitude { get; set; }
