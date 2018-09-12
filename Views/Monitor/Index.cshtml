@@ -73,10 +73,20 @@
                     res += hoursLeft !== 0 || daysLeft !== 0 ? hoursLeft + "h " : "";
                     res += minsLeft + "m " + secLeft + "s";
                     return res;
-                }
+                },
+                getStats: function () {
+                    $.get(`${M_API}/GetStatData`)
+                        .done(function (data) {
+                            vm.stats = data;
+                        })
+                        .always(function () {
+                            setTimeout(vm.getStats, 10000);
+                        });
+                },
             },
             created: function() {
                 this.getData();
+                setTimeout(this.getStats, 10000);
             }
         });
     </script>
@@ -128,7 +138,7 @@
                         <th>Txs count</th>
                         <th>All blocks</th>
                         <th>Volume</th>
-                        <th>Smart contracts</th>
+                        <th>Txs on smart contracts</th>
                     </tr>
                 </thead>
                 <tbody>
