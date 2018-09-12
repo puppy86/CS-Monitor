@@ -5,7 +5,6 @@ using csmon.Models.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +20,8 @@ namespace csmon
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            ConvUtils.AllowNegativeTime = bool.Parse(Configuration["AllowNegativeTime"]);
+            Settings.Parse(Configuration);
+
             foreach (var netSection in Configuration.GetSection("Networks").GetChildren())
                 Network.Networks.Add(new Network()
                 {
