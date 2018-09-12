@@ -6,8 +6,6 @@ namespace csmon.Models
 {
     public static class ConvUtils
     {
-        public static bool AllowNegativeTime;
-
         public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
         {
             var dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
@@ -24,7 +22,7 @@ namespace csmon.Models
 
         public static string AgeStr(TimeSpan span)
         {
-            if (!AllowNegativeTime && span < TimeSpan.Zero) span = TimeSpan.Zero;
+            if (!Settings.AllowNegativeTime && span < TimeSpan.Zero) span = TimeSpan.Zero;
             var res = span.Days != 0 ? span.Days + "d " : "";
             res += span.Hours != 0 || span.Days != 0 ? span.Hours + "h " : "";
             res += span.Minutes + "m " + span.Seconds + "s";

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using csmon.Models.Db;
+﻿using csmon.Models.Db;
 using Microsoft.EntityFrameworkCore;
 using Thrift.Protocol;
 using Thrift.Transport;
@@ -40,7 +36,7 @@ namespace csmon.Models
 
         public static ServerApi.API.Client CreateSignalApi(string addr)
         {
-            TTransport transport = new TSocket(addr, 8080, 20000);
+            TTransport transport = new TSocket(addr, Settings.SignalPort, 20000);
             TProtocol protocol = new TBinaryProtocol(transport);
             var client = new ServerApi.API.Client(protocol);
             transport.Open();

@@ -86,7 +86,8 @@ namespace csmon.Models
         {
             AllLedgers = new StatItem(stat.PoolsCount);
             AllTransactions = new StatItem(stat.TransactionsCount);
-            CSVolume = new StatItem(stat.BalancePerCurrency[1].Integral);
+            if(stat.BalancePerCurrency.ContainsKey(1))
+                CSVolume = new StatItem(stat.BalancePerCurrency[1].Integral);
             SmartContracts = new StatItem(stat.SmartContractsCount);
             Period = stat.PeriodDuration;
         }
