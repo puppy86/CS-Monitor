@@ -1,63 +1,78 @@
 ﻿@section head
-{	
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.7.2/dist/Chart.bundle.min.js"></script>
+{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.7.2/dist/Chart.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.6.5/chartjs-plugin-zoom.min.js"></script>
 }
 
 @section script
-{
+    {
     <script>
-        function UpdChart() {
-                $.get(`${M_API}/GetTpsData`)
-                    .done(function(model) {
-
-                        $('#txt').text(`Points count: ${model.points.length}`);
-
-                        var chart = new Chart($("#chart"),
+        var chart = new Chart($("#chart"),
+            {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Transactions per second',
+                            data: [],
+                            backgroundColor: [
+                                'rgba(32, 96, 196, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(32, 96, 196, 1)'
+                            ],
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        xAxes: [
                             {
-                                type: 'line',
-                                data: {
-                                    datasets: [
-                                        {
-                                            label: 'Transactions per second',
-                                            data: model.points,
-                                            backgroundColor: [
-                                                'rgba(32, 96, 196, 0.2)'
-                                            ],
-                                            borderColor: [
-                                                'rgba(32, 96, 196, 1)'
-                                            ],
-                                            borderWidth: 1
-                                        }
-                                    ]
+                                type: 'time',
+                                time: {
+                                    unit: 'second'
                                 },
-                                options: {
-                                    scales: {
-                                        xAxes: [
-                                            {
-                                                type: 'time',
-                                                time: {
-                                                    unit: 'second'
-                                                },
-                                                distribution: 'linear'
-                                            }
-                                        ]
-                                    },
-                                    elements: {
-                                        line: {
-                                            tension: 0
-                                        }
-                                    },
-                                    animation: {
-                                        duration: 0
-                                    },
-                                    hover: {
-                                        animationDuration: 0
-                                    },
-                                    responsiveAnimationDuration: 0
-                                }
-                            });
+                                distribution: 'linear'
+                            }
+                        ]
+                    },
+                    elements: {
+                        line: {
+                            tension: 0
+                        }
+                    },
+                    animation: {
+                        duration: 0
+                    },
+                    hover: {
+                        animationDuration: 0
+                    },
+                    responsiveAnimationDuration: 0,
+                    pan: {
+                        enabled: true,
+                        mode: 'xy'
+                    },
+                    zoom: {
+                        enabled: true,
+                        mode: 'xy',
+                        limits: {
+                            max: 10,
+                            min: 0.5
+                        }
+                    }
+                }
+            });
 
-                    });
+        function UpdChart() {
+            $.get(`${M_API}/GetTpsData`)
+                .done(function (model) {
+
+                    $('#txt').text(`Points count: ${model.points.length}`);
+
+                    chart.data.datasets[0].data = model.points;
+                    chart.update();
+                });
         }
 
         UpdChart();
@@ -67,6 +82,13 @@
 
 
 <h4 class="my-3">Transactions per second</h4>
-
-<canvas id="chart" width="800" height="400"></canvas>
-
+<div id="txt" class="mt-4"></div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <canvas id="chart" width="800" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+</div>  
