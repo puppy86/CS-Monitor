@@ -40,6 +40,11 @@ namespace csmon.Controllers
             };
         }
 
+        public StatData GetStatData()
+        {
+            return _indexService.GetStatData(Net);
+        }
+
         public LedgersData Ledgers(int id)
         {
             const int limit = 100;
