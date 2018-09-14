@@ -30,7 +30,7 @@
             },
             computed: {
                 animatedLastBlock: function() {
-                    return this.lastBlock.toFixed(0);
+                    return this.lastBlock > 0 ? this.lastBlock.toFixed(0) : 0;
                 }
             },
             methods: {
