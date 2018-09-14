@@ -260,14 +260,18 @@ namespace csmon.Models.Services
                         else
                         {
                             var result = client.PoolListGet(0, 20);
+
+                            var firstPoolNum = tpState.PoolsIn.Any()
+                                ? tpState.PoolsIn[0].Number
+                                : tpState.PoolsOut[0].Number;
+
+                            var newPools = result.Pools
+                                .Where(p => p.PoolNumber > 0)
+                                .TakeWhile(p => p.PoolNumber > firstPoolNum || p.PoolNumber < firstPoolNum - 1000)
+                                .Select(p => new PoolInfo(p)).ToList();
+
                             lock (tpState.PoolsLock)
-                            {
-                                var firstPoolNum = tpState.PoolsIn.Any()
-                                    ? tpState.PoolsIn[0].Number
-                                    : tpState.PoolsOut[0].Number;
-                                var nPools = result.Pools.Where(p => p.PoolNumber > 0).TakeWhile(p => (p.PoolNumber > firstPoolNum) || (p.PoolNumber < firstPoolNum - 1000)).Select(p => new PoolInfo(p)).ToList();
-                                tpState.PoolsIn = nPools.Concat(tpState.PoolsIn).ToList();
-                            }
+                                tpState.PoolsIn = newPools.Concat(tpState.PoolsIn).ToList();
                         }
 
                         // Request stats
