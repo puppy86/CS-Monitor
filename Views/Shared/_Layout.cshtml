@@ -98,12 +98,12 @@
         <!-- /Yandex.Metrika counter (noscript)-->
     </environment>
     <map name="image-map">
-        <area target="_blank" alt="Credits.com" title="Credits.com" href="https://credits.com" coords="1,1,165,42" shape="rect">
+        <area target="" alt="Credits.com" title="Credits.com" href="~/@network/monitor/index" coords="1,1,165,42" shape="rect">
         <area target="" alt="Home" title="Home" href="~/@network/monitor/index" coords="165,1,297,42" shape="rect">
     </map>
-    
-    <header class="fixed-top mw1000" >
-        <nav class="navbar navbar-light bg-light">       
+
+    <header class="fixed-top">
+        <nav class="navbar navbar-light bg-light mw1000">
             <ul class="nav ml-auto">
                 <li class="nav-item dropdown">
                     <strong>Network: </strong>
@@ -121,46 +121,48 @@
                 </li>
             </ul>
         </nav>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-shadow rounded">
-            <img src="/img/logo.png" usemap="#image-map" alt=""/>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div id="navbarSupportedContent" class="collapse navbar-collapse">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="~/@network/monitor/index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://credits.com/en/Home/Contacts" target="_blank">Contacts</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://wallet.credits.com" target="_blank">Wallet</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="~/@network/monitor/ledgers">Blocks</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="~/@network/monitor/contracts">Smart contracts</a>
-                    </li>
-                    <li class="nav-item dropdown d-none d-lg-block">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Tools
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown">                            
-                            <a class="dropdown-item " href="~/@network/tools/nodes">Network nodes</a>
-                            <a class="dropdown-item " href="~/@network/tools/tps">Transactions per second</a>
-                        </div>
-                    </li>
-                    <li class="nav-item d-lg-none">
-                        <a class="nav-link" href="~/@network/tools/nodes">Network nodes</a>
-                    </li>
-                    <li class="nav-item d-lg-none">
-                        <a class="nav-link" href="~/@network/tools/tps">Transactions per second</a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+        <div class="bg-dark navbar-shadow">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark mw1000">
+                <img src="/img/logo.png" usemap="#image-map" alt="" />
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div id="navbarSupportedContent" class="collapse navbar-collapse">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="~/@network/monitor/index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://credits.com/en/Home/Contacts" target="_blank">Contacts</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://wallet.credits.com" target="_blank">Wallet</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="~/@network/monitor/ledgers">Blocks</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="~/@network/monitor/contracts">Smart contracts</a>
+                        </li>
+                        <li class="nav-item dropdown d-none d-lg-block">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Tools
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item " href="~/@network/tools/nodes">Network nodes</a>
+                                <a class="dropdown-item " href="~/@network/tools/tps">Transactions per second</a>
+                            </div>
+                        </li>
+                        <li class="nav-item d-lg-none">
+                            <a class="nav-link" href="~/@network/tools/nodes">Network nodes</a>
+                        </li>
+                        <li class="nav-item d-lg-none">
+                            <a class="nav-link" href="~/@network/tools/tps">Transactions per second</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
     </header>
     <main class="container content mw1000">
         @if (networkObj.Updating)
@@ -174,8 +176,8 @@
             </div>
         }
     </main>
-    <footer class="mw1000 mt-5">
-        <div class="navbar-dark bg-dark rounded p-3">
+    <footer class="mt-5 bg-dark">
+        <div class="navbar-dark bg-dark p-3 mw1000">
             <div class="container">
                 <div class="row">
                     <div class="col-12 col-md-2">
@@ -210,15 +212,14 @@
                 </div>
             </div>
         </div>
-        <div class="container py-3 bg-light">
-            <div class="row">
-                <div class="col-auto">
-                    <p>&copy; 2018 copyright. Supported by CREDITS.COM</p>
-                </div>
+    </footer>
+    <div class="container py-3 mw1000">
+        <div class="row">
+            <div class="col-auto">
+                <p>&copy; 2018 copyright. Supported by CREDITS.COM</p>
             </div>
         </div>
-    </footer>
-
+    </div>
     <script>
         const M_API = "@m_api";
         const M_NET = "/@network";
