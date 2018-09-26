@@ -10,7 +10,7 @@ using NodeApi;
 
 namespace csmon.Controllers
 {
-    // Api for serving ajax requests from site pages
+    // Api for serving ajax requests from site pages (MainNet version)
     public class ApiController : Controller
     {
         private readonly IIndexService _indexService;
@@ -105,6 +105,7 @@ namespace csmon.Controllers
                 // Calculate last page
                 var lastPage = ConvUtils.GetNumPages(txcount, numPerPage);
                 if (page > lastPage) page = lastPage;
+                
                 // Prepare result
                 var result = new TransactionsData
                 {
@@ -112,10 +113,12 @@ namespace csmon.Controllers
                     LastPage = lastPage,
                     HaveNextPage = page < lastPage
                 };
+
                 // Get the list of transactions from API
                 var offset = numPerPage * (page - 1);
                 var poolTr = client.PoolTransactionsGet(ConvUtils.ConvertHashBackAscii(hash), 0, offset, numPerPage);
                 var i = offset + 1;
+
                 // Fill result with transactions
                 foreach (var t in poolTr.Transactions)
                 {
@@ -123,6 +126,7 @@ namespace csmon.Controllers
                     result.Transactions.Add(tInfo);
                     i++;
                 }
+
                 // Make label that above transactions table, it's simlier to make it here, and return the result
                 result.NumStr = poolTr.Transactions.Any() ? $"{offset + 1} - {offset+ poolTr.Transactions.Count} of {txcount}" : "0";
                 return result;
@@ -147,13 +151,17 @@ namespace csmon.Controllers
                 // Make some id transformations for API
                 var ids = id.Split('.');
                 var trId = $"{ids[0]}:{int.Parse(ids[1]) - 1}";
+                
                 // Get data from API
                 var tr = client.TransactionGet(trId);
+
                 // Prepare the result
                 var tInfo = new TransactionInfo(0, id, tr.Transaction) {Found = tr.Found};
+
                 // if transaction was not found, return the result
                 if (!tr.Found)
                     return tInfo;
+
                 // Otherwise, request block data and store block timeit in the result, and return the result
                 if (string.IsNullOrEmpty(tInfo.PoolHash)) return tInfo;
                 var pool = client.PoolInfoGet(ConvUtils.ConvertHashBackAscii(tInfo.PoolHash), 0);
@@ -173,6 +181,7 @@ namespace csmon.Controllers
                 // Get the list of transactions from the API
                 var offset = numPerPage * (page - 1);
                 var trs = client.TransactionsGet(conv ? ConvUtils.ConvertHashBackPartial(id) : id, offset, numPerPage + 1);
+                
                 // Prepare the result
                 var result = new TransactionsData
                 {
@@ -180,6 +189,7 @@ namespace csmon.Controllers
                     Transactions = new List<TransactionInfo>(),
                     HaveNextPage = trs.Transactions.Count > numPerPage
                 };
+
                 // Fill data and return the result
                 var count = Math.Min(numPerPage, trs.Transactions.Count);
                 for (var i = 0; i < count; i++)
@@ -207,8 +217,10 @@ namespace csmon.Controllers
             {
                 // Extract block hash from transaction id
                 var poolHash = id.Split(".")[0];
+
                 // Get block data from API
                 var pool = client.PoolInfoGet(ConvUtils.ConvertHashBackAscii(poolHash), 0);
+                
                 // Return block time - this is also a transaction time
                 return ConvUtils.UnixTimeStampToDateTime(pool.Pool.Time);
             }
@@ -219,8 +231,10 @@ namespace csmon.Controllers
         {
             using (var client = CreateApi())
             {
+                // Prepare result
                 var result = new TokenAmounts();
                 if (id == null || tokens == null) return result;
+
                 // Unpack the list of tokens and get balance for each of them
                 foreach (var token in tokens.Split(","))
                 {
@@ -268,13 +282,13 @@ namespace csmon.Controllers
             return _nodesService.GetNodes(Net);
         }
 
-        // Gets data for node page (obsolete)
+        // Gets data for node page (not used for now)
         public Node GetNodeData(string id)
         {
             return _nodesService.FindNode(id);
         }
 
-        // Gets data for "Activity Graph" page (obsolete)
+        // Gets data for "Activity Graph" page (not used for now)
         public GraphData GetGraphData()
         {
             return _graphService.GetGraphData();
