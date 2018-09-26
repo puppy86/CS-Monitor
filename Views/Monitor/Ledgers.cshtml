@@ -51,8 +51,6 @@
                 <th>Status</th>
                 <th>Hash</th>
                 <th>Quant txs</th>
-                <th>All value</th>
-                <th>All fee</th>
             </tr>
             </thead>
             <tbody>
@@ -62,8 +60,6 @@
                 <td class="text-success">Success</td>
                 <td class="hash"><a :href="net + '/monitor/ledger/' + item.hash">{{item.hash}}</a></td>
                 <td>{{item.txCount}}</td>
-                <td>{{item.value}}</td>
-                <td>{{item.fee}}</td>
             </tr>
             </tbody>
         </table>
