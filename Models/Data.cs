@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using csmon.Models.Db;
 
 namespace csmon.Models
 {
@@ -43,6 +44,11 @@ namespace csmon.Models
             if (LastMonth.SmartContracts.Value == 0) LastMonth.SmartContracts.Value = n;
             if (Total.SmartContracts.Value == 0) Total.SmartContracts.Value = n;
         }
+
+        public void CorrectTotalValue()
+        {
+            Total.CSVolume.Value = LastMonth.CSVolume.Value;
+        }
     }
 
     // Statistics block
@@ -59,18 +65,6 @@ namespace csmon.Models
         }
 
         public PeriodData(NodeApi.PeriodStats stat)
-        {
-            AllLedgers = new StatItem(stat.PoolsCount);
-            AllTransactions = new StatItem(stat.TransactionsCount);
-            if (stat.BalancePerCurrency.ContainsKey("cs"))
-                CSVolume = new StatItem(stat.BalancePerCurrency["cs"].Integral);
-            else if (stat.BalancePerCurrency.ContainsKey("CS"))
-                CSVolume = new StatItem(stat.BalancePerCurrency["CS"].Integral);
-            SmartContracts = new StatItem(stat.SmartContractsCount);
-            Period = stat.PeriodDuration;
-        }
-
-        public PeriodData(TestApi.PeriodStats stat)
         {
             AllLedgers = new StatItem(stat.PoolsCount);
             AllTransactions = new StatItem(stat.TransactionsCount);
@@ -131,14 +125,6 @@ namespace csmon.Models
             Number = pool.PoolNumber;
         }
 
-        public PoolInfo(TestApi.Pool pool)
-        {
-            Time = ConvUtils.UnixTimeStampToDateTime(pool.Time);
-            Hash = ConvUtils.ConvertHash(pool.Hash);
-            TxCount = pool.TransactionsCount;
-            Number = pool.PoolNumber;
-        }
-
         public PoolInfo(Release.Pool pool)
         {
             Time = ConvUtils.UnixTimeStampToDateTime(pool.Time);
@@ -190,31 +176,16 @@ namespace csmon.Models
             SmartContractHashState = tr.SmartContract.HashState;
         }
 
-        public TransactionInfo(int idx, TestApi.TransactionId id, TestApi.Transaction tr)
-        {
-            Index = idx;
-            if(id != null)
-                Id = $"{ConvUtils.ConvertHash(id.PoolHash)}.{id.Index + 1}";
-            Value = ConvUtils.FormatAmount(tr.Amount);
-            FromAccount = Base58Encoding.Encode(tr.Source);
-            ToAccount = Base58Encoding.Encode(tr.Target);
-            Currency = tr.Currency;
-            Fee = "0";
-            if (tr.SmartContract == null) return;
-            SmartContractSource = tr.SmartContract.SourceCode;
-            SmartContractHashState = tr.SmartContract.HashState;
-        }
-
         public TransactionInfo(int idx, Release.TransactionId id, Release.Transaction tr)
         {
             Index = idx;
             if (id != null)
                 Id = $"{ConvUtils.ConvertHash(id.PoolHash)}.{id.Index + 1}";
-            Value = ConvUtils.FormatAmount(tr.Amount);
+            Value = ConvUtils.FormatAmount(tr.Amount);            
             FromAccount = Base58Encoding.Encode(tr.Source);
             ToAccount = Base58Encoding.Encode(tr.Target);
             Currency = "CS";
-            Fee = "0";
+            Fee = ConvUtils.FormatAmount(tr.Fee);
             if (tr.SmartContract == null) return;
             SmartContractSource = tr.SmartContract.SourceCode;
             SmartContractHashState = tr.SmartContract.HashState;
@@ -303,15 +274,6 @@ namespace csmon.Models
             ByteCodeLen = sc.ByteCode.Length;
         }
 
-        public ContractInfo(TestApi.SmartContract sc)
-        {
-            Address = Base58Encoding.Encode(sc.Address);
-            SourceCode = ConvUtils.FormatSrc(sc.SourceCode);
-            HashState = sc.HashState;
-            ByteCodeLen = sc.ByteCode.Length;
-            Deployer = Base58Encoding.Encode(sc.Deployer);
-        }
-
         public ContractInfo(Release.SmartContract sc)
         {
             Address = Base58Encoding.Encode(sc.Address);
@@ -339,5 +301,11 @@ namespace csmon.Models
     public class ContractsData : PageData
     {
         public List<ContractLinkInfo> Contracts = new List<ContractLinkInfo>();
+    }
+
+    // Contains list of nodes
+    public class NodesData
+    {
+        public List<Node> Nodes = new List<Node>();
     }
 }

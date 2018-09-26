@@ -15,6 +15,7 @@ namespace csmon.Models
 
         public static string GetAge(long time)
         {
+            //return UnixTimeStampToDateTime(time).ToString("dd.MM.yyyy hh:mm:ss.fff");
             if (time == 0) return "0";
             var span = DateTime.Now - UnixTimeStampToDateTime(time);
             return AgeStr(span);
@@ -73,17 +74,6 @@ namespace csmon.Models
             while (fraction.Length < 18)
                 fraction = "0" + fraction;
             
-            return $"{value.Integral}.{fraction.TrimEnd('0')}";
-        }
-
-        public static string FormatAmount(TestApi.Amount value)
-        {
-            if (value.Fraction == 0) return $"{value.Integral}.0";
-
-            var fraction = value.Fraction.ToString();
-            while (fraction.Length < 18)
-                fraction = "0" + fraction;
-
             return $"{value.Integral}.{fraction.TrimEnd('0')}";
         }
 
