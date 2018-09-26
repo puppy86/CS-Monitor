@@ -206,45 +206,6 @@ namespace csmon.Models.Services
                             }
                         }
                     }
-                else if (tpState.Net.Api.EndsWith("/TestApi"))
-                    using (var client = ApiFab.CreateTestApi(tpState.Net.Ip))
-                    {
-                        // Service available
-                        if (tpState.Net.Updating) tpState.Net.Updating = false;
-
-                        // Request blocks
-                        if ((!tpState.PoolsOut.Any() && !tpState.PoolsIn.Any()))
-                        {
-                            var result = client.PoolListGet(0, SizeOut);
-                            tpState.PoolsOut = result.Pools.Where(p => p.PoolNumber > 0).Select(p => new PoolInfo(p)).ToList();
-                        }
-                        else
-                        {
-                            var result = client.PoolListGet(0, 20);
-                            lock (tpState.PoolsLock)
-                            {
-                                var firstPoolNum = tpState.PoolsIn.Any()
-                                    ? tpState.PoolsIn[0].Number
-                                    : tpState.PoolsOut[0].Number;
-                                var nPools = result.Pools.Where(p => p.PoolNumber > 0).TakeWhile(p => (p.PoolNumber > firstPoolNum) || (p.PoolNumber < firstPoolNum - 1000)).Select(p => new PoolInfo(p)).ToList();
-                                tpState.PoolsIn = nPools.Concat(tpState.PoolsIn).ToList();
-                            }
-                        }
-
-                        // Request stats
-                        if (tpState.StatRequestCounter == 0)
-                        {
-                            var stats = client.StatsGet();
-                            if (stats != null && stats.Stats.Count >= 4)
-                            {
-                                var statsSorted = stats.Stats.OrderBy(s => s.PeriodDuration).ToList();
-                                var statData = new StatData();
-                                for (var i = 0; i < 4; i++)
-                                    statData.Pdata[i] = new PeriodData(statsSorted[i]);
-                                tpState.StatData = statData;
-                            }
-                        }
-                    }
                 else if (tpState.Net.Api.EndsWith("/ReleaseApi"))
                     using (var client = ApiFab.CreateReleaseApi(tpState.Net.Ip))
                     {
@@ -259,17 +220,36 @@ namespace csmon.Models.Services
                         }
                         else
                         {
+                            // Get last 20 blocks from API
                             var result = client.PoolListGet(0, 20);
 
+                            // Get last block number (first from the top)
                             var firstPoolNum = tpState.PoolsIn.Any()
                                 ? tpState.PoolsIn[0].Number
                                 : tpState.PoolsOut[0].Number;
 
+                            // Network reset detection
+                            var newNetWorkPools = result.Pools
+                                .Count(p => p.PoolNumber > 0 && p.PoolNumber < firstPoolNum - 200);
+                            
+                            // Reset cache, if network reset
+                            if (newNetWorkPools > 0)
+                            {
+                                lock (tpState.PoolsLock)
+                                {
+                                    tpState.PoolsOut = new List<PoolInfo>();
+                                    tpState.PoolsIn = new List<PoolInfo>();
+                                }
+                                firstPoolNum = 0;
+                            }
+
+                            // Prepare list of new blocks
                             var newPools = result.Pools
                                 .Where(p => p.PoolNumber > 0)
-                                .TakeWhile(p => p.PoolNumber > firstPoolNum || p.PoolNumber < firstPoolNum - 1000)
+                                .TakeWhile(p => p.PoolNumber > firstPoolNum)
                                 .Select(p => new PoolInfo(p)).ToList();
 
+                            // Append new block to the input cache
                             lock (tpState.PoolsLock)
                                 tpState.PoolsIn = newPools.Concat(tpState.PoolsIn).ToList();
                         }
@@ -284,10 +264,13 @@ namespace csmon.Models.Services
                                 var statData = new StatData();
                                 for (var i = 0; i < 4; i++)
                                     statData.Pdata[i] = new PeriodData(statsSorted[i]);
+                                statData.CorrectTotalValue();
                                 tpState.StatData = statData;
                             }
                         }
                     }
+
+                // Increment statistics time counter (or reset if it's time)
                 if (tpState.StatRequestCounter < Settings.UpdStatsPeriodSec*1000 / Period)
                     tpState.StatRequestCounter++;
                 else
@@ -295,13 +278,17 @@ namespace csmon.Models.Services
             }
             catch (Thrift.Transport.TTransportException e)
             {
+                // Set up network updating flag in case of no connection to the node
                 tpState.Net.Updating = true;
                 _logger.LogError(e, "");
             }
             catch (Exception e)
             {
+                // Log other errors
                 _logger.LogError(e, "");
             }
+
+            // Set up next timer tick
             tpState.TimerForCache.Change(Period, 0);
         }
 
