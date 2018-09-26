@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using csmon.Models.Db;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -13,37 +11,39 @@ using Newtonsoft.Json;
 
 namespace csmon.Models.Services
 {
-    // Contains list of nodes
-    public class NodesData
-    {
-        public List<Node> Nodes = new List<Node>();
-    }
-
-
+    // Interface, representing a service intended for working with Network nodes
     public interface INodesService
     {
+        // Gets a list of blockchain network nodes by given network id
         NodesData GetNodes(string network);
+        
+        // Gets node info by id (ip address)
         Node FindNode(string id);
     }
 
+    // The service that communicates with signal servers and stores info about network nodes
     public class NodesService : IHostedService, IDisposable, INodesService
-    {        
-        private readonly ILogger _logger;
-        public const int LiveTimeMinutes = 3;
-        private readonly int _period = Settings.UpdNodesPeriodSec * 1000;
-        private Timer _timer;
+    {
+        private readonly ILogger _logger; // For logging
+        public const int LiveTimeMinutes = 3; // The period of time, in which inactive node is considered as active
+        private readonly int _period = Settings.UpdNodesPeriodSec * 1000; // Signal server interrogation period
+        private Timer _timer; //  A timer
 
+        // Constructor, parameters are provided by service provider
         public NodesService(ILogger<NodesService> logger)
         {
             _logger = logger;
         }        
 
+        // Service start point
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            // Create the timer and complete
             _timer = new Timer(OnTimer, null, _period, 0);
             return Task.CompletedTask;
         }
 
+        // Timer's callback procedure, makes all work
         private async void OnTimer(object state)
         {
             foreach (var network in Network.Networks)
@@ -104,6 +104,7 @@ namespace csmon.Models.Services
             _timer.Change(_period, 0);
         }
 
+        // Makes Http request asynchronously 
         public static async Task<string> GetAsync(Uri uri)
         {
             var httpClient = new HttpClient();
@@ -111,37 +112,48 @@ namespace csmon.Models.Services
             return await httpClient.GetStringAsync(uri);
         }
 
+        // Gets the list of network nodes by network id
         public NodesData GetNodes(string network)
         {
+            // Get network by id
             var net = Network.GetById(network);
+
+            // Create DB connection
             using (var db = ApiFab.GetDbContext())
             {
+                // Select nodes from DB by selected network
                 var now = DateTime.Now;
                 var nodes = db.Nodes.Where(n => n.Network == network &&
                             (net.RandomNodes || n.ModifyTime.AddSeconds(Settings.NodesLivePeriodSec) >= now))
                         .OrderBy(n => n.ModifyTime)
                         .Take(1000).ToList();
+
+                // Prepare the result and return
                 var result = new NodesData { Nodes = nodes };
                 return result;
             }
         }
 
+        // Gets node by id (ip address)
         public Node FindNode(string id)
         {
+            // Create DB connection and try to find the node
             using (var db = ApiFab.GetDbContext())
             {
                 return db.Nodes.Find(id);
             }
         }
 
+        // Setvice stop point, called by the framework
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _timer?.Change(Timeout.Infinite, 0);
             return Task.CompletedTask;
         }
-
+        
         public void Dispose()
         {
+            // Dispose the timer
             _timer?.Dispose();
         }
     }
