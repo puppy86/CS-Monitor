@@ -7,7 +7,6 @@ namespace csmon.Models
         public static bool AllowNegativeTime;
         public static int UpdStatsPeriodSec;
         public static int UpdNodesPeriodSec;
-        public static int NodesLivePeriodSec;
         public static int SignalPort;
         public static int TpsIntervalSec;
 
@@ -16,7 +15,6 @@ namespace csmon.Models
             AllowNegativeTime = bool.Parse(config["AllowNegativeTime"]);
             UpdStatsPeriodSec = int.Parse(config["UpdStatsPeriodSec"]);
             UpdNodesPeriodSec = int.Parse(config["UpdNodesPeriodSec"]);
-            NodesLivePeriodSec = int.Parse(config["NodesLivePeriodSec"]);
             SignalPort = int.Parse(config["SignalPort"]);
             TpsIntervalSec = int.Parse(config["TpsIntervalSec"]);
         }
