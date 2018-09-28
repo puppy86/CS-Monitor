@@ -303,9 +303,53 @@ namespace csmon.Models
         public List<ContractLinkInfo> Contracts = new List<ContractLinkInfo>();
     }
 
+    // Network node info
+    public class NodeInfo
+    {
+        public string Ip;
+        public string PublicKey;
+        public string Country;
+        public string CountryName;
+        public string Version;
+        public int Platform;
+
+        public NodeInfo(ServerApi.ServerNode n)
+        {
+            Ip = ConvUtils.GetIpCut(n.Ip);
+            if (n.PublicKey.All("0123456789ABCDEF".Contains))
+                PublicKey = n.PublicKey;
+            Version = n.Version;
+            int.TryParse(n.Platform, out Platform);
+        }
+
+        public NodeInfo(Node n)
+        {
+            Ip = ConvUtils.GetIpCut(n.Ip);
+            Country = n.Country;
+            CountryName = n.Country_name;
+            Version = n.Version;
+            int.TryParse(n.Platform, out Platform);
+        }
+    }
+
     // Contains list of nodes
     public class NodesData
     {
-        public List<Node> Nodes = new List<Node>();
+        public List<NodeInfo> Nodes;
+        public bool ShowKey = true;
     }
+
+    // A point for diagram with time-based x-axis
+    public class Point
+    {
+        public DateTime X;
+        public int Y;
+    }
+
+    // Data for Transactions per second graph
+    public class TpsInfo
+    {
+        public Point[] Points;
+    }
+
 }
