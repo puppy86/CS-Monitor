@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace csmon.Models
@@ -140,6 +141,23 @@ namespace csmon.Models
             if (count <= 0) return 1;
             if (count % numPerPage == 0) return count / numPerPage;
             return count / numPerPage + 1;
+        }
+
+        public static string GetIpCut(string ip)
+        {
+            if (!ip.Contains(":"))
+            {
+                var split = ip.Split('.');
+                if (split.Length != 4) return ip;
+                return string.Join('.', split.Take(2)) + $".{new string('*', split[2].Length)}.{new string('*', split[3].Length)}";
+            }
+            else
+            {
+                // Ipv6
+                var split = ip.Split(':');
+                var take = split.Length > 2 ? split.Length - 2 : split.Length;
+                return string.Join(':', split.Take(take)) + ":*:*";
+            }
         }
     }
 }
