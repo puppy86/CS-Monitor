@@ -10,17 +10,8 @@ using Microsoft.Extensions.Logging;
 
 namespace csmon.Models.Services
 {
-    public class Point
-    {
-        public DateTime X;
-        public int Y;
-    }
-
-    public class TpsInfo
-    {
-        public Point[] Points;
-    }
-
+    // Interface, representing a service intended for getting data for main page, Blocks page
+    // and 'Transactions per second' page
     public interface IIndexService
     {
         TpsInfo GetTpsInfo(string network);
@@ -29,34 +20,39 @@ namespace csmon.Models.Services
         List<PoolInfo> GetPools(string network, int offset, int limit);
     }
 
-    // Collects Tps points, blocks information
+    // The service that communicates with Node API and caches data for main page, blocks and TPS pages
     public class IndexService : IIndexService, IHostedService, IDisposable
     {
+        // Data structure, stored for each network
         private class IndexServiceState
         {
-            public Network Net;
-            public Timer TimerForData;
-            public Timer TimerForCache;
-            public readonly ConcurrentQueue<Point> Points = new ConcurrentQueue<Point>();
-            public readonly object PoolsLock = new object();
-            public volatile List<PoolInfo> PoolsIn = new List<PoolInfo>();
-            public volatile List<PoolInfo> PoolsOut = new List<PoolInfo>();        
-            public int StatRequestCounter;
-            public volatile StatData StatData = new StatData();
-            public volatile IndexData IndexData = new IndexData();
-            public bool EmulStop;
-            public int EmulCounter;
+            public Network Net; // The network, data stored for
+            public Timer TimerForData; // Timer for periodic requests to node API
+            public Timer TimerForCache; // Timer for caching
+            public readonly ConcurrentQueue<Point> Points = new ConcurrentQueue<Point>(); // TPS points
+            public readonly object PoolsLock = new object(); // Sync object for lock
+            public volatile List<PoolInfo> PoolsIn = new List<PoolInfo>(); // Input blocks cache
+            public volatile List<PoolInfo> PoolsOut = new List<PoolInfo>();  // Output blocks cache
+            public int StatRequestCounter; // For counting period of requesting statistics
+            public volatile StatData StatData = new StatData(); // Statistics data
+            public volatile IndexData IndexData = new IndexData(); // Data for main page
+            public bool EmulStop; // Flag used by emulator
+            public int EmulCounter; // For emulator
         }
 
-        private readonly ILogger _logger;
-        private const int Period = 1000;
-        private const int SizeIn = 300;
-        private const int SizeOut = 100;
-        public const int SizeOutAll = 100000;        
+        private readonly ILogger _logger; // For logging
+        private const int Period = 1000; // A period for requesting node API, ms
+        private const int SizeIn = 300; // A size of input blocks cache
+        private const int SizeOut = 100; // A size of blocks list on main page
+        public const int SizeOutAll = 100000; // Size of blocks cache
+        
+        // Storage for data of each network
         private readonly Dictionary<string, IndexServiceState> _states = new Dictionary<string, IndexServiceState>();
 
+        // Constructor, parameters are provided by service provider
         public IndexService(ILogger<IndexService> logger)
         {
+            // Initialize data storage and create timers for each network
             foreach (var network in Network.Networks)
             {
                 var state = new IndexServiceState() { Net = network };
@@ -67,8 +63,10 @@ namespace csmon.Models.Services
             _logger = logger;
         }
 
+        // Service start point
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            // Start timers and complete
             foreach (var state in _states.Values)
             {
                 state.TimerForCache.Change(Period, 0);
@@ -77,8 +75,10 @@ namespace csmon.Models.Services
             return Task.CompletedTask;
         }
 
+        // Setvice stop point, called by the framework
         public Task StopAsync(CancellationToken cancellationToken)
         {
+            // Stop timers and complete
             foreach (var state in _states.Values)
             {
                 state.TimerForCache.Change(Timeout.Infinite, 0);
