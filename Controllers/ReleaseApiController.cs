@@ -299,12 +299,6 @@ namespace csmon.Controllers
             return _nodesService.GetNodes(Net);
         }
 
-        // Gets data for node page (not used for now)
-        public Node GetNodeData(string id)
-        {
-            return _nodesService.FindNode(id);
-        }
-
         // Gets data for "Activity Graph" page (not used for now)
         public GraphData GetGraphData()
         {
