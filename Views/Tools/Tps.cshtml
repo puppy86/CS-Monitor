@@ -1,5 +1,6 @@
 ﻿@section head
 {
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.7.2/dist/Chart.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.6.5/chartjs-plugin-zoom.min.js"></script>
 }
@@ -35,7 +36,12 @@
                                 },
                                 distribution: 'linear'
                             }
-                        ]
+                        ],
+                        yAxes: [{
+                            ticks: {
+                                suggestedMin: 0
+                            }
+                        }]
                     },
                     elements: {
                         line: {
@@ -51,11 +57,11 @@
                     responsiveAnimationDuration: 0,
                     pan: {
                         enabled: true,
-                        mode: 'xy'
+                        mode: 'x'
                     },
                     zoom: {
                         enabled: true,
-                        mode: 'xy',
+                        mode: 'x',
                         limits: {
                             max: 10,
                             min: 0.5

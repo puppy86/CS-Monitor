@@ -118,11 +118,11 @@
                     <td>Balance: </td>
                     <td>{{balance}} CS</td>
                 </tr>
-                @*<tr v-for="item in tokenAmounts.tokens">
+                <tr v-show="false" v-for="item in tokenAmounts.tokens">
                     <td>{{item.token}}</td>
                     <td>{{item.value}}</td>
                 </tr>
-                <tr>
+                <tr v-show="false">
                     <td>Token: </td>
                     <td>
                         <div>
@@ -131,7 +131,7 @@
                             <a href="#" v-on:click="delToken" style="display: inline; margin-left: 5px">Del</a>
                         </div>
                     </td>
-                </tr>*@
+                </tr>
             </tbody>
         </table>
     </div>
