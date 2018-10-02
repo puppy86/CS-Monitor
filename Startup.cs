@@ -55,6 +55,7 @@ namespace csmon
             services.AddDbContext<CsmonDbContext>();
             AddHostedService<IIndexService, IndexService>(services);
             AddHostedService<INodesService, NodesService>(services);
+            AddHostedService<ITpsService, TpsService>(services);
             AddHostedService<IGraphService, GraphService>(services);
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
