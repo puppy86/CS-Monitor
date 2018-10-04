@@ -6,95 +6,135 @@
 }
 
 @section script
-    {
+{
     <script>
-        var chart = new Chart($("#chart"),
-            {
-                type: 'line',
-                data: {
-                    datasets: [
-                        {
-                            label: 'Transactions per second',
-                            data: [],
-                            backgroundColor: [
-                                'rgba(32, 96, 196, 0.2)'
-                            ],
-                            borderColor: [
-                                'rgba(32, 96, 196, 1)'
-                            ],
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    scales: {
-                        xAxes: [
-                            {
-                                type: 'time',
-                                time: {
-                                    unit: 'second'
-                                },
-                                distribution: 'linear'
-                            }
+
+        var chartConfig =
+        {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: 'Transactions per second',
+                        data: [],
+                        backgroundColor: [
+                            'rgba(32, 96, 196, 0.2)'
                         ],
-                        yAxes: [{
+                        borderColor: [
+                            'rgba(32, 96, 196, 1)'
+                        ],
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    xAxes: [
+                        {
+                            type: 'time',
+                            time: {
+                                unit: 'second'
+                            },
+                            distribution: 'linear'
+                        }
+                    ],
+                    yAxes: [
+                        {
                             ticks: {
                                 suggestedMin: 0
                             }
-                        }]
-                    },
-                    elements: {
-                        line: {
-                            tension: 0
                         }
-                    },
-                    animation: {
-                        duration: 0
-                    },
-                    hover: {
-                        animationDuration: 0
-                    },
-                    responsiveAnimationDuration: 0,
-                    pan: {
-                        enabled: true,
-                        mode: 'x'
-                    },
-                    zoom: {
-                        enabled: true,
-                        mode: 'x',
-                        limits: {
-                            max: 10,
-                            min: 0.5
-                        }
+                    ]
+                },
+                elements: {
+                    line: {
+                        tension: 0
+                    }
+                },
+                animation: {
+                    duration: 0
+                },
+                hover: {
+                    animationDuration: 0
+                },
+                responsiveAnimationDuration: 0,
+                pan: {
+                    enabled: true,
+                    mode: 'x'
+                },
+                zoom: {
+                    enabled: true,
+                    mode: 'x',
+                    limits: {
+                        max: 10,
+                        min: 0.5
                     }
                 }
-            });
+            }
+        };
 
-        function UpdChart() {
-            $.get(`${M_API}/GetTpsData`)
-                .done(function (model) {
+        var menuItems = [
+            { title: "20 Min", value: 0, unit: 'second' },
+            { title: "24 Hours", value: 1, unit: 'minute' },
+            { title: "Week", value: 2, unit: 'hour' },
+            { title: "Month", value: 3, unit: 'day' }
+        ];
 
-                    $('#txt').text(`Points count: ${model.points.length}`);
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                showBtn: false,
+                count: '',
+                chart: {},
+                menuItems: menuItems,
+                item: menuItems[0]
+            },
+            methods: {
+                getData: function () {
+                    $.get(`${M_API}/GetTpsData?type=${this.item.value}`)
+                        .done(function (model) {
+                            vm.showBtn = model.showTypeBtn;
+                            vm.count = model.points.length;
+                            vm.chart.data.datasets[0].data = model.points;
+                            vm.chart.options.scales.xAxes[0].time.unit = vm.item.unit;
+                            vm.chart.update();
+                        }).always(function () {
+                            if(vm.item.value == 0)
+                                setTimeout(vm.getData, 2000);
+                        });
+                },
+                menuItemSet: function(item) {
+                    this.item = item;
+                    clearTimeout(vm.getData);
+                    vm.getData();
+                }
+            }
+        });
 
-                    chart.data.datasets[0].data = model.points;
-                    chart.update();
-                });
-        }
+        vm.chart = new Chart($("#chart"), chartConfig);
+        vm.getData();
 
-        UpdChart();
-        setInterval(UpdChart, 2000);
     </script>
 }
 
 
-<h4 class="my-3">Transactions per second</h4>
-<div id="txt" class="mt-4"></div>
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <canvas id="chart" width="800" height="400"></canvas>
-            </div>
+    <h4 class="my-3">Transactions per second</h4>
+    <div v-show="showBtn" class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{item.title}}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a v-for="item in menuItems" class="dropdown-item" href="#" v-on:click="menuItemSet(item)">{{item.title}}</a>
         </div>
     </div>
-</div>  
+    <div id="txt" class="mt-4">Points count: {{count}}</div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="chart" width="800" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div> 
