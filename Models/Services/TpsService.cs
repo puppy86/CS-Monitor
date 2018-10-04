@@ -12,7 +12,12 @@ namespace csmon.Models.Services
 {
     public interface ITpsService
     {
-
+        // Points within 24H, with 1 min interval
+        TpsInfo GetPoints24H(string net);
+        // Points within a Week, with 1 hour interval
+        TpsInfo GetPointsWeek(string net);
+        // Points within a month, with 1 day interval
+        TpsInfo GetPointsMonth(string net);
     }
 
 
@@ -21,8 +26,7 @@ namespace csmon.Models.Services
         // Data, prepared for each network
         private class TpsServiceState
         {
-            public DateTime LastTime = DateTime.Now;
-            public Point[] Points24H = {};
+            public DateTime LastTime = DateTime.Now;            
         }
 
         private readonly ILogger _logger; // For logging
@@ -96,15 +100,6 @@ namespace csmon.Models.Services
 
         private void OnGetTimer(object state)
         {
-            using (var db = ApiFab.GetDbContext())
-            {
-                foreach (var network in Network.Networks)
-                {
-                    var st = _states[network.Id];
-                    
-                }
-            }
-
             // Schedule next time
             _getTimer.Change(_periodGet, 0);
         }
@@ -143,5 +138,60 @@ namespace csmon.Models.Services
                 }
             });
         }
+
+        // Points within 24H, with 1 min interval
+        public TpsInfo GetPoints24H(string net)
+        {
+            using (var db = ApiFab.GetDbContext())
+            {
+                // Need data for last 24h
+                var startDate = DateTime.Now.AddDays(-1);
+                var endDate = DateTime.Now;
+                // Query points from db
+                var points = db.Points.FromSql(
+                        $"SELECT dateadd(mi, datediff(mi, 0, [Time]), 0) as X, Sum(Value) / Count(Value) as Y\r\nFROM Tps\r\nWHERE Time >= {startDate} AND Time <= {endDate} AND Network = {net}\r\nGROUP BY dateadd(mi, datediff(mi, 0, [Time]), 0)\r\nORDER BY X")
+                    .ToArray();
+
+                // Prepare and return result
+                return new TpsInfo { Points = points };
+            }
+        }
+
+        // Points within a Week, with 1 hour interval
+        public TpsInfo GetPointsWeek(string net)
+        {
+            using (var db = ApiFab.GetDbContext())
+            {
+                // Need data for last week
+                var startDate = DateTime.Now.AddDays(-7);
+                var endDate = DateTime.Now;
+                // Query points from db
+                var points = db.Points.FromSql(
+                        $"SELECT dateadd(hour, datediff(hour, 0, [Time]), 0) as X, Sum(Value) / Count(Value) as Y\r\nFROM Tps\r\nWHERE Time >= {startDate} AND Time <= {endDate} AND Network = {net}\r\nGROUP BY dateadd(hour, datediff(hour, 0, [Time]), 0)\r\nORDER BY X")
+                    .ToArray();
+
+                // Prepare and return result
+                return new TpsInfo { Points = points };
+            }
+        }
+
+        // Points within a month, with 1 day interval
+        public TpsInfo GetPointsMonth(string net)
+        {
+            using (var db = ApiFab.GetDbContext())
+            {
+                // Need data for last month
+                var startDate = DateTime.Now.AddDays(-30);
+                var endDate = DateTime.Now;
+                // Query points from db
+                var points = db.Points.FromSql(
+                        $"SELECT dateadd(day, datediff(day, 0, [Time]), 0) as X, Sum(Value) / Count(Value) as Y\r\nFROM Tps\r\nWHERE Time >= {startDate} AND Time <= {endDate} AND Network = {net}\r\nGROUP BY dateadd(day, datediff(day, 0, [Time]), 0)\r\nORDER BY X")
+                    .ToArray();
+
+                // Prepare and return result
+                return new TpsInfo { Points = points };
+            }
+        }
+
     }
 }
