@@ -28,6 +28,7 @@ namespace Release
     private int _transactionsCount;
     private Dictionary<sbyte, CumulativeAmount> _balancePerCurrency;
     private int _smartContractsCount;
+    private int _transactionsSmartCount;
 
     public long PeriodDuration
     {
@@ -94,6 +95,19 @@ namespace Release
       }
     }
 
+    public int TransactionsSmartCount
+    {
+      get
+      {
+        return _transactionsSmartCount;
+      }
+      set
+      {
+        __isset.transactionsSmartCount = true;
+        this._transactionsSmartCount = value;
+      }
+    }
+
 
     public Isset __isset;
     #if !SILVERLIGHT
@@ -105,6 +119,7 @@ namespace Release
       public bool transactionsCount;
       public bool balancePerCurrency;
       public bool smartContractsCount;
+      public bool transactionsSmartCount;
     }
 
     public PeriodStats() {
@@ -169,6 +184,13 @@ namespace Release
             case 5:
               if (field.Type == TType.I32) {
                 SmartContractsCount = iprot.ReadI32();
+              } else { 
+                TProtocolUtil.Skip(iprot, field.Type);
+              }
+              break;
+            case 6:
+              if (field.Type == TType.I32) {
+                TransactionsSmartCount = iprot.ReadI32();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -242,6 +264,14 @@ namespace Release
           oprot.WriteI32(SmartContractsCount);
           oprot.WriteFieldEnd();
         }
+        if (__isset.transactionsSmartCount) {
+          field.Name = "transactionsSmartCount";
+          field.Type = TType.I32;
+          field.ID = 6;
+          oprot.WriteFieldBegin(field);
+          oprot.WriteI32(TransactionsSmartCount);
+          oprot.WriteFieldEnd();
+        }
         oprot.WriteFieldStop();
         oprot.WriteStructEnd();
       }
@@ -283,6 +313,12 @@ namespace Release
         __first = false;
         __sb.Append("SmartContractsCount: ");
         __sb.Append(SmartContractsCount);
+      }
+      if (__isset.transactionsSmartCount) {
+        if(!__first) { __sb.Append(", "); }
+        __first = false;
+        __sb.Append("TransactionsSmartCount: ");
+        __sb.Append(TransactionsSmartCount);
       }
       __sb.Append(")");
       return __sb.ToString();
