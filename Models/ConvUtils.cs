@@ -91,7 +91,7 @@ namespace csmon.Models
 
         public static string FormatSrc(string code)
         {
-            if (code.Contains(Environment.NewLine)) return code;
+            if (code.Contains(Environment.NewLine) || code.Contains("\n")) return code;
 
             var sb = new StringBuilder();
             const int ident = 4;

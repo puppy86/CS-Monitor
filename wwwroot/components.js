@@ -1,4 +1,4 @@
-﻿
+﻿// A component that implements the list of given transactions as a table
 Vue.component("transactions", {
     props: ["network", "source"],
 	template:
@@ -28,6 +28,7 @@ Vue.component("transactions", {
     </div>`
 });
 
+// Obsolete pager component
 Vue.component("pager", {
 	props: ["page", "getfn", "next", "last", "hidelast"],
 	template:
@@ -42,6 +43,7 @@ Vue.component("pager", {
 		 </div>`
 });
 
+// Pager component, used for page switching on tables
 Vue.component("pb", {
     props: ["page", "getfn", "next", "last", "hidelast"],
     template:
