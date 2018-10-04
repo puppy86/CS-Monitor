@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+// ReSharper disable once RedundantUsingDirective
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -156,6 +157,7 @@ namespace csmon.Models.Services
                             });
                         np.Reverse();
                         tpState.PoolsIn = np.TakeWhile(p => p.Number > firstPoolNum).Concat(tpState.PoolsIn).ToList();
+                        //if (tpState.PoolsIn.Count > 100) tpState.EmulStop = true;
                     }
             }
             tpState.TimerForCache.Change(Period, 0);
@@ -202,6 +204,19 @@ namespace csmon.Models.Services
                                 var statData = new StatData();
                                 for (var i = 0; i < 4; i++)
                                     statData.Pdata[i] = new PeriodData(statsSorted[i]);
+                                
+                                try
+                                {
+                                    // Smart contracts count = n
+                                    using (var db = ApiFab.GetDbContext())
+                                        statData.Correct(db.Smarts.Count(s => s.Network == tpState.Net.Id));
+                                }
+                                catch (Exception)
+                                {
+                                    // ignored if no db connection
+                                }
+
+                                // Update stats in the state
                                 tpState.StatData = statData;
                             }
                         }
@@ -241,6 +256,9 @@ namespace csmon.Models.Services
                                     tpState.PoolsIn = new List<PoolInfo>();
                                 }
                                 firstPoolNum = 0;
+
+                                // Delete Transactions per second statistics data
+                                TpsService.Reset(tpState.Net.Id);
                             }
 
                             // Prepare list of new blocks
@@ -326,7 +344,7 @@ namespace csmon.Models.Services
                         // Add pools
                         tpState.PoolsOut = addPools.Concat(tpState.PoolsOut.Take(SizeOutAll - addNum)).ToList();                            
                     }
-                    Debug.Print($"net: {tpState.Net.Id} addNum={addNum} InCount={tpState.PoolsIn.Count} OutCount={tpState.PoolsOut.Count}\n");
+                    //Debug.Print($"net: {tpState.Net.Id} addNum={addNum} InCount={tpState.PoolsIn.Count} OutCount={tpState.PoolsOut.Count}\n");
                 }
 
                 // Convert                
@@ -344,7 +362,7 @@ namespace csmon.Models.Services
                 var indexData = new IndexData
                 {
                     LastBlocks = lastPoolInfos,
-                    LastBlockData = {Now = curTime}
+                    LastBlockData = { Now = curTime }
                 };
                 if (lastPoolInfos.Any())
                 {

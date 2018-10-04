@@ -58,6 +58,8 @@ namespace csmon.Models
         public StatItem AllLedgers = new StatItem();
         public StatItem CSVolume = new StatItem();
         public StatItem SmartContracts = new StatItem();
+        public StatItem ScTransactions = new StatItem();
+
         public long Period;
 
         public PeriodData()
@@ -83,6 +85,7 @@ namespace csmon.Models
             if(stat.BalancePerCurrency.ContainsKey(1))
                 CSVolume = new StatItem(stat.BalancePerCurrency[1].Integral);
             SmartContracts = new StatItem(stat.SmartContractsCount);
+            ScTransactions = new StatItem(stat.TransactionsSmartCount);
             Period = stat.PeriodDuration;
         }
     }
@@ -91,7 +94,6 @@ namespace csmon.Models
     public class StatItem
     {
         public long Value;
-        public float PercentChange;
 
         public StatItem()
         {
@@ -317,7 +319,7 @@ namespace csmon.Models
         {
             Ip = ConvUtils.GetIpCut(n.Ip);
             if (n.PublicKey.All("0123456789ABCDEF".Contains))
-                PublicKey = n.PublicKey;
+                PublicKey = ConvUtils.ConvertHashPartial(n.PublicKey);
             Version = n.Version;
             int.TryParse(n.Platform, out Platform);
         }
@@ -342,14 +344,14 @@ namespace csmon.Models
     // A point for diagram with time-based x-axis
     public class Point
     {
-        public DateTime X;
-        public int Y;
+        public DateTime X { get; set; }
+        public int Y { get; set; }
     }
 
     // Data for Transactions per second graph
     public class TpsInfo
     {
-        public Point[] Points;
+        public Point[] Points; // Chart points
+        public bool ShowTypeBtn; // Show the button for change chart type
     }
-
 }
