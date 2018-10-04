@@ -33,7 +33,7 @@ namespace Release
       SmartContractsListGetResult SmartContractsListGet(byte[] deployer);
       SmartContractAddressesListGetResult SmartContractAddressesListGet(byte[] deployer);
       byte[] WaitForBlock(byte[] obsolete);
-      TransactionId WaitForSmartTransaction(byte[] smart_public);
+      TransactionId WaitForSmartTransaction(byte[] smart_address);
       SmartContractsListGetResult SmartContractsAllListGet(long offset, long limit);
     }
 
@@ -95,7 +95,7 @@ namespace Release
       byte[] End_WaitForBlock(IAsyncResult asyncResult);
       #endif
       #if SILVERLIGHT
-      IAsyncResult Begin_WaitForSmartTransaction(AsyncCallback callback, object state, byte[] smart_public);
+      IAsyncResult Begin_WaitForSmartTransaction(AsyncCallback callback, object state, byte[] smart_address);
       TransactionId End_WaitForSmartTransaction(IAsyncResult asyncResult);
       #endif
       #if SILVERLIGHT
@@ -1036,9 +1036,9 @@ namespace Release
 
       
       #if SILVERLIGHT
-      public IAsyncResult Begin_WaitForSmartTransaction(AsyncCallback callback, object state, byte[] smart_public)
+      public IAsyncResult Begin_WaitForSmartTransaction(AsyncCallback callback, object state, byte[] smart_address)
       {
-        return send_WaitForSmartTransaction(callback, state, smart_public);
+        return send_WaitForSmartTransaction(callback, state, smart_address);
       }
 
       public TransactionId End_WaitForSmartTransaction(IAsyncResult asyncResult)
@@ -1049,27 +1049,27 @@ namespace Release
 
       #endif
 
-      public TransactionId WaitForSmartTransaction(byte[] smart_public)
+      public TransactionId WaitForSmartTransaction(byte[] smart_address)
       {
         #if !SILVERLIGHT
-        send_WaitForSmartTransaction(smart_public);
+        send_WaitForSmartTransaction(smart_address);
         return recv_WaitForSmartTransaction();
 
         #else
-        var asyncResult = Begin_WaitForSmartTransaction(null, null, smart_public);
+        var asyncResult = Begin_WaitForSmartTransaction(null, null, smart_address);
         return End_WaitForSmartTransaction(asyncResult);
 
         #endif
       }
       #if SILVERLIGHT
-      public IAsyncResult send_WaitForSmartTransaction(AsyncCallback callback, object state, byte[] smart_public)
+      public IAsyncResult send_WaitForSmartTransaction(AsyncCallback callback, object state, byte[] smart_address)
       #else
-      public void send_WaitForSmartTransaction(byte[] smart_public)
+      public void send_WaitForSmartTransaction(byte[] smart_address)
       #endif
       {
         oprot_.WriteMessageBegin(new TMessage("WaitForSmartTransaction", TMessageType.Call, seqid_));
         WaitForSmartTransaction_args args = new WaitForSmartTransaction_args();
-        args.Smart_public = smart_public;
+        args.Smart_address = smart_address;
         args.Write(oprot_);
         oprot_.WriteMessageEnd();
         #if SILVERLIGHT
@@ -1612,7 +1612,7 @@ namespace Release
         WaitForSmartTransaction_result result = new WaitForSmartTransaction_result();
         try
         {
-          result.Success = iface_.WaitForSmartTransaction(args.Smart_public);
+          result.Success = iface_.WaitForSmartTransaction(args.Smart_address);
           oprot.WriteMessageBegin(new TMessage("WaitForSmartTransaction", TMessageType.Reply, seqid)); 
           result.Write(oprot);
         }
@@ -4946,18 +4946,18 @@ namespace Release
     #endif
     public partial class WaitForSmartTransaction_args : TBase
     {
-      private byte[] _smart_public;
+      private byte[] _smart_address;
 
-      public byte[] Smart_public
+      public byte[] Smart_address
       {
         get
         {
-          return _smart_public;
+          return _smart_address;
         }
         set
         {
-          __isset.smart_public = true;
-          this._smart_public = value;
+          __isset.smart_address = true;
+          this._smart_address = value;
         }
       }
 
@@ -4967,7 +4967,7 @@ namespace Release
       [Serializable]
       #endif
       public struct Isset {
-        public bool smart_public;
+        public bool smart_address;
       }
 
       public WaitForSmartTransaction_args() {
@@ -4990,7 +4990,7 @@ namespace Release
             {
               case 1:
                 if (field.Type == TType.String) {
-                  Smart_public = iprot.ReadBinary();
+                  Smart_address = iprot.ReadBinary();
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
                 }
@@ -5016,12 +5016,12 @@ namespace Release
           TStruct struc = new TStruct("WaitForSmartTransaction_args");
           oprot.WriteStructBegin(struc);
           TField field = new TField();
-          if (Smart_public != null && __isset.smart_public) {
-            field.Name = "smart_public";
+          if (Smart_address != null && __isset.smart_address) {
+            field.Name = "smart_address";
             field.Type = TType.String;
             field.ID = 1;
             oprot.WriteFieldBegin(field);
-            oprot.WriteBinary(Smart_public);
+            oprot.WriteBinary(Smart_address);
             oprot.WriteFieldEnd();
           }
           oprot.WriteFieldStop();
@@ -5036,11 +5036,11 @@ namespace Release
       public override string ToString() {
         StringBuilder __sb = new StringBuilder("WaitForSmartTransaction_args(");
         bool __first = true;
-        if (Smart_public != null && __isset.smart_public) {
+        if (Smart_address != null && __isset.smart_address) {
           if(!__first) { __sb.Append(", "); }
           __first = false;
-          __sb.Append("Smart_public: ");
-          __sb.Append(Smart_public);
+          __sb.Append("Smart_address: ");
+          __sb.Append(Smart_address);
         }
         __sb.Append(")");
         return __sb.ToString();
