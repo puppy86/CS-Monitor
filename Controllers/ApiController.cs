@@ -271,7 +271,7 @@ namespace csmon.Controllers
         }
 
         // Gets data for "Transactions Per Second" page
-        public TpsInfo GetTpsData()
+        public TpsInfo GetTpsData(int type = 0)
         {
             return _indexService.GetTpsInfo(Net);
         }
