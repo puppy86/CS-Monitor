@@ -15,16 +15,18 @@ namespace csmon.Controllers
         private readonly IIndexService _indexService;
         private readonly INodesService _nodesService;
         private readonly IGraphService _graphService;
+        private readonly ITpsService _tpsService;
 
         // The network ID, coming with the request
         private string Net => RouteData.Values["network"].ToString();
 
         // Constructor, parameters are provided by service provider
-        public ReleaseApiController(IIndexService indexService, INodesService nodesService, IGraphService graphService)
+        public ReleaseApiController(IIndexService indexService, INodesService nodesService, IGraphService graphService, ITpsService tpsService)
         {
             _indexService = indexService;
             _nodesService = nodesService;
             _graphService = graphService;
+            _tpsService = tpsService;
         }
 
         // Helper method that creates Node API thrift client
@@ -288,9 +290,30 @@ namespace csmon.Controllers
         }
 
         // Gets data for "Transactions Per Second" page
-        public TpsInfo GetTpsData()
+        public TpsInfo GetTpsData(int type = 0)
         {
-            return _indexService.GetTpsInfo(Net);
+            TpsInfo info;
+            switch (type)
+            {
+                // Points within 24H, with 1 min interval
+                case 1:
+                    info = _tpsService.GetPoints24H(Net);
+                    break;
+                // Points within week
+                case 2:
+                    info = _tpsService.GetPointsWeek(Net);
+                    break;
+                // Points within month
+                case 3:
+                    info = _tpsService.GetPointsMonth(Net);
+                    break;
+                // 100 points, with the interval from app settings
+                default:
+                    info = _indexService.GetTpsInfo(Net);
+                    break;
+            }
+            info.ShowTypeBtn = true;
+            return info;
         }
 
         // Gets data for "Network nodes" page
