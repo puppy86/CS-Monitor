@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Net;
 using System.Threading;
 using csmon.Models;
 using csmon.Models.Services;
@@ -8,10 +7,13 @@ using Microsoft.Extensions.Configuration;
 
 namespace csmon.Controllers
 {
+    // Controller that serves client requests
     public class MonitorController : Controller
     {
+        // The reference to service that run in background
         private readonly IIndexService _indexService;
 
+        // Constructor, parameters are provided by framework
         public MonitorController(IConfiguration configuration, IIndexService indexService)
         {
             _indexService = indexService;
