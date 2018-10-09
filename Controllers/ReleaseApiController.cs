@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using csmon.Models;
-using csmon.Models.Db;
 using csmon.Models.Services;
 using Microsoft.AspNetCore.Mvc;
 using Release;
