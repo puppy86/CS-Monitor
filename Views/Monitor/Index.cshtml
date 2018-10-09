@@ -59,19 +59,23 @@
                             setTimeout(vm.getData, 1000);
                         });
                 },
+                pad: function (num) {
+                    var s = `0${num}`;
+                    return s.substr(s.length-2);
+                },
                 getAge: function(time) {
-                    var daysDiffInMilliSec = new Date(this.model.lastBlockData.now) - new Date(time);
-                    if (daysDiffInMilliSec < 0) return "0";
-                    var daysLeft = Math.floor(daysDiffInMilliSec / 86400000);
-                    daysDiffInMilliSec -= daysLeft * 86400000;
-                    var hoursLeft = Math.floor(daysDiffInMilliSec / 3600000);
-                    daysDiffInMilliSec -= hoursLeft * 3600000;
-                    var minsLeft = Math.floor(daysDiffInMilliSec / 60000);
-                    daysDiffInMilliSec -= minsLeft * 60000;
-                    var secLeft = Math.floor(daysDiffInMilliSec / 1000);
+                    var daysDiffInMillSec = new Date(this.model.lastBlockData.now) - new Date(time);
+                    if (daysDiffInMillSec < 0) return "0";
+                    var daysLeft = Math.floor(daysDiffInMillSec / 86400000);
+                    daysDiffInMillSec -= daysLeft * 86400000;
+                    var hoursLeft = Math.floor(daysDiffInMillSec / 3600000);
+                    daysDiffInMillSec -= hoursLeft * 3600000;
+                    var minutesLeft = Math.floor(daysDiffInMillSec / 60000);
+                    daysDiffInMillSec -= minutesLeft * 60000;
+                    var secLeft = Math.floor(daysDiffInMillSec / 1000);
                     var res = daysLeft !== 0 ? daysLeft + "d " : "";
-                    res += hoursLeft !== 0 || daysLeft !== 0 ? hoursLeft + "h " : "";
-                    res += minsLeft + "m " + secLeft + "s";
+                    res += hoursLeft !== 0 || daysLeft !== 0 ? this.pad(hoursLeft) + "h " : "";
+                    res += this.pad(minutesLeft) + "m " + this.pad(secLeft) + "s";
                     return res;
                 },
                 getStats: function () {
@@ -94,7 +98,7 @@
 
 <div class="row justify-content-center">
     <div class="col-12 col-md-8">
-        <form id="searchform" action="~/@network/monitor/search" method="post">
+        <form id="search-form" action="~/@network/monitor/search" method="post">
             <div class="input-group mb-3">
                 <input type="text" name="query" placeholder="Search transaction, block, account, etc" class="form-control">
                 <div class="input-group-append">
