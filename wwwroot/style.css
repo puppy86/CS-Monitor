@@ -3,10 +3,18 @@ body {
 }
 
 .mw1000 {
-    min-width: 400px;
+    min-width: 364px;
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
+}
+
+/* Make smaller navbar padding on mobile */
+@media (max-width: 404px) {
+    .navbar {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
 }
 
 .navbar-shadow {
@@ -44,3 +52,8 @@ code {
     background-color: rgb(233, 236, 239) !important;
     border-bottom-color: rgb(213, 216, 219) !important;
 }
+
+.copyright-text {
+    font-size: 14px;
+}
+

@@ -74,7 +74,7 @@
         };
 
         var menuItems = [
-            { title: "20 Min", value: 0, unit: 'second' },
+            { title: "Live data", value: 0, unit: 'second' },
             { title: "24 Hours", value: 1, unit: 'minute' },
             { title: "Week", value: 2, unit: 'hour' },
             { title: "Month", value: 3, unit: 'day' }
@@ -85,13 +85,16 @@
             data: {
                 net: M_NET,
                 showBtn: false,
+                loading: false,
                 count: '',
                 chart: {},
                 menuItems: menuItems,
-                item: menuItems[0]
+                item: menuItems[0],
+                timeoutHandle: null
             },
             methods: {
                 getData: function () {
+                    if (this.item.value > 0) this.loading = true;
                     $.get(`${M_API}/GetTpsData?type=${this.item.value}`)
                         .done(function (model) {
                             vm.showBtn = model.showTypeBtn;
@@ -100,13 +103,14 @@
                             vm.chart.options.scales.xAxes[0].time.unit = vm.item.unit;
                             vm.chart.update();
                         }).always(function () {
+                            vm.loading = false;
                             if(vm.item.value == 0)
-                                setTimeout(vm.getData, 2000);
+                                vm.timeoutHandle = setTimeout(vm.getData, 2000);                            
                         });
                 },
                 menuItemSet: function(item) {
                     this.item = item;
-                    clearTimeout(vm.getData);
+                    clearTimeout(this.timeoutHandle);
                     vm.getData();
                 }
             }
@@ -119,22 +123,33 @@
 }
 
 
-    <h4 class="my-3">Transactions per second</h4>
-    <div v-show="showBtn" class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {{item.title}}
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a v-for="item in menuItems" class="dropdown-item" href="#" v-on:click="menuItemSet(item)">{{item.title}}</a>
-        </div>
-    </div>
-    <div id="txt" class="mt-4">Points count: {{count}}</div>
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <canvas id="chart" width="800" height="400"></canvas>
-                </div>
+<h4 class="my-3">Transactions per second</h4>
+<div class="row">
+    <div class="col-5">
+        <div v-show="showBtn" class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{item.title}}
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a v-for="item in menuItems" class="dropdown-item" href="#" v-on:click="menuItemSet(item)">{{item.title}}</a>
             </div>
         </div>
-    </div> 
+    </div>
+    <div class="col-5 col-md-2" v-show="loading">
+        <h6>Loading...</h6>
+        <div class="progress mt-1">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+</div>
+
+<div id="txt" class="mt-4">Points count: {{count}}</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <canvas id="chart" width="800" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+</div> 
