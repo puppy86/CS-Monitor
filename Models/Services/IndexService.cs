@@ -46,9 +46,12 @@ namespace csmon.Models.Services
         private const int SizeIn = 300; // A size of input blocks cache
         private const int SizeOut = 100; // A size of blocks list on main page
         public const int SizeOutAll = 100000; // Size of blocks cache
-        
+        private static readonly int TpsPointsCount = 3600 / Settings.TpsIntervalSec; // Tps points count
+
         // Storage for data of each network
         private readonly Dictionary<string, IndexServiceState> _states = new Dictionary<string, IndexServiceState>();
+
+        private bool _noDb; // we make this true in case of db connection error
 
         // Constructor, parameters are provided by service provider
         public IndexService(ILogger<IndexService> logger)
@@ -208,12 +211,14 @@ namespace csmon.Models.Services
                                 try
                                 {
                                     // Smart contracts count = n
-                                    using (var db = ApiFab.GetDbContext())
-                                        statData.Correct(db.Smarts.Count(s => s.Network == tpState.Net.Id));
+                                    if(!_noDb) // if we have successful connect to db previous time
+                                        using (var db = ApiFab.GetDbContext())
+                                            statData.Correct(db.Smarts.Count(s => s.Network == tpState.Net.Id));
                                 }
                                 catch (Exception)
                                 {
-                                    // ignored if no db connection
+                                    // remember if no db connection or other error
+                                    _noDb = true;
                                 }
 
                                 // Update stats in the state
@@ -353,7 +358,7 @@ namespace csmon.Models.Services
                 // Calculate TPS point
                 if ((int)(curTime - curTime.Date).TotalSeconds % Settings.TpsIntervalSec == 0)
                 {
-                    while (tpState.Points.Count >= 100) tpState.Points.TryDequeue(out _);
+                    while (tpState.Points.Count >= TpsPointsCount) tpState.Points.TryDequeue(out _);
                     var txCount = lastPoolInfos.Where(p => p.Time > curTime.AddSeconds(-Settings.TpsIntervalSec)).Sum(p => p.TxCount);
                     tpState.Points.Enqueue(new Point { X = curTime, Y = txCount / Settings.TpsIntervalSec });
                 }
