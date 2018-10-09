@@ -100,6 +100,13 @@ namespace csmon.Models.Services
 
         private void OnGetTimer(object state)
         {
+            using (var db = ApiFab.GetDbContext())
+            {
+                // Delete all points older than a month
+                var endDate = DateTime.Now.AddDays(-30);
+                var unused = db.Database.ExecuteSqlCommand($"DELETE Tps WHERE Time < {endDate}");
+            }
+
             // Schedule next time
             _getTimer.Change(_periodGet, 0);
         }
