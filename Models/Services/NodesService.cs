@@ -15,7 +15,7 @@ namespace csmon.Models.Services
     public interface INodesService
     {
         // Gets a list of blockchain network nodes by given network id
-        NodesData GetNodes(string network);
+        NodesData GetNodes(string network, int page);
     }
 
     // The service that communicates with signal servers and stores info about network nodes
@@ -172,12 +172,24 @@ namespace csmon.Models.Services
         }
 
         // Gets the list of network nodes by network id
-        public NodesData GetNodes(string network)
+        public NodesData GetNodes(string network, int page)
         {
+            const int numPerPage = 15;
+            if (page <= 0) page = 1;
+            var offset = numPerPage * (page - 1);
+
+            var nodes = _states[network].Nodes;
+            var nodesCount = nodes.Count;
+            var listNodes = nodes.Skip(offset).Take(numPerPage).ToList();
+
             // Prepare the result and return
             var result = new NodesData
             {
-                Nodes = _states[network].Nodes,
+                Page = page,
+                Nodes = listNodes,
+                HaveNextPage = nodesCount > offset + numPerPage,
+                LastPage = ConvUtils.GetNumPages(nodesCount, numPerPage),
+                NumStr = nodesCount > 0 ? $"{offset + 1} - {offset + listNodes.Count} of {nodesCount}" : "0",
                 ShowKey = !Network.GetById(network).RandomNodes
             };
             return result;            
