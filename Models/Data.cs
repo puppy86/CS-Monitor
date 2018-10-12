@@ -146,10 +146,9 @@ namespace csmon.Models
         public string Value { get; set; }
         public string Fee { get; set; }
         public string Currency { get; set; }
-        public string SmartContractSource { get; set; }
-        public string SmartContractHashState { get; set; }
-        public int Index;
-        public bool Status = true;
+        public long InnerId { get; set; }
+        public int Index { get; set; }
+        public bool Status { get; set; } = true;
         public string PoolHash
         {
             get
@@ -173,9 +172,6 @@ namespace csmon.Models
             ToAccount = ConvUtils.ConvertHashPartial(tr.Target.Trim());
             Currency = tr.Currency;
             Fee = "0";
-            if (tr.SmartContract == null) return;
-            SmartContractSource = tr.SmartContract.SourceCode;
-            SmartContractHashState = tr.SmartContract.HashState;
         }
 
         public TransactionInfo(int idx, Release.TransactionId id, Release.Transaction tr)
@@ -188,9 +184,7 @@ namespace csmon.Models
             ToAccount = Base58Encoding.Encode(tr.Target);
             Currency = "CS";
             Fee = ConvUtils.FormatAmount(tr.Fee);
-            if (tr.SmartContract == null) return;
-            SmartContractSource = tr.SmartContract.SourceCode;
-            SmartContractHashState = tr.SmartContract.HashState;
+            InnerId = tr.Id;
         }
     }
 
@@ -335,7 +329,7 @@ namespace csmon.Models
     }
 
     // Contains list of nodes
-    public class NodesData
+    public class NodesData : PageData
     {
         public List<NodeInfo> Nodes;
         public bool ShowKey = true;
