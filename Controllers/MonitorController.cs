@@ -54,33 +54,43 @@ namespace csmon.Controllers
         [HttpPost]
         public IActionResult Search(string query)
         {
-            var network = RouteData.Values["network"].ToString();            
+            // Get network id from the url
+            var network = RouteData.Values["network"].ToString();
+
+            // if search query is empty, return back on same page
             if (string.IsNullOrEmpty(query))
                 return Redirect(Request.Headers["Referer"].ToString());
 
+            // if search query contains dot, then its probably a transaction id, redirect to transaction page with the id
             if (query.Contains("."))
                 return RedirectToAction(nameof(Transaction), new {id = query, netwok = network});
 
-            if (Network.GetById(network).Api.EndsWith("/Api"))
+            if (Network.GetById(network).Api.EndsWith("/Api")) // For Mainnet API
             {
+                // Smart contracts address starts with CS
                 if (query.StartsWith("CS"))
                     return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Contract)}/{query}");
 
+                // Block hash
                 if (query.All("0123456789ABCDEF".Contains))
                     return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Ledger)}/{query}");
 
+                // Probably an account in Hex encoding
                 if (query.All("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".Contains))
                     return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Account)}/{query}");
             }
-            else
+            else // For release API
             {
+                // Block hash
                 if (query.All("0123456789ABCDEF".Contains))
                     return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Ledger)}/{query}");
 
+                // Probably a smart contract in Hex encoding, if its an account then smart contract page will redirect to it itself
                 if (query.All("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".Contains))
                     return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Contract)}/{query}");
             }
 
+            // Go to not found page in other cases
             ViewData["id"] = query;
             return View("NotFound");
         }

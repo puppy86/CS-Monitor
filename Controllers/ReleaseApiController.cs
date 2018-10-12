@@ -126,7 +126,7 @@ namespace csmon.Controllers
                     i++;
                 }
 
-                // Make label that above transactions table, it's simlier to make it here, and return the result
+                // Make label that above transactions table, it's simpler to make it here, and return the result
                 result.NumStr = poolTr.Transactions.Any() ? $"{offset + 1} - {offset + poolTr.Transactions.Count} of {txcount}" : "0";
                 return result;
             }
@@ -315,10 +315,10 @@ namespace csmon.Controllers
             return info;
         }
 
-        // Gets data for "Network nodes" page
-        public NodesData GetNodesData()
+        // Gets data for "Network nodes" page by given page
+        public NodesData GetNodesData(int id = 1)
         {
-            return _nodesService.GetNodes(Net);
+            return _nodesService.GetNodes(Net, id);
         }
 
         // Gets data for "Activity Graph" page (not used for now)
