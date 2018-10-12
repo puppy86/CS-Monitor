@@ -274,10 +274,10 @@ namespace csmon.Controllers
             return _indexService.GetTpsInfo(Net);
         }
 
-        // Gets data for "Network nodes" page
-        public NodesData GetNodesData()
+        // Gets data for "Network nodes" page by given page
+        public NodesData GetNodesData(int id = 1)
         {
-            return _nodesService.GetNodes(Net);
+            return _nodesService.GetNodes(Net, id);
         }
 
         // Gets data for "Activity Graph" page (not used for now)
