@@ -9,6 +9,8 @@
 @section script
 {
     <script>
+        $("#navItemHome").addClass("active");
+
         var model = @Html.Raw(Json.Serialize(Model));
         var st = @Html.Raw(Json.Serialize(ViewData["stats"]));
         const numPerPage = 10;
@@ -36,8 +38,8 @@
             methods: {
                 getPools: function(p) {
                     var filteredPools = this.allPools.filter(function(pool) {
-                            return !vm.filterEmpty || pool.txCount > 0;
-                        });
+                        return !vm.filterEmpty || pool.txCount > 0;
+                    });
                     this.lastPage = Math.ceil(filteredPools.length / numPerPage);
                     if (this.lastPage === 0) this.lastPage = 1;
                     const pg = p > this.lastPage ? this.lastPage : p;

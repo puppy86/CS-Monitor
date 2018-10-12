@@ -1,33 +1,35 @@
 ﻿
 @section script
 {
-<script>
-	var vm = new Vue({
-		el: "#app",
-        data: {
-            net: M_NET,
-            page: @ViewData["page"],
-            loading: false,
-            ledgersData: { }
-		},
-		methods: {
-            getLedgers: function (p) {
-                this.loading = true;
-                $.get(`${M_API}/ledgers/${p}`)
-                    .done(vm.onGetData)
-                    .always(function() {
-                        vm.loading = false;
-                    });
-			},
-			onGetData: function (data) {
-				this.page = data.page;
-                this.ledgersData = data;
-			}
-		}
-	});
+    <script>
+        $("#navItemBlocks").addClass("active");
 
-	vm.getLedgers(vm.page);
-</script>
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                page: @ViewData["page"],
+                loading: false,
+                ledgersData: { }
+            },
+            methods: {
+                getLedgers: function (p) {
+                    this.loading = true;
+                    $.get(`${M_API}/ledgers/${p}`)
+                        .done(vm.onGetData)
+                        .always(function() {
+                            vm.loading = false;
+                        });
+                },
+                onGetData: function (data) {
+                    this.page = data.page;
+                    this.ledgersData = data;
+                }
+            }
+        });
+
+        vm.getLedgers(vm.page);
+    </script>
 }
 
 <h4>All blocks processed in the network</h4>
