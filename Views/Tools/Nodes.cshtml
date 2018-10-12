@@ -24,51 +24,39 @@
 {
     <script>
 
-        const numPerPage = 15;
-
         var vm = new Vue({
             el: "#app",
             data: {
                 net: M_NET,
-                allNodes: [],
                 page: 1,
-                haveNextPage: false,
-                lastPage: 1,
-                nodes: [],
-                showKey: false
+                nodesData: {}
             },
             methods: {
-                getNodes: function (p) {
-                    this.lastPage = Math.ceil(this.allNodes.length / numPerPage);
-                    this.nodes = this.allNodes.slice(numPerPage * (p - 1), numPerPage * p);
-                    this.page = p;
-                    this.haveNextPage = this.allNodes.length > (numPerPage * p);
-                },
-                getData: function () {
-                    $.get(`${M_API}/GetNodesData`)
-                        .done(function (data) {
-                            vm.allNodes = data.nodes;
-                            vm.showKey = data.showKey;
-                            vm.getNodes(vm.page);
+                getData: function(p) {
+                    $.get(`${M_API}/GetNodesData/${p}`)
+                        .done(function(data) {
+                            vm.page = data.page;
+                            vm.nodesData = data;                            
                             //initMap();
                         });
                 }
             },
             created: function() {
-                this.getData();
+                this.getData(this.page);
             }
         });
 
         function initMap() {
 
-            var map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 2,
-                center: { lat: 0, lng: 0 }
-            });
+            var map = new google.maps.Map(document.getElementById('map'),
+                {
+                    zoom: 2,
+                    center: { lat: 0, lng: 0 }
+                });
 
 
             // ReSharper disable once UnusedParameter
-            const markers = vm.allNodes.map(function (location, i) {
+            const markers = vm.allNodes.map(function(location, i) {
                 const contentString = `${location.ip}<table>
                                             <tr>
                                                 <th>Version:</th>
@@ -107,15 +95,19 @@
                     position: { lat: location.latitude, lng: location.longitude },
                     label: location.ip
                 });
-                marker.addListener('click', function () {
-                    infowindow.open(map, marker);
-                });
+                marker.addListener('click',
+                    function() {
+                        infowindow.open(map, marker);
+                    });
                 return marker;
             });
 
             // ReSharper disable once UnusedLocals
-            const markerCluster = new MarkerClusterer(map, markers,
-                { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
+            const markerCluster = new MarkerClusterer(map,
+                markers,
+                {
+                    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+                });
         }
 
     </script>
@@ -131,23 +123,23 @@
 
 @*<div id="map"></div>*@
 
-<div class="mt-4">Number of nodes: {{allNodes.length}}</div>
-<pb :page="page" :getfn="getNodes" :next="haveNextPage" :last="lastPage"></pb>
+<div class="mt-4">Nodes {{nodesData.numStr}}</div>
+<pb :page="page" :getfn="getData" :next="nodesData.haveNextPage" :last="nodesData.lastPage"></pb>
 <div class="table-responsive">
     <table class="table table-sm table-striped border-bottom border-primary table_info_trans">
         <thead class="thead-light">
             <tr>
                 <th>IP</th>
-                <th v-show="showKey">Public key</th>
+                <th v-show="nodesData.showKey">Public key</th>
                 <th>Country</th>
                 <th>Version</th>
                 <th>Platform</th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="item in nodes">
+            <tr v-for="item in nodesData.nodes">
                 <td>{{item.ip}}</td>
-                <td v-show="showKey">{{item.publicKey}}</td>
+                <td v-show="nodesData.showKey">{{item.publicKey}}</td>
                 <td><img :src="'https://www.countryflags.io/'+item.country+'/shiny/32.png'" alt=""> {{item.countryName}}</td>
                 <td>v{{item.version}}</td>
                 <td v-if="item.platform == 0"><img src="/img/Linux.png" alt=""> Linux</td>
@@ -157,5 +149,5 @@
         </tbody>
     </table>
 </div>
-<pb :page="page" :getfn="getNodes" :next="haveNextPage" :last="lastPage"></pb>
+<pb :page="page" :getfn="getData" :next="nodesData.aveNextPage" :last="nodesData.lastPage"></pb>
 
