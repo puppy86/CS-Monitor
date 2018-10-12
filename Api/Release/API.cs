@@ -35,6 +35,7 @@ namespace Release
       byte[] WaitForBlock(byte[] obsolete);
       TransactionId WaitForSmartTransaction(byte[] smart_address);
       SmartContractsListGetResult SmartContractsAllListGet(long offset, long limit);
+      SmartMethodParamsGetResult SmartMethodParamsGet(byte[] address, long id);
     }
 
     public interface Iface : ISync {
@@ -101,6 +102,10 @@ namespace Release
       #if SILVERLIGHT
       IAsyncResult Begin_SmartContractsAllListGet(AsyncCallback callback, object state, long offset, long limit);
       SmartContractsListGetResult End_SmartContractsAllListGet(IAsyncResult asyncResult);
+      #endif
+      #if SILVERLIGHT
+      IAsyncResult Begin_SmartMethodParamsGet(AsyncCallback callback, object state, byte[] address, long id);
+      SmartMethodParamsGetResult End_SmartMethodParamsGet(IAsyncResult asyncResult);
       #endif
     }
 
@@ -1159,6 +1164,69 @@ namespace Release
         throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "SmartContractsAllListGet failed: unknown result");
       }
 
+      
+      #if SILVERLIGHT
+      public IAsyncResult Begin_SmartMethodParamsGet(AsyncCallback callback, object state, byte[] address, long id)
+      {
+        return send_SmartMethodParamsGet(callback, state, address, id);
+      }
+
+      public SmartMethodParamsGetResult End_SmartMethodParamsGet(IAsyncResult asyncResult)
+      {
+        oprot_.Transport.EndFlush(asyncResult);
+        return recv_SmartMethodParamsGet();
+      }
+
+      #endif
+
+      public SmartMethodParamsGetResult SmartMethodParamsGet(byte[] address, long id)
+      {
+        #if !SILVERLIGHT
+        send_SmartMethodParamsGet(address, id);
+        return recv_SmartMethodParamsGet();
+
+        #else
+        var asyncResult = Begin_SmartMethodParamsGet(null, null, address, id);
+        return End_SmartMethodParamsGet(asyncResult);
+
+        #endif
+      }
+      #if SILVERLIGHT
+      public IAsyncResult send_SmartMethodParamsGet(AsyncCallback callback, object state, byte[] address, long id)
+      #else
+      public void send_SmartMethodParamsGet(byte[] address, long id)
+      #endif
+      {
+        oprot_.WriteMessageBegin(new TMessage("SmartMethodParamsGet", TMessageType.Call, seqid_));
+        SmartMethodParamsGet_args args = new SmartMethodParamsGet_args();
+        args.Address = address;
+        args.Id = id;
+        args.Write(oprot_);
+        oprot_.WriteMessageEnd();
+        #if SILVERLIGHT
+        return oprot_.Transport.BeginFlush(callback, state);
+        #else
+        oprot_.Transport.Flush();
+        #endif
+      }
+
+      public SmartMethodParamsGetResult recv_SmartMethodParamsGet()
+      {
+        TMessage msg = iprot_.ReadMessageBegin();
+        if (msg.Type == TMessageType.Exception) {
+          TApplicationException x = TApplicationException.Read(iprot_);
+          iprot_.ReadMessageEnd();
+          throw x;
+        }
+        SmartMethodParamsGet_result result = new SmartMethodParamsGet_result();
+        result.Read(iprot_);
+        iprot_.ReadMessageEnd();
+        if (result.__isset.success) {
+          return result.Success;
+        }
+        throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "SmartMethodParamsGet failed: unknown result");
+      }
+
     }
     public class Processor : TProcessor {
       public Processor(ISync iface)
@@ -1180,6 +1248,7 @@ namespace Release
         processMap_["WaitForBlock"] = WaitForBlock_Process;
         processMap_["WaitForSmartTransaction"] = WaitForSmartTransaction_Process;
         processMap_["SmartContractsAllListGet"] = SmartContractsAllListGet_Process;
+        processMap_["SmartMethodParamsGet"] = SmartMethodParamsGet_Process;
       }
 
       protected delegate void ProcessFunction(int seqid, TProtocol iprot, TProtocol oprot);
@@ -1654,6 +1723,34 @@ namespace Release
           Console.Error.WriteLine(ex.ToString());
           TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
           oprot.WriteMessageBegin(new TMessage("SmartContractsAllListGet", TMessageType.Exception, seqid));
+          x.Write(oprot);
+        }
+        oprot.WriteMessageEnd();
+        oprot.Transport.Flush();
+      }
+
+      public void SmartMethodParamsGet_Process(int seqid, TProtocol iprot, TProtocol oprot)
+      {
+        SmartMethodParamsGet_args args = new SmartMethodParamsGet_args();
+        args.Read(iprot);
+        iprot.ReadMessageEnd();
+        SmartMethodParamsGet_result result = new SmartMethodParamsGet_result();
+        try
+        {
+          result.Success = iface_.SmartMethodParamsGet(args.Address, args.Id);
+          oprot.WriteMessageBegin(new TMessage("SmartMethodParamsGet", TMessageType.Reply, seqid)); 
+          result.Write(oprot);
+        }
+        catch (TTransportException)
+        {
+          throw;
+        }
+        catch (Exception ex)
+        {
+          Console.Error.WriteLine("Error occurred in processor:");
+          Console.Error.WriteLine(ex.ToString());
+          TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
+          oprot.WriteMessageBegin(new TMessage("SmartMethodParamsGet", TMessageType.Exception, seqid));
           x.Write(oprot);
         }
         oprot.WriteMessageEnd();
@@ -5403,6 +5500,262 @@ namespace Release
 
       public override string ToString() {
         StringBuilder __sb = new StringBuilder("SmartContractsAllListGet_result(");
+        bool __first = true;
+        if (Success != null && __isset.success) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Success: ");
+          __sb.Append(Success== null ? "<null>" : Success.ToString());
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class SmartMethodParamsGet_args : TBase
+    {
+      private byte[] _address;
+      private long _id;
+
+      public byte[] Address
+      {
+        get
+        {
+          return _address;
+        }
+        set
+        {
+          __isset.address = true;
+          this._address = value;
+        }
+      }
+
+      public long Id
+      {
+        get
+        {
+          return _id;
+        }
+        set
+        {
+          __isset.id = true;
+          this._id = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool address;
+        public bool id;
+      }
+
+      public SmartMethodParamsGet_args() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 1:
+                if (field.Type == TType.String) {
+                  Address = iprot.ReadBinary();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              case 2:
+                if (field.Type == TType.I64) {
+                  Id = iprot.ReadI64();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("SmartMethodParamsGet_args");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+          if (Address != null && __isset.address) {
+            field.Name = "address";
+            field.Type = TType.String;
+            field.ID = 1;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteBinary(Address);
+            oprot.WriteFieldEnd();
+          }
+          if (__isset.id) {
+            field.Name = "id";
+            field.Type = TType.I64;
+            field.ID = 2;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteI64(Id);
+            oprot.WriteFieldEnd();
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("SmartMethodParamsGet_args(");
+        bool __first = true;
+        if (Address != null && __isset.address) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Address: ");
+          __sb.Append(Address);
+        }
+        if (__isset.id) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Id: ");
+          __sb.Append(Id);
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class SmartMethodParamsGet_result : TBase
+    {
+      private SmartMethodParamsGetResult _success;
+
+      public SmartMethodParamsGetResult Success
+      {
+        get
+        {
+          return _success;
+        }
+        set
+        {
+          __isset.success = true;
+          this._success = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool success;
+      }
+
+      public SmartMethodParamsGet_result() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 0:
+                if (field.Type == TType.Struct) {
+                  Success = new SmartMethodParamsGetResult();
+                  Success.Read(iprot);
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("SmartMethodParamsGet_result");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+
+          if (this.__isset.success) {
+            if (Success != null) {
+              field.Name = "Success";
+              field.Type = TType.Struct;
+              field.ID = 0;
+              oprot.WriteFieldBegin(field);
+              Success.Write(oprot);
+              oprot.WriteFieldEnd();
+            }
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("SmartMethodParamsGet_result(");
         bool __first = true;
         if (Success != null && __isset.success) {
           if(!__first) { __sb.Append(", "); }
