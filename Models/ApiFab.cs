@@ -5,8 +5,10 @@ using Thrift.Transport;
 
 namespace csmon.Models
 {
+    // Utility class for creating Thrift API clients, and DB connections
     public static class ApiFab
     {
+        // Creates Mainnet Thrift API client
         public static NodeApi.API.Client CreateNodeApi(string addr)
         {
             TTransport transport = new TSocket(addr, 9090, 60000);
@@ -16,6 +18,7 @@ namespace csmon.Models
             return client;
         }
 
+        // Creates Release Thrift API Client
         public static Release.API.Client CreateReleaseApi(string addr)
         {
             TTransport transport = new TSocket(addr, 9090, 60000);
@@ -25,6 +28,7 @@ namespace csmon.Models
             return client;
         }
 
+        // Creates Signal Server Thrift API Client
         public static ServerApi.API.Client CreateSignalApi(string addr)
         {
             TTransport transport = new TSocket(addr, Settings.SignalPort, 20000);
@@ -34,6 +38,7 @@ namespace csmon.Models
             return client;
         }
 
+        // Creates DB Connection
         public  static  CsmonDbContext GetDbContext()
         {
             return new CsmonDbContext(new DbContextOptions<CsmonDbContext>());
