@@ -137,14 +137,15 @@
                 <a class="nav-link" v-bind:class="{active: activeTab === 'total'}" href="#" v-on:click="activeTab = 'total'">Total</a>
             </li>
         </ul>
-        <div class="tab-content">
+        <div class="tab-content d-none d-sm-block">
             <table class="table border-bottom mb-0">
                 <thead class="thead-light">
                     <tr>
-                        <th>Txs count</th>
-                        <th>All blocks</th>
-                        <th>Volume</th>
-                        <th>Smart contracts / Txs count</th>
+                        <th class="align-text-top">Txs count</th>
+                        <th class="align-text-top">All blocks</th>
+                        <th class="align-text-top">Volume</th>
+                        <th class="align-text-top">Smart<br/>contracts</th>
+                        <th class="align-text-top">Txs count<br/><em><span style="font-weight:normal">in contracts</span></em></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -152,9 +153,34 @@
                         <td>{{stats[activeTab].allTransactions.value}}</td>
                         <td>{{stats[activeTab].allLedgers.value}}</td>
                         <td>{{stats[activeTab].csVolume.value}}</td>
-                        <td>{{stats[activeTab].smartContracts.value}} / {{stats[activeTab].scTransactions.value}}</td>
+                        <td>{{stats[activeTab].smartContracts.value}}</td>
+                        <td>{{stats[activeTab].scTransactions.value}}</td>
                     </tr>
                 </tbody>
+            </table>
+        </div>
+        <div class="tab-content d-block d-sm-none">
+            <table class="table border-bottom mb-0">
+                <tr>
+                    <th scope="row">Txs count</th>
+                    <td>{{stats[activeTab].allTransactions.value}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">All blocks</th>
+                    <td>{{stats[activeTab].allLedgers.value}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Volume</th>
+                    <td>{{stats[activeTab].csVolume.value}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Smart contracts count</th>
+                    <td>{{stats[activeTab].smartContracts.value}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Txs count in contracts</th>
+                    <td>{{stats[activeTab].scTransactions.value}}</td>
+                </tr>
             </table>
         </div>
     </div>
