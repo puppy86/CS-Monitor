@@ -157,7 +157,8 @@ namespace csmon.Models
                 return Id.Split(".")[0];
             }
         }        
-        public bool Found;
+        public bool Found { get; set; }
+        public string Method { get; set; }
 
         public TransactionInfo()
         {
@@ -185,6 +186,9 @@ namespace csmon.Models
             Currency = "CS";
             Fee = ConvUtils.FormatAmount(tr.Fee);
             InnerId = tr.Id;
+            if (tr.SmartContract == null) return;
+            if(string.IsNullOrEmpty(tr.SmartContract.Method)) return;
+            Method = $"{tr.SmartContract.Method}({string.Join(',', tr.SmartContract.Params)})";
         }
     }
 
