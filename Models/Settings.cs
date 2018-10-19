@@ -12,6 +12,7 @@ namespace csmon.Models
         public static int UpdNodesPeriodSec;
         public static int SignalPort;
         public static int TpsIntervalSec;
+        public static bool RemoteDatabase;
 
         // Extracts settings from app config, must be called at startup
         public static void Parse(IConfiguration config)
@@ -21,6 +22,7 @@ namespace csmon.Models
             UpdNodesPeriodSec = int.Parse(config["UpdNodesPeriodSec"]);
             SignalPort = int.Parse(config["SignalPort"]);
             TpsIntervalSec = int.Parse(config["TpsIntervalSec"]);
+            RemoteDatabase = bool.Parse(config["RemoteDatabase"]);
         }
     }
 }
