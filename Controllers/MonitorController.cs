@@ -25,7 +25,6 @@ namespace csmon.Controllers
             return View(new IndexData());
         }
 
-        [Route("{network}/[controller]/[action]/{id}/{page:int=1}")]
         public IActionResult Ledger(string id, int page=1)
         {
             ViewData["blockId"] = id;
@@ -69,25 +68,25 @@ namespace csmon.Controllers
             {
                 // Smart contracts address starts with CS
                 if (query.StartsWith("CS"))
-                    return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Contract)}/{query}");
+                    return Redirect($"/{network}/{nameof(Contract)}/{query}");
 
                 // Block hash
                 if (query.All("0123456789ABCDEF".Contains))
-                    return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Ledger)}/{query}");
+                    return Redirect($"/{network}/{nameof(Ledger)}/{query}");
 
                 // Probably an account in Hex encoding
                 if (query.All("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".Contains))
-                    return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Account)}/{query}");
+                    return Redirect($"/{network}/{nameof(Account)}/{query}");
             }
             else // For release API
             {
                 // Block hash
                 if (query.All("0123456789ABCDEF".Contains))
-                    return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Ledger)}/{query}");
+                    return Redirect($"/{network}/{nameof(Ledger)}/{query}");
 
                 // Probably a smart contract in Hex encoding, if its an account then smart contract page will redirect to it itself
                 if (query.All("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".Contains))
-                    return Redirect($"/{network}/{nameof(Monitor)}/{nameof(Contract)}/{query}");
+                    return Redirect($"/{network}/{nameof(Contract)}/{query}");
             }
 
             // Go to not found page in other cases
