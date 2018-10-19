@@ -74,24 +74,32 @@ namespace csmon.Models.Services
 
         private void OnPutTimer(object state)
         {
-            using (var db = ApiFab.GetDbContext())
+            try
             {
-                foreach (var network in Network.Networks)
+                using (var db = ApiFab.GetDbContext())
                 {
-                    // Get new Tps points from index service and put them in the db
-                    var st = _states[network.Id];
-                    var tpsInfo = _indexService.GetTpsInfo(network.Id);
-                    var newPoints = tpsInfo.Points.Where(p => p.X > st.LastTime).ToArray();
-                    if (!newPoints.Any()) continue;
-                    st.LastTime = newPoints.Max(p => p.X);
-                    db.Tps.AddRange(newPoints.Select(p => new Tp
+                    foreach (var network in Network.Networks)
                     {
-                        Network = network.Id,
-                        Time = p.X,
-                        Value = p.Y
-                    }));
-                    db.SaveChanges();
+                        // Get new Tps points from index service and put them in the db
+                        var st = _states[network.Id];
+                        var tpsInfo = _indexService.GetTpsInfo(network.Id);
+                        var newPoints = tpsInfo.Points.Where(p => p.X > st.LastTime).ToArray();
+                        if (!newPoints.Any()) continue;
+                        st.LastTime = newPoints.Max(p => p.X);
+                        db.Tps.AddRange(newPoints.Select(p => new Tp
+                        {
+                            Network = network.Id,
+                            Time = p.X,
+                            Value = p.Y
+                        }));
+                        db.SaveChanges();
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                // Log exception
+                _logger.LogError(e, "");
             }
 
             // Schedule next time
