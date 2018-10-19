@@ -29,7 +29,7 @@ namespace csmon.Models.Db
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(ConnectionString);
+            optionsBuilder.UseSqlServer(Settings.RemoteDatabase ? Config.ConnectionString : ConnectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
