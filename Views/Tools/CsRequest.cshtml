@@ -1,0 +1,41 @@
+﻿@using Microsoft.AspNetCore.Routing
+@{
+    var network = Context.GetRouteData().Values["network"].ToString();
+}
+@section head
+{
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+}
+
+<h3 class="my-3">Application to get Credits (CS) coins for testing</h3>
+<div style="max-width: 600px">
+    <p class="my-2">
+        If you wish to use our platform you need some internal coins to pay for transactions. Please fill in the form below and within 1-2 hours you will get them on your Credits account. All requests are being processed between 9am-10pm UTC time
+    </p>
+    <br />
+    <form action="~/@network/tools/CsRequestSubmit" method="post">
+        <div class="form-group">
+            <label for="address">Public wallet address in Credits blockchain</label>
+            @* ReSharper disable MarkupAttributeTypo *@
+            <input type="text" class="form-control" id="address" name="address" aria-describedby="addressHelp"
+                   required maxlength="64" pattern="[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+">
+            <small id="addressHelp" class="form-text text-muted">Example: EN2C4i6jizxfRoHXXJhNNTgobbgvNecnSoHDkSofEmre</small>
+        </div>
+        <div class="form-group">
+            <label for="email">Email address</label>
+            <input type="email" class="form-control" id="email" name="email" required
+                   aria-describedby="emailHelp" placeholder="Enter email">
+            <small id="emailHelp" class="form-text text-muted">Please enter a valid email address</small>
+        </div>
+        <div class="form-group">
+            <label for="amount">Amount of coins</label>
+            <input type="number" class="form-control" id="amount" name="amount" aria-describedby="amountHelp"
+                   value="100" min="1" max="100" required>
+            <small id="amountHelp" class="form-text text-muted">You will be provided up to 100 CS for your tests</small>
+        </div>
+        <br />
+        <div class="g-recaptcha" data-sitekey="6Lekq3UUAAAAAINJB4llCIKgW1ck64Y-RMHE9n2l"></div>
+        <br />
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
