@@ -1,6 +1,6 @@
 ﻿// A component that implements the list of given transactions as a table
 Vue.component("transactions", {
-    props: ["network", "source"],
+    props: ["network", "source", "method"],
 	template:
 	`<div class="table-responsive">
         <table class="table table-sm table-striped border-bottom border-primary table_info_trans">
@@ -17,9 +17,9 @@ Vue.component("transactions", {
             <tbody>
                 <tr v-for="item in source">
                     <td>{{item.index}}</td>                
-                    <td class="hash"><a :href="network + '/monitor/transaction/' + item.id">{{item.id}}</a></td>               
-                    <td class="hash"><a :href="network + '/monitor/account/' + item.fromAccount">{{item.fromAccount}}</a></td>
-                    <td class="hash"><a :href="network + '/monitor/account/' + item.toAccount">{{item.toAccount}}</a></td>
+                    <td class="hash"><a :href="network + '/transaction/' + item.id">{{item.id}}</a></td>               
+                    <td class="hash"><a :href="network + '/account/' + item.fromAccount">{{item.fromAccount}}</a></td>
+                    <td class="hash"><a :href="network + '/account/' + item.toAccount">{{item.toAccount}}</a></td>
                     <td>{{item.value}} {{item.currency}}</td>
                     <td>{{item.fee}}</td>
                 </tr>
