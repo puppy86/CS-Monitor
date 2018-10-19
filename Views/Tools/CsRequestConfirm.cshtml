@@ -1,0 +1,7 @@
+﻿@using Microsoft.AspNetCore.Routing
+@{
+    var network = Context.GetRouteData().Values["network"].ToString();
+}
+
+<h5 class="my-3">Your request has been processed!</h5>
+<a class="my-3" href="~/@network">Return to main page</a>
