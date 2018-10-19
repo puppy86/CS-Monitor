@@ -99,8 +99,8 @@
         <!-- /Yandex.Metrika counter (noscript)-->
     </environment>
     <map name="image-map">
-        <area target="" alt="Credits.com" title="Credits.com" href="~/@network/monitor/index" coords="1,1,165,42" shape="rect">
-        <area target="" alt="Home" title="Home" href="~/@network/monitor/index" coords="165,1,297,42" shape="rect">
+        <area target="" alt="Credits.com" title="Credits.com" href="~/@network" coords="1,1,165,42" shape="rect">
+        <area target="" alt="Home" title="Home" href="~/@network" coords="165,1,297,42" shape="rect">
     </map>
 
     <header class="fixed-top">
@@ -115,7 +115,7 @@
                         <div class="dropdown-menu dropdown-menu-right">
                             @foreach (var n in Network.Networks)
                             {
-                                <a class="dropdown-item" href="~/@n.Id/monitor/index">@n.Title</a>
+                                <a class="dropdown-item" href="~/@n.Id/">@n.Title</a>
                             }
                         </div>
                     </div>
@@ -131,16 +131,16 @@
                 <div id="navbarSupportedContent" class="collapse navbar-collapse">
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item" id="navItemHome">
-                            <a class="nav-link" href="~/@network/monitor/index">Home</a>
+                            <a class="nav-link" href="~/@network/index">Home</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="https://wallet.credits.com" target="_blank">Wallet</a>
                         </li>
                         <li class="nav-item" id="navItemBlocks">
-                            <a class="nav-link" href="~/@network/monitor/ledgers">Blocks</a>
+                            <a class="nav-link" href="~/@network/ledgers">Blocks</a>
                         </li>
                         <li class="nav-item" id="navItemContracts">
-                            <a class="nav-link" href="~/@network/monitor/contracts">Smart contracts</a>
+                            <a class="nav-link" href="~/@network/contracts">Smart contracts</a>
                         </li>
                         <li class="nav-item dropdown d-none d-md-block">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -149,6 +149,7 @@
                             <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown">
                                 <a class="dropdown-item " href="~/@network/tools/nodes">Network nodes</a>
                                 <a class="dropdown-item " href="~/@network/tools/tps">Transactions per second</a>
+                                <a class="dropdown-item " href="~/@network/tools/csrequest">Request coins</a>
                             </div>
                         </li>
                         <li class="nav-item d-md-none">
@@ -181,7 +182,7 @@
                     <div class="col-12 col-md-2">
                         <ul class="navbar-nav flex-column">
                             <li class="nav-item ">
-                                <a class="nav-link" href="~/@network/monitor/index">Home</a>
+                                <a class="nav-link" href="~/@network">Home</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="https://wallet.credits.com" target="_blank">Wallet</a>
@@ -189,15 +190,18 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="https://credits.com/en/Home/Contacts" target="_blank">Contacts</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="~/@network/tools/csrequest">Request coins</a>
+                            </li>
                         </ul>
                     </div>
                     <div class="col-12 col-md-4">
                         <ul class="navbar-nav flex-column">
                             <li class="nav-item">
-                                <a class="nav-link" href="~/@network/monitor/ledgers">Blocks</a>
+                                <a class="nav-link" href="~/@network/ledgers">Blocks</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="~/@network/monitor/contracts">Smart contracts</a>
+                                <a class="nav-link" href="~/@network/contracts">Smart contracts</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="~/@network/tools/nodes">Network nodes</a>
