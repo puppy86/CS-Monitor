@@ -86,6 +86,12 @@ namespace csmon
 
             app.UseMvc(routes =>
             {
+                routes.MapRoute("monitor", "{network}/{action}/{id?}",
+                    new
+                    {
+                        controller = "monitor"
+                    });
+
                 routes.MapRoute("default", "{network}/{controller}/{action}/{id?}",
                     new
                     {
