@@ -100,7 +100,7 @@
 
 <div class="row justify-content-center">
     <div class="col-12 col-md-8">
-        <form id="search-form" action="~/@network/monitor/search" method="post">
+        <form id="search-form" action="~/@network/search" method="post">
             <div class="input-group mb-3">
                 <input type="text" name="query" placeholder="Search transaction, block, account, etc" class="form-control">
                 <div class="input-group-append">
@@ -209,7 +209,7 @@
                 <td>{{item.number}}</td>
                 <td>{{getAge(item.time)}}</td>
                 <td class="text-success">Success</td>
-                <td class="hash"><a :href="net + '/monitor/ledger/' + item.hash">{{item.hash}}</a></td>
+                <td class="hash"><a :href="net + '/ledger/' + item.hash">{{item.hash}}</a></td>
                 <td>{{item.txCount}}</td>
             </tr>
         </tbody>
@@ -217,5 +217,5 @@
 </div>
 <pb :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage" :hidelast="true"></pb>
 <div class="row justify-content-center my-3">
-    <a class="btn btn-outline-primary" href="/@network/monitor/ledgers" role="button">More blocks...</a>
+    <a class="btn btn-outline-primary" href="/@network/ledgers" role="button">More blocks...</a>
 </div>

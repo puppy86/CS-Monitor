@@ -69,7 +69,7 @@
                 </tr>
                 <tr>
                     <td>Block:</td>
-                    <td><a :href="net + '/monitor/ledger/' + trans.poolHash">{{trans.poolHash}}</a></td>
+                    <td><a :href="net + '/ledger/' + trans.poolHash">{{trans.poolHash}}</a></td>
                 </tr>
                 <tr>
                     <td>Time stamp:</td>
@@ -77,11 +77,11 @@
                 </tr>
                 <tr>
                     <td>From:</td>
-                    <td><a :href="net + '/monitor/account/' + trans.fromAccount">{{trans.fromAccount}}</a></td>
+                    <td><a :href="net + '/account/' + trans.fromAccount">{{trans.fromAccount}}</a></td>
                 </tr>
                 <tr>
                     <td>To:</td>
-                    <td><a :href="net + '/monitor/account/' + trans.toAccount">{{trans.toAccount}}</a></td>
+                    <td><a :href="net + '/account/' + trans.toAccount">{{trans.toAccount}}</a></td>
                 </tr>
                 <tr>
                     <td>Value:</td>
@@ -90,6 +90,10 @@
                 <tr>
                     <td>Fee:</td>
                     <td>{{trans.fee}} {{trans.currency}}</td>
+                </tr>
+                <tr>
+                    <td>Method:</td>
+                    <td>{{trans.method}}</td>
                 </tr>
             </tbody>
         </table>

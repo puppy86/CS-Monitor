@@ -53,7 +53,7 @@
                             if (data.found)
                                 vm.getTransactions(vm.page);
                             else
-                                window.location.href = `${M_NET}/monitor/account/${vm.id}`;
+                                window.location.href = `${M_NET}/account/${vm.id}`;
                             vm.loading = false;
                         }).fail(function() {
                             vm.notFound = true;
