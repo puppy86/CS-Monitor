@@ -165,10 +165,12 @@ namespace csmon.Controllers
                 if (!tr.Found)
                     return tInfo;
 
-                // Otherwise, request block data and store block timeit in the result, and return the result
+                // Otherwise, request block data and store block time in the result
                 if (string.IsNullOrEmpty(tInfo.PoolHash)) return tInfo;
                 var pool = client.PoolInfoGet(ConvUtils.ConvertHashBack(tInfo.PoolHash), 0);
                 tInfo.Time = ConvUtils.UnixTimeStampToDateTime(pool.Pool.Time);
+
+                // return the result
                 return tInfo;
             }
         }
