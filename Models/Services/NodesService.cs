@@ -174,7 +174,7 @@ namespace csmon.Models.Services
         // Gets the list of network nodes by network id
         public NodesData GetNodes(string network, int page)
         {
-            const int numPerPage = 15;
+            const int numPerPage = 75;
             if (page <= 0) page = 1;
             var offset = numPerPage * (page - 1);
 
