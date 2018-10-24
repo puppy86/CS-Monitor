@@ -20,10 +20,18 @@ body {
 .navbar-shadow {
     /* ReSharper disable once RequiresFallbackColor */
     box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+.info-bar {
+    background-color: #fff9ca;
+    padding: 7px;
+    font-size: 14px;    
+    text-align: center;
 }
 
 .content {
-    margin-top: 140px;
+    margin-top: 160px;
     min-height: 400px;
 }
 
