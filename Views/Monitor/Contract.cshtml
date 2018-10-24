@@ -38,6 +38,7 @@
             data: {
                 net: M_NET,
                 id: '@ViewData["id"]',
+                activeTab: "transactions",
                 model: {},
                 loading: false,
                 loading_t: false,
@@ -120,23 +121,36 @@
         </table>
     </div>
 
-    <h4 class="my-3">Source code:</h4>
-    <div class="px-3">
-        <pre v-highlightjs="model.sourceCode"><code class="java"></code></pre>
-    </div>
+    <div class="row my-3">
+        <div class="col-12">
+            <ul class="nav nav-tabs my-1">
+                <li class="nav-item" v-bind:class="{bgActiveTab:activeTab === 'transactions'}">
+                    <a class="nav-link" v-bind:class="{active: activeTab === 'transactions'}" href="#" v-on:click="activeTab = 'transactions'">List of transactions</a>
+                </li>
+                <li class="nav-item" v-bind:class="{bgActiveTab:activeTab === 'source'}">
+                    <a class="nav-link" v-bind:class="{active: activeTab === 'source'}" href="#" v-on:click="activeTab = 'source'">Source code</a>
+                </li>
+            </ul>
+            <div v-show="activeTab === 'transactions'">
+                <div class="mt-4">Transactions {{transData.numStr}}</div>
+                <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pb>
 
-    <h4 class="my-3">List of transactions</h4>
-    <div class="mt-4">Transactions {{transData.numStr}}</div>
-    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pb>
+                <transactions v-show="!loading_t" :network="net" :source="transData.transactions"></transactions>
 
-    <transactions v-show="!loading_t" :network="net" :source="transData.transactions"></transactions>
-
-    <div class="row justify-content-center">
-        <div class="col-auto">
-            <div class="progress mt-1" v-show="loading_t">
-                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="row justify-content-center">
+                    <div class="col-auto">
+                        <div class="progress mt-1" v-show="loading_t">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+                <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pb>
+            </div>
+            <div v-show="activeTab === 'source'">
+                <div class="px-3">
+                    <pre v-highlightjs="model.sourceCode"><code class="java"></code></pre>
+                </div>
             </div>
         </div>
     </div>
-    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pb>
 </div>
