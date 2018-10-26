@@ -107,7 +107,7 @@ namespace csmon.Models.Services
         private async Task UpdateNetworkNodes(Network network)
         {
             // Create a connection to the signal server API
-            using (var client = ApiFab.CreateSignalApi(network.SignalIp))
+            using (var client = ApiFab.CreateSignalApi(network.SignalIp, network.SignalPort))
             {
                 // Get the list of nodes from API
                 var result = client.GetActiveNodes();
