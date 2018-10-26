@@ -29,9 +29,9 @@ namespace csmon.Models
         }
 
         // Creates Signal Server Thrift API Client
-        public static ServerApi.API.Client CreateSignalApi(string addr)
+        public static ServerApi.API.Client CreateSignalApi(string addr, int port)
         {
-            TTransport transport = new TSocket(addr, Settings.SignalPort, 20000);
+            TTransport transport = new TSocket(addr, port, 20000);
             TProtocol protocol = new TBinaryProtocol(transport);
             var client = new ServerApi.API.Client(protocol);
             transport.Open();
