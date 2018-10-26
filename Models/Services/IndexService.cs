@@ -37,8 +37,6 @@ namespace csmon.Models.Services
             public int StatRequestCounter; // For counting period of requesting statistics
             public volatile StatData StatData = new StatData(); // Statistics data
             public volatile IndexData IndexData = new IndexData(); // Data for main page
-            public bool EmulStop; // Flag used by emulator
-            public int EmulCounter; // For emulator
         }
 
         private readonly ILogger _logger; // For logging
@@ -79,7 +77,7 @@ namespace csmon.Models.Services
             return Task.CompletedTask;
         }
 
-        // Setvice stop point, called by the framework
+        // Service stop point, called by the framework
         public Task StopAsync(CancellationToken cancellationToken)
         {
             // Stop timers and complete
@@ -110,60 +108,6 @@ namespace csmon.Models.Services
         public List<PoolInfo> GetPools(string network, int offset, int limit)
         {
             return _states[network].PoolsOut.Skip(offset).Take(limit).ToList();
-        }
-
-        // ReSharper disable once UnusedMember.Local
-        private static void OnCacheTimerEmul(object state)
-        {
-            var tpState = (IndexServiceState)state;
-            var rnd = new Random();
-            if (!tpState.PoolsOut.Any() && !tpState.PoolsIn.Any())
-            {
-                var np = new List<PoolInfo>();
-                for (var i = 0; i < SizeOut; i++)
-                    np.Add(new PoolInfo
-                    {
-                        Number = 2021952 + i,
-                        Hash = "440B53FCC80578B478015A1C76F3A748758AE987203B4DDA96B569B3ADDA2859",
-                        Time = DateTime.Now,
-                        TxCount = rnd.Next(5, 15)
-                    });
-                np.Reverse();
-                tpState.PoolsOut = np;
-            }
-            else
-            {
-                if (tpState.EmulStop)
-                {
-                    if (tpState.EmulCounter >= 10)
-                    {
-                        tpState.EmulCounter = 0;
-                        tpState.EmulStop = false;
-                    }
-                    else if(!tpState.PoolsIn.Any())
-                        tpState.EmulCounter++;
-                }
-                else
-                    lock (tpState.PoolsLock)
-                    {
-                        var firstPoolNum = tpState.PoolsIn.Any()
-                            ? tpState.PoolsIn[0].Number
-                            : tpState.PoolsOut[0].Number;
-                        var np = new List<PoolInfo>();
-                        for (var i = 1; i < 2 + rnd.Next(0, 8); i++)
-                            np.Add(new PoolInfo
-                            {
-                                Number = firstPoolNum + i,
-                                Hash = "440B53FCC80578B478015A1C76F3A748758AE987203B4DDA96B569B3ADDA2859",
-                                Time = DateTime.Now,
-                                TxCount = rnd.Next(5, 15)
-                            });
-                        np.Reverse();
-                        tpState.PoolsIn = np.TakeWhile(p => p.Number > firstPoolNum).Concat(tpState.PoolsIn).ToList();
-                        //if (tpState.PoolsIn.Count > 100) tpState.EmulStop = true;
-                    }
-            }
-            tpState.TimerForCache.Change(Period, 0);
         }
 
         private void OnCacheTimer(object state)
