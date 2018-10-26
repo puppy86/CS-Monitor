@@ -236,6 +236,7 @@ namespace csmon.Models
         public string Api;
         public string Ip;
         public string SignalIp;
+        public int SignalPort = 8080;
         public bool CachePools;
         public bool RandomNodes;
         public bool Updating;
