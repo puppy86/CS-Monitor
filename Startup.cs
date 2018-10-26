@@ -21,18 +21,6 @@ namespace csmon
         {
             Configuration = configuration;
             Settings.Parse(Configuration);
-
-            foreach (var netSection in Configuration.GetSection("Networks").GetChildren())
-                Network.Networks.Add(new Network()
-                {
-                    Id = netSection["Id"],
-                    Title = netSection["Title"],
-                    Api = $"/{netSection["Id"]}/{netSection["API"]}",
-                    Ip = netSection["Ip"],
-                    SignalIp = netSection["SignalIp"],
-                    CachePools = bool.Parse(netSection["CachePools"]),
-                    RandomNodes = bool.Parse(netSection["RandomNodes"])
-                });
         }
 
         private static void AddHostedService<TService, TImplementation>(IServiceCollection services)
