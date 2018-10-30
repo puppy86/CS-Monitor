@@ -136,6 +136,8 @@ namespace csmon.Models.Services
                             {
                                 nodeInfo.Country = exnode.Country;
                                 nodeInfo.CountryName = exnode.Country_name;
+                                nodeInfo.Latitude = exnode.Latitude;
+                                nodeInfo.Longitude = exnode.Longitude;
                             }
                             else // Otherwise, try to get info by ip using ipapi.co web service
                             {
