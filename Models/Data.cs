@@ -94,7 +94,7 @@ namespace csmon.Models
     public class StatItem
     {
         public long Value;
-
+		
         public StatItem()
         {
         }
@@ -313,6 +313,8 @@ namespace csmon.Models
         public string CountryName;
         public string Version;
         public int Platform;
+        public float Latitude;
+        public float Longitude;
 
         public NodeInfo(ServerApi.ServerNode n)
         {
@@ -321,6 +323,7 @@ namespace csmon.Models
                 PublicKey = ConvUtils.ConvertHashPartial(n.PublicKey);
             Version = n.Version;
             int.TryParse(n.Platform, out Platform);
+            
         }
 
         public NodeInfo(Node n)
