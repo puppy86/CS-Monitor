@@ -24,6 +24,11 @@ namespace csmon.Controllers
 
         public IActionResult Nodes()
         {
+            return View("NodesMap");
+        }
+
+        public IActionResult NodesMap()
+        {
             return View();
         }
 
