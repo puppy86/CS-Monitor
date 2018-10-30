@@ -142,7 +142,7 @@ namespace csmon.Controllers
             }
         }
 
-        // Gets transaction data from API by given transacion id
+        // Gets transaction data from API by given transaction id
         public TransactionInfo TransactionInfo(string id)
         {
             using (var client = CreateApi())
