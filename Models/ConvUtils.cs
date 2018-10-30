@@ -184,7 +184,8 @@ namespace csmon.Models
                 // Ipv4
                 var split = ip.Split('.');
                 if (split.Length != 4) return ip;
-                return string.Join('.', split.Take(2)) + $".{new string('*', split[2].Length)}.{new string('*', split[3].Length)}";
+                return string.Join('.', split.Take(2)) + ".*.*";
+                //return string.Join('.', split.Take(2)) + $".{new string('*', split[2].Length)}.{new string('*', split[3].Length)}";
             }
             else
             {
