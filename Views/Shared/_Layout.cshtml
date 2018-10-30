@@ -165,9 +165,12 @@
                 </div>
             </nav>
         </div>
-        <div id="infoBar" class="info-bar">
-            Application to get Credits (CS) coins for testing. Please send a <a href="~/@network/tools/csrequest" >request</a>
-        </div>
+        @if (network!="main")
+        {
+            <div id="infoBar" class="info-bar">
+                Application to get Credits (CS) coins for testing. Please send a <a href="~/@network/tools/csrequest">request</a>
+            </div>
+        }
     </header>
     <main class="container content mw1000">
         @if (networkObj.Updating)
