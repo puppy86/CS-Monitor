@@ -8,16 +8,6 @@ namespace csmon.Models
     // Utility class for creating Thrift API clients, and DB connections
     public static class ApiFab
     {
-        // Creates Mainnet Thrift API client
-        public static NodeApi.API.Client CreateNodeApi(string addr)
-        {
-            TTransport transport = new TSocket(addr, 9090, 60000);
-            TProtocol protocol = new TBinaryProtocol(transport);
-            var client = new NodeApi.API.Client(protocol);
-            transport.Open();
-            return client;
-        }
-
         // Creates Release Thrift API Client
         public static Release.API.Client CreateReleaseApi(string addr)
         {
