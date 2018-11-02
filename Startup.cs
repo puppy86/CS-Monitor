@@ -61,10 +61,12 @@ namespace csmon
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseMiddleware<GetLastBlockMiddleware>();
             }
             else
             {
                 app.UseExceptionHandler("/Monitor/Error");
+                app.UseMiddleware<GetLastBlockMiddleware>();
                 //app.UseHsts();
                 app.UseHttpsRedirection();
             }
