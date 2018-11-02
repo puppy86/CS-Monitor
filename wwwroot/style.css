@@ -41,6 +41,17 @@ body {
     white-space: nowrap;
 }
 
+small {
+    white-space: nowrap;
+}
+
+.hash_main {
+    max-width: 450px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .hash {
     max-width: 150px;
     overflow: hidden;
@@ -65,3 +76,135 @@ code {
     font-size: 14px;
 }
 
+.bl2 {
+    border-left: 2px solid;
+}
+
+
+/*CUBES************************************************************************************************/
+.cubes {
+    height: 270px;
+    overflow: hidden;
+}
+
+#ContainerBlock {
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    position: absolute;
+    /*right: 0;*/
+}
+
+.perspective {
+    perspective: 500px;
+    height: 150px;
+    box-sizing: border-box;
+    position: relative;
+    width: 150px;
+    margin-left: 42px;
+    margin-right: 42px;
+}
+
+.Block {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    transform-style: preserve-3d;
+    transform: rotateX(-20deg) rotateY(-45deg);
+    transition: 0.3s;
+}
+
+.perspective:hover .Block {
+    transform: rotateX(0) rotateY(-90deg);
+}
+
+.perspective:hover .Block .right {
+    transform: rotateY(90deg) translateZ(75px);
+    width: 200px;
+    height: 200px;
+    top: -25px;
+    left: -25px;
+    z-index: 999999999999;
+}
+
+.side {
+    position: absolute;
+    width: inherit;
+    height: inherit;
+    border: 3px solid #ccc;
+    background: white;
+}
+
+.front {
+    transform: translateZ(75px);
+    overflow: hidden;
+    padding: 10px;
+    text-align: center;
+    font-size: 12px;
+    flex-wrap: wrap;
+}
+
+.top {
+    transform: rotateX(90deg) translateZ(75px);
+}
+
+.right {
+    transform: rotateY(90deg) translateZ(75px);
+    transition: 0.3s;
+    padding: 10px;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: hidden;
+    font-size: 14px;
+}
+
+.title_hash {
+    color: #495057;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    padding: 5px;
+    font-size: 10px;
+}
+
+.perspective .Block .hash {
+    border-top: 1px solid #dee2e6;
+    color: #212529;
+    background-color: #000000;
+    background-color: rgba(0,0,0,.05);
+    padding: 0;
+    padding: 5px;
+    word-wrap: break-word;
+    height: 103px;
+}
+
+.Block .right th {
+    white-space: nowrap;
+    font-size: 10px;
+    font-weight: 300;
+}
+
+.Block .right table {
+    width: 100%;
+}
+
+.Block .right tr {
+    border-top: 1px solid #dee2e6;
+}
+
+.Block .right tr:nth-child(odd) {
+    background-color: #000000;
+    background-color: rgba(0,0,0,.05);
+}
+
+.Block .right td {
+    font-weight: 600;
+}
+
+.Block .right tr:first-child {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
