@@ -4,42 +4,45 @@ using System.Linq;
 using csmon.Models;
 using csmon.Models.Services;
 using Microsoft.AspNetCore.Mvc;
-using NodeApi;
+using Release;
 
 namespace csmon.Controllers
 {
-    // Api for serving ajax requests from site pages (MainNet version)
+    // Api for serving ajax requests from site pages (Release07.09 version)
     public class ApiController : Controller
     {
         private readonly IIndexService _indexService;
         private readonly INodesService _nodesService;
         private readonly IGraphService _graphService;
+        private readonly ITpsService _tpsService;
 
         // The network ID, coming with the request
         private string Net => RouteData.Values["network"].ToString();
 
         // Constructor, parameters are provided by service provider
-        public ApiController(IIndexService indexService, INodesService nodesService, IGraphService graphService)
+        public ApiController(IIndexService indexService, INodesService nodesService, IGraphService graphService, ITpsService tpsService)
         {
             _indexService = indexService;
             _nodesService = nodesService;
             _graphService = graphService;
+            _tpsService = tpsService;
         }
 
         // Helper method that creates Node API thrift client
         private API.Client CreateApi()
         {
-            return ApiFab.CreateNodeApi(Network.GetById(Net).Ip);
+            return ApiFab.CreateReleaseApi(Network.GetById(Net).Ip);
         }
 
         // Returns data for main page: the list of recent blocks, last block number, id = last block that received earlier
-        public IndexData IndexData(int id)
+        public IndexData IndexData(int id, string lastTx = "")
         {
             var indexData = _indexService.GetIndexData(Net);
             return new IndexData
             {
                 LastBlockData = indexData.LastBlockData,
-                LastBlocks = indexData.LastBlocks.TakeWhile(b => b.Number > id).ToList()
+                LastBlocks = indexData.LastBlocks.TakeWhile(b => b.Number > id).ToList(),
+                LastTransactions = indexData.LastTransactions.TakeWhile(tx => string.IsNullOrEmpty(lastTx) || !tx.Id.Equals(lastTx)).Take(10).ToList()
             };
         }
 
@@ -54,31 +57,52 @@ namespace csmon.Controllers
         {
             const int limit = 100;
             if (id <= 0) id = 1; // Page
-            
+
             // Get the list of cached blocks, from given page (we cache last 100K blocks)
             var ledgers = _indexService.GetPools(Net, (id - 1) * limit, limit);
 
             // Prepare all data for page and return
             var lastPage = ConvUtils.GetNumPages(IndexService.SizeOutAll, limit);
-            var lastBlock = _indexService.GetIndexData(Net).LastBlockData.LastBlock;
             var result = new LedgersData
             {
                 Page = id,
                 Ledgers = ledgers,
                 HaveNextPage = id < lastPage,
                 LastPage = lastPage,
-                NumStr = ledgers.Any() ? $"{ledgers.Last().Number} - {ledgers.First().Number} of {lastBlock}" : "0"
+                NumStr = ledgers.Any() ? $"{ledgers.Last().Number} - {ledgers.First().Number}" : "-"
+            };
+            return result;
+        }
+
+        // Returns the list of txs on given page (id), from cache
+        public TransactionsData Txs(int id)
+        {
+            const int limit = 100;
+            if (id <= 0) id = 1; // Page
+
+            // Get the list of cached blocks, from given page (we cache last 100K blocks)
+            var txs = _indexService.GetTxs(Net, (id - 1) * limit, limit);
+
+            // Prepare all data for page and return
+            var lastPage = ConvUtils.GetNumPages(IndexService.SizeOutAll, limit);
+            var result = new TransactionsData
+            {
+                Page = id,
+                Transactions = txs,
+                HaveNextPage = id < lastPage,
+                LastPage = lastPage,
+                NumStr = txs.Any() ? $"{txs.Count}" : "-"
             };
             return result;
         }
 
         // Gets block data from API by given hash (id)
         public TransactionsData PoolData(string id)
-        {            
+        {
             using (var client = CreateApi())
             {
                 // Get data from node
-                var poolHash = ConvUtils.ConvertHashBackAscii(id);
+                var poolHash = ConvUtils.ConvertHashBack(id);
                 var pool = client.PoolInfoGet(poolHash, 0);
 
                 // Prepare and return result 
@@ -103,7 +127,7 @@ namespace csmon.Controllers
                 // Calculate last page
                 var lastPage = ConvUtils.GetNumPages(txcount, numPerPage);
                 if (page > lastPage) page = lastPage;
-                
+
                 // Prepare result
                 var result = new TransactionsData
                 {
@@ -114,19 +138,19 @@ namespace csmon.Controllers
 
                 // Get the list of transactions from API
                 var offset = numPerPage * (page - 1);
-                var poolTr = client.PoolTransactionsGet(ConvUtils.ConvertHashBackAscii(hash), 0, offset, numPerPage);
+                var poolTr = client.PoolTransactionsGet(ConvUtils.ConvertHashBack(hash), offset, numPerPage);
                 var i = offset + 1;
 
                 // Fill result with transactions
                 foreach (var t in poolTr.Transactions)
                 {
-                    var tInfo = new TransactionInfo(i, $"{hash}.{i}", t);
+                    var tInfo = new TransactionInfo(i, t.Id, t.Trxn);
                     result.Transactions.Add(tInfo);
                     i++;
                 }
 
-                // Make label that above transactions table, it's simlier to make it here, and return the result
-                result.NumStr = poolTr.Transactions.Any() ? $"{offset + 1} - {offset+ poolTr.Transactions.Count} of {txcount}" : "0";
+                // Make label that above transactions table, it's simpler to make it here, and return the result
+                result.NumStr = poolTr.Transactions.Any() ? $"{offset + 1} - {offset + poolTr.Transactions.Count} of {txcount}" : "0";
                 return result;
             }
         }
@@ -136,38 +160,44 @@ namespace csmon.Controllers
         {
             using (var client = CreateApi())
             {
-                var balance = client.BalanceGet(ConvUtils.ConvertHashBackPartial(id), "cs");
+                var balance = client.BalanceGet(Base58Encoding.Decode(id), 1);
                 return ConvUtils.FormatAmount(balance.Amount);
             }
         }
 
-        // Gets transaction data from API by given transacion id
+        // Gets transaction data from API by given transaction id
         public TransactionInfo TransactionInfo(string id)
         {
             using (var client = CreateApi())
             {
-                // Make some id transformations for API
+                // Prepare transaction id for request
                 var ids = id.Split('.');
-                var trId = $"{ids[0]}:{int.Parse(ids[1]) - 1}";
-                
+                var trId = new TransactionId()
+                {
+                    Index = int.Parse(ids[1]) - 1,
+                    PoolHash = ConvUtils.ConvertHashBack(ids[0])
+                };
+
                 // Get data from API
                 var tr = client.TransactionGet(trId);
 
                 // Prepare the result
-                var tInfo = new TransactionInfo(0, id, tr.Transaction) {Found = tr.Found};
+                var tInfo = new TransactionInfo(0, null, tr.Transaction.Trxn) { Id = id, Found = tr.Found };
 
                 // if transaction was not found, return the result
                 if (!tr.Found)
                     return tInfo;
 
-                // Otherwise, request block data and store block timeit in the result, and return the result
+                // Otherwise, request block data and store block time in the result
                 if (string.IsNullOrEmpty(tInfo.PoolHash)) return tInfo;
-                var pool = client.PoolInfoGet(ConvUtils.ConvertHashBackAscii(tInfo.PoolHash), 0);
+                var pool = client.PoolInfoGet(ConvUtils.ConvertHashBack(tInfo.PoolHash), 0);
                 tInfo.Time = ConvUtils.UnixTimeStampToDateTime(pool.Pool.Time);
+
+                // return the result
                 return tInfo;
             }
         }
-        
+
         // Gets the list of transactions by given account id, and page,
         // conv must = false if smart contract transactions requested
         public TransactionsData AccountTransactions(string id, int page, bool conv = true)
@@ -178,8 +208,8 @@ namespace csmon.Controllers
             {
                 // Get the list of transactions from the API
                 var offset = numPerPage * (page - 1);
-                var trs = client.TransactionsGet(conv ? ConvUtils.ConvertHashBackPartial(id) : id, offset, numPerPage + 1);
-                
+                var trs = client.TransactionsGet(Base58Encoding.Decode(id), offset, numPerPage + 1);
+
                 // Prepare the result
                 var result = new TransactionsData
                 {
@@ -193,7 +223,7 @@ namespace csmon.Controllers
                 for (var i = 0; i < count; i++)
                 {
                     var t = trs.Transactions[i];
-                    var tInfo = new TransactionInfo(i + offset + 1, "_", t);
+                    var tInfo = new TransactionInfo(i + offset + 1, t.Id, t.Trxn);
                     result.Transactions.Add(tInfo);
                 }
                 result.NumStr = count > 0 ? $"{offset + 1} - {offset + count}" : "-";
@@ -217,8 +247,8 @@ namespace csmon.Controllers
                 var poolHash = id.Split(".")[0];
 
                 // Get block data from API
-                var pool = client.PoolInfoGet(ConvUtils.ConvertHashBackAscii(poolHash), 0);
-                
+                var pool = client.PoolInfoGet(ConvUtils.ConvertHashBack(poolHash), 0);
+
                 // Return block time - this is also a transaction time
                 return ConvUtils.UnixTimeStampToDateTime(pool.Pool.Time);
             }
@@ -236,24 +266,39 @@ namespace csmon.Controllers
                 // Unpack the list of tokens and get balance for each of them
                 foreach (var token in tokens.Split(","))
                 {
-                    var balance = client.BalanceGet(ConvUtils.ConvertHashBackPartial(id), token);
-                    result.Tokens.Add(new TokenAmount {Token = token, Value = ConvUtils.FormatAmount(balance.Amount)});
+                    var balance = client.BalanceGet(Base58Encoding.Decode(id), sbyte.Parse(token));
+                    result.Tokens.Add(new TokenAmount { Token = token, Value = ConvUtils.FormatAmount(balance.Amount) });
                 }
                 return result;
             }
         }
 
-        // Gets the list of smart contracts on given page (from cache)
+        // Gets the list of smart contracts on given page from node
         public ContractsData GetContracts(int page)
-        {            
+        {
+            const int numPerPage = 20;
             if (page <= 0) page = 1;
-            var result = new ContractsData { Page = page, LastPage = 1};
-            using (var db = ApiFab.GetDbContext())
+
+            // Prepare result
+            var result = new ContractsData { Page = page };
+            using (var client = CreateApi())
             {
-                var i = 1;
-                foreach (var s in db.Smarts.Where(s => s.Network == Net))
-                    result.Contracts.Add(new ContractLinkInfo(i++, s.Address));
+                // Get data from API
+                var offset = numPerPage * (page - 1);
+                var res = client.SmartContractsAllListGet(offset, numPerPage + 1);
+
+                // Fill result with data
+                result.HaveNextPage = res.SmartContractsList.Count > numPerPage;
+                var count = Math.Min(numPerPage, res.SmartContractsList.Count);
+                for (var i = 0; i < count; i++)
+                {
+                    var c = res.SmartContractsList[i];
+                    var cInfo = new ContractLinkInfo(i + offset + 1, Base58Encoding.Encode(c.Address));
+                    result.Contracts.Add(cInfo);
+                }
             }
+
+            // Prepare text label for the table and return the result
             result.NumStr = result.Contracts.Any() ? $"{result.Contracts.First().Index} - {result.Contracts.Last().Index}" : "0";
             return result;
         }
@@ -263,7 +308,7 @@ namespace csmon.Controllers
         {
             using (var client = CreateApi())
             {
-                var res = client.SmartContractGet(id);
+                var res = client.SmartContractGet(Base58Encoding.Decode(id));
                 return new ContractInfo(res.SmartContract) { Found = res.Status.Code == 0 };
             }
         }
@@ -271,7 +316,28 @@ namespace csmon.Controllers
         // Gets data for "Transactions Per Second" page
         public TpsInfo GetTpsData(int type = 0)
         {
-            return _indexService.GetTpsInfo(Net);
+            TpsInfo info;
+            switch (type)
+            {
+                // Points within 24H, with 1 min interval
+                case 1:
+                    info = _tpsService.GetPoints24H(Net);
+                    break;
+                // Points within week
+                case 2:
+                    info = _tpsService.GetPointsWeek(Net);
+                    break;
+                // Points within month
+                case 3:
+                    info = _tpsService.GetPointsMonth(Net);
+                    break;
+                // 100 points, with the interval from app settings
+                default:
+                    info = _indexService.GetTpsInfo(Net);
+                    break;
+            }
+            info.ShowTypeBtn = true;
+            return info;
         }
 
         // Gets data for "Network nodes" page by given page
