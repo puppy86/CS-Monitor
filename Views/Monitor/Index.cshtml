@@ -27,8 +27,11 @@
                 lastPage: 1,
                 allPools: [],
                 pools: [],
+                transactions: [],
+                lastTx: '',
                 filterEmpty: false,
-                lastBlock: 0
+                lastBlock: 0,
+                colors: ['red', 'green', 'blue', 'magenta', 'cyan', 'gray', 'yellow', 'pink', 'violet', 'orange']
             },
             computed: {
                 animatedLastBlock: function() {
@@ -48,9 +51,12 @@
                     this.haveNextPage = pg < this.lastPage;
                 },
                 getData: function() {
-                    $.get(`${M_API}/IndexData?id=${this.model.lastBlockData.lastBlock}`)
+                    $.get(`${M_API}/IndexData?id=${this.model.lastBlockData.lastBlock}&lastTx=${this.lastTx}`)
                         .done(function(data) {
                             vm.model = data;
+                            vm.transactions = data.lastTransactions.concat(vm.transactions).slice(0, 10);
+                            if (vm.transactions.length > 0)
+                                vm.lastTx = vm.transactions[0].id;
                             vm.allPools = data.lastBlocks.concat(vm.allPools).slice(0, 100);
                             vm.getPools(vm.page);
                             if (vm.lastBlock === 0)
@@ -61,9 +67,9 @@
                             setTimeout(vm.getData, 1000);
                         });
                 },
-                pad: function (num) {
+                pad: function(num) {
                     var s = `0${num}`;
-                    return s.substr(s.length-2);
+                    return s.substr(s.length - 2);
                 },
                 getAge: function(time) {
                     var daysDiffInMillSec = new Date(this.model.lastBlockData.now) - new Date(time);
@@ -80,12 +86,12 @@
                     res += this.pad(minutesLeft) + "m " + this.pad(secLeft) + "s";
                     return res;
                 },
-                getStats: function () {
+                getStats: function() {
                     $.get(`${M_API}/GetStatData`)
-                        .done(function (data) {
+                        .done(function(data) {
                             vm.stats = data;
                         })
-                        .always(function () {
+                        .always(function() {
                             setTimeout(vm.getStats, 10000);
                         });
                 }
@@ -113,7 +119,7 @@
     </div>
 </div>
 
-<div class="row my-3">
+<div class="row mt-3">
     <div class="col-12 col-md-4 my-3">
         <div class="card h-100 " >
             <h6 class="card-header">Top Block</h6>
@@ -140,22 +146,22 @@
         <div class="tab-content d-none d-sm-block">
             <table class="table border-bottom mb-0">
                 <thead class="thead-light">
-                    <tr>
-                        <th class="align-text-top">Txs count</th>
-                        <th class="align-text-top">All blocks</th>
-                        <th class="align-text-top">Volume</th>
-                        <th class="align-text-top">Smart<br/>contracts</th>
-                        <th class="align-text-top">Txs count<br/><em><span style="font-weight:normal">in contracts</span></em></th>
-                    </tr>
+                <tr>
+                    <th class="align-text-top">Txs count</th>
+                    <th class="align-text-top">All blocks</th>
+                    <th class="align-text-top">Volume</th>
+                    <th class="align-text-top">Smart<br/>contracts</th>
+                    <th class="align-text-top">Txs count<br/><em><span style="font-weight:normal">in contracts</span></em></th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>{{stats[activeTab].allTransactions.value}}</td>
-                        <td>{{stats[activeTab].allLedgers.value}}</td>
-                        <td>{{stats[activeTab].csVolume.value}}</td>
-                        <td>{{stats[activeTab].smartContracts.value}}</td>
-                        <td>{{stats[activeTab].scTransactions.value}}</td>
-                    </tr>
+                <tr>
+                    <td>{{stats[activeTab].allTransactions.value}}</td>
+                    <td>{{stats[activeTab].allLedgers.value}}</td>
+                    <td>{{stats[activeTab].csVolume.value}}</td>
+                    <td>{{stats[activeTab].smartContracts.value}}</td>
+                    <td>{{stats[activeTab].scTransactions.value}}</td>
+                </tr>
                 </tbody>
             </table>
         </div>
@@ -186,36 +192,133 @@
     </div>
 </div>
 
-<h3 class="mt-3">Recent {{allPools.length}} blocks</h3>
-<div class="row">
-    <div class="col">
-        <label><input type="checkbox" class="" v-model="filterEmpty" v-on:change="getPools(page);" /><span> Show only blocks with transactions</span></label>
+<div class="row cubes">
+    <div class="col-12">
+        <div id="ContainerBlock">
+            <div v-for="item in pools.slice(0,5)" class="perspective">
+                <div class="Block">
+                    <div class="side front">
+                        <div class="title_hash">
+                            Hash
+                        </div>
+                        <div class="hash">
+                            {{item.hash}}
+                        </div>
+                    </div>
+                    <div class="side top"></div>
+                    <div class="side right">
+                        <table>
+                            <tr>
+                                <th>Block</th>
+                                <td><a :href="net + '/ledger/' + item.hash">{{item.number}}</a></td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td class="text-success">Success</td>
+                            </tr>
+                            <tr>
+                                <th>Date</th>
+                                <td>{{(new Date(item.time)).getFullYear()}}/{{(new Date(item.time)).getMonth()}}/{{(new Date(item.time)).getDate()}}</td>
+                            </tr>
+                            <tr>
+                                <th>Time</th>
+                                <td>{{(new Date(item.time)).getHours()}}:{{(new Date(item.time)).getMinutes()}}:{{(new Date(item.time)).getSeconds()}}</td>
+                            </tr>
+                            <tr>
+                                <th>Txs count</th>
+                                <td>{{item.txCount}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-<pb :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage" :hidelast="true"></pb>
-<div class="table-responsive">
-    <table class="table table-sm table-striped border-bottom border-primary mb-0 table_info_trans">
-        <thead class="thead-light">
-            <tr>
-                <th>№</th>
-                <th>Age</th>
-                <th>Status</th>
-                <th>Hash</th>
-                <th>Tx count</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="item in pools">
-                <td>{{item.number}}</td>
-                <td>{{getAge(item.time)}}</td>
-                <td class="text-success">Success</td>
-                <td class="hash"><a :href="net + '/ledger/' + item.hash">{{item.hash}}</a></td>
-                <td>{{item.txCount}}</td>
-            </tr>
-        </tbody>
-    </table>
+
+<div v-show="transactions.length > 0" class="row">
+    <div class="col-12 col-md-6 mb-3">
+        <div class="d-flex justify-content-between">
+            <h5>Blocks</h5>
+            <a class="btn btn-outline-secondary btn-sm mb-1" href="~/@network/ledgers" role="button">View All</a>
+        </div>
+        <div class="list-group">
+            <li v-for="item in pools" class="list-group-item flex-column align-items-start p-0">
+                <div class="bl2 p-2" v-bind:style="{'border-left-color': colors[item.number%10]}">
+                    <div class="d-flex justify-content-between">
+                        <h6 class="mb-1">Block {{item.number}}</h6>
+                        <small>{{getAge(item.time)}}</small>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <p class="mb-1 hash_main"><a :href="net + '/ledger/' + item.hash">{{item.hash}}</a></p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <small>{{item.txCount}} txs</small>
+                    </div>
+                </div>
+            </li>
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="d-flex justify-content-between">
+            <h5>Transactions</h5>
+            <a class="btn btn-outline-secondary btn-sm mb-1" href="~/@network/transactions" role="button">View All</a>
+        </div>        
+        <div class="list-group">
+            <li v-for="item in transactions" class="list-group-item flex-column align-items-start p-0">
+                <div class="bl2 p-2" v-bind:style="{'border-left-color': colors[item.color]}">
+                    <div class="d-flex justify-content-between">
+                        <h6 class="mb-1 hash_main">TX# <a :href="net + '/transaction/' + item.id">{{item.id}}</a></h6>
+                        <small>{{getAge(item.time)}}</small>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <p class="mb-1 hash_main">From: <a :href="net + '/account/' + item.hash">{{item.fromAccount}}</a></p>
+                        <p class="mb-1 hash_main">To: <a :href="net + '/account/' + item.hash">{{item.toAccount}}</a></p>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <small>Amount {{item.value}} CS</small>
+                        <small>Fee {{item.fee}}</small>
+                    </div>
+                </div>
+            </li>
+        </div>
+    </div>
 </div>
-<pb :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage" :hidelast="true"></pb>
-<div class="row justify-content-center my-3">
-    <a class="btn btn-outline-primary" href="/@network/ledgers" role="button">More blocks...</a>
+
+<div v-show="transactions.length == 0">
+    <h3 class="mt-3">Recent {{allPools.length}} blocks</h3>
+    <div class="row">
+        <div class="col">
+            <label><input type="checkbox" class="" v-model="filterEmpty" v-on:change="getPools(page);" /><span> Show only blocks with transactions</span></label>
+        </div>
+    </div>
+    <pb :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage" :hidelast="true"></pb>
+    <div class="table-responsive">
+        <table class="table table-sm table-striped border-bottom border-primary mb-0 table_info_trans">
+            <thead class="thead-light">
+                <tr>
+                    <th>№</th>
+                    <th>Age</th>
+                    <th>Status</th>
+                    <th>Hash</th>
+                    <th>Tx count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in pools">
+                    <td>{{item.number}}</td>
+                    <td>{{getAge(item.time)}}</td>
+                    <td class="text-success">Success</td>
+                    <td class="hash"><a :href="net + '/ledger/' + item.hash">{{item.hash}}</a></td>
+                    <td>{{item.txCount}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <pb :page="page" :getfn="getPools" :next="haveNextPage" :last="lastPage" :hidelast="true"></pb>
+    <div class="row justify-content-center my-3">
+        <a class="btn btn-outline-primary" href="/@network/ledgers" role="button">More blocks...</a>
+    </div>
 </div>
