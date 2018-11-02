@@ -19,6 +19,7 @@ namespace csmon.Models.Services
         IndexData GetIndexData(string network);
         StatData GetStatData(string network);
         List<PoolInfo> GetPools(string network, int offset, int limit);
+        List<TransactionInfo> GetTxs(string network, int offset, int limit);
     }
 
     // The service that communicates with Node API and caches data for main page, blocks and TPS pages
@@ -34,6 +35,8 @@ namespace csmon.Models.Services
             public readonly object PoolsLock = new object(); // Sync object for lock
             public volatile List<PoolInfo> PoolsIn = new List<PoolInfo>(); // Input blocks cache
             public volatile List<PoolInfo> PoolsOut = new List<PoolInfo>();  // Output blocks cache
+            public volatile List<TransactionInfo> TxIn = new List<TransactionInfo>();  // Input tx cache
+            public volatile List<TransactionInfo> TxOut = new List<TransactionInfo>();  // Output tx cache
             public int StatRequestCounter; // For counting period of requesting statistics
             public volatile StatData StatData = new StatData(); // Statistics data
             public volatile IndexData IndexData = new IndexData(); // Data for main page
@@ -44,12 +47,11 @@ namespace csmon.Models.Services
         private const int SizeIn = 300; // A size of input blocks cache
         private const int SizeOut = 100; // A size of blocks list on main page
         public const int SizeOutAll = 100000; // Size of blocks cache
+        public const int BlockTxLimit = 100; // Maximum num of tx in block
         private static readonly int TpsPointsCount = 3600 / Settings.TpsIntervalSec; // Tps points count
 
         // Storage for data of each network
         private readonly Dictionary<string, IndexServiceState> _states = new Dictionary<string, IndexServiceState>();
-
-        private bool _noDb; // we make this true in case of db connection error
 
         // Constructor, parameters are provided by service provider
         public IndexService(ILogger<IndexService> logger)
@@ -110,132 +112,92 @@ namespace csmon.Models.Services
             return _states[network].PoolsOut.Skip(offset).Take(limit).ToList();
         }
 
+        public List<TransactionInfo> GetTxs(string network, int offset, int limit)
+        {
+            return _states[network].TxOut.Skip(offset).Take(limit).ToList();
+        }
+
         private void OnCacheTimer(object state)
         {
             var tpState = (IndexServiceState)state;
             try
             {
-                if(tpState.Net.Api.EndsWith("/Api"))
-                    using (var client = ApiFab.CreateNodeApi(tpState.Net.Ip))
-                    {
-                        // Service available
-                        if(tpState.Net.Updating) tpState.Net.Updating = false;
+                using (var client = ApiFab.CreateReleaseApi(tpState.Net.Ip))
+                {
+                    // Service available
+                    if (tpState.Net.Updating) tpState.Net.Updating = false;
 
-                        // Request blocks
-                        if ((!tpState.PoolsOut.Any() && !tpState.PoolsIn.Any()))
+                    // Request blocks
+                    if ((!tpState.PoolsOut.Any() && !tpState.PoolsIn.Any()))
+                    {
+                        var result = client.PoolListGet(0, SizeOut);
+                        tpState.PoolsOut = result.Pools.Where(p => p.PoolNumber > 0).Select(p => new PoolInfo(p)).ToList();
+                    }
+                    else
+                    {
+                        // Get last 20 blocks from API
+                        var result = client.PoolListGet(0, 20);
+
+                        // Get last block number (first from the top)
+                        var firstPoolNum = tpState.PoolsIn.Any()
+                            ? tpState.PoolsIn[0].Number
+                            : tpState.PoolsOut[0].Number;
+
+                        // Network reset detection
+                        var newNetWorkPools = result.Pools
+                            .Count(p => p.PoolNumber > 0 && p.PoolNumber < firstPoolNum - 200);
+                        
+                        // Reset cache, if network reset
+                        if (newNetWorkPools > 0)
                         {
-                            var result = client.PoolListGet(0, SizeOut);
-                            tpState.PoolsOut = result.Pools.Select(p => new PoolInfo(p)).ToList();
-                        }
-                        else
-                        {
-                            var result = client.PoolListGet(0, 20);
                             lock (tpState.PoolsLock)
                             {
-                                var firstPoolNum = tpState.PoolsIn.Any()
-                                    ? tpState.PoolsIn[0].Number
-                                    : tpState.PoolsOut[0].Number;
-                                var nPools = result.Pools.TakeWhile(p => (p.PoolNumber > firstPoolNum) || (p.PoolNumber < firstPoolNum - 1000)).Select(p => new PoolInfo(p)).ToList();
-                                tpState.PoolsIn = nPools.Concat(tpState.PoolsIn).ToList();
+                                tpState.PoolsOut = new List<PoolInfo>();
+                                tpState.PoolsIn = new List<PoolInfo>();
                             }
+                            firstPoolNum = 0;
+
+                            // Delete Transactions per second statistics data
+                            TpsService.Reset(tpState.Net.Id);
                         }
 
-                        // Request stats
-                        if (tpState.StatRequestCounter == 0)
+                        // Prepare list of new blocks
+                        var newPools = result.Pools
+                            .Where(p => p.PoolNumber > 0)
+                            .TakeWhile(p => p.PoolNumber > firstPoolNum).ToList();
+
+                        // Get Txs of new blocks
+                        var newTx = new List<TransactionInfo>();
+                        foreach (var pool in newPools)
                         {
-                            var stats = client.StatsGet();
-                            if (stats != null && stats.Stats.Count >= 4)
-                            {
+                            var poolTr = client.PoolTransactionsGet(pool.Hash, 0, BlockTxLimit);
+                            var newPoolTx = poolTr.Transactions.Select((t, i) => new TransactionInfo(i, t.Id, t.Trxn){Color = (int) (pool.PoolNumber % 10)}).ToList();
+                            newTx = newPoolTx.Concat(newTx).ToList();
+                        }
 
-                                var statsSorted = stats.Stats.OrderBy(s => s.PeriodDuration).ToList();
-                                var statData = new StatData();
-                                for (var i = 0; i < 4; i++)
-                                    statData.Pdata[i] = new PeriodData(statsSorted[i]);
-                                
-                                try
-                                {
-                                    // Smart contracts count = n
-                                    if(!_noDb) // if we have successful connect to db previous time
-                                        using (var db = ApiFab.GetDbContext())
-                                            statData.Correct(db.Smarts.Count(s => s.Network == tpState.Net.Id));
-                                }
-                                catch (Exception)
-                                {
-                                    // remember if no db connection or other error
-                                    _noDb = true;
-                                }
-
-                                // Update stats in the state
-                                tpState.StatData = statData;
-                            }
+                        // Append new blocks and txs to the input cache
+                        lock (tpState.PoolsLock)
+                        {
+                            tpState.PoolsIn = newPools.Select(p => new PoolInfo(p)).Concat(tpState.PoolsIn).ToList();
+                            tpState.TxIn = newTx.Concat(tpState.TxIn).ToList();
                         }
                     }
-                else if (tpState.Net.Api.EndsWith("/ReleaseApi"))
-                    using (var client = ApiFab.CreateReleaseApi(tpState.Net.Ip))
+
+                    // Request stats
+                    if (tpState.StatRequestCounter == 0)
                     {
-                        // Service available
-                        if (tpState.Net.Updating) tpState.Net.Updating = false;
-
-                        // Request blocks
-                        if ((!tpState.PoolsOut.Any() && !tpState.PoolsIn.Any()))
+                        var stats = client.StatsGet();
+                        if (stats != null && stats.Stats.Count >= 4)
                         {
-                            var result = client.PoolListGet(0, SizeOut);
-                            tpState.PoolsOut = result.Pools.Where(p => p.PoolNumber > 0).Select(p => new PoolInfo(p)).ToList();
-                        }
-                        else
-                        {
-                            // Get last 20 blocks from API
-                            var result = client.PoolListGet(0, 20);
-
-                            // Get last block number (first from the top)
-                            var firstPoolNum = tpState.PoolsIn.Any()
-                                ? tpState.PoolsIn[0].Number
-                                : tpState.PoolsOut[0].Number;
-
-                            // Network reset detection
-                            var newNetWorkPools = result.Pools
-                                .Count(p => p.PoolNumber > 0 && p.PoolNumber < firstPoolNum - 200);
-                            
-                            // Reset cache, if network reset
-                            if (newNetWorkPools > 0)
-                            {
-                                lock (tpState.PoolsLock)
-                                {
-                                    tpState.PoolsOut = new List<PoolInfo>();
-                                    tpState.PoolsIn = new List<PoolInfo>();
-                                }
-                                firstPoolNum = 0;
-
-                                // Delete Transactions per second statistics data
-                                TpsService.Reset(tpState.Net.Id);
-                            }
-
-                            // Prepare list of new blocks
-                            var newPools = result.Pools
-                                .Where(p => p.PoolNumber > 0)
-                                .TakeWhile(p => p.PoolNumber > firstPoolNum)
-                                .Select(p => new PoolInfo(p)).ToList();
-
-                            // Append new block to the input cache
-                            lock (tpState.PoolsLock)
-                                tpState.PoolsIn = newPools.Concat(tpState.PoolsIn).ToList();
-                        }
-
-                        // Request stats
-                        if (tpState.StatRequestCounter == 0)
-                        {
-                            var stats = client.StatsGet();
-                            if (stats != null && stats.Stats.Count >= 4)
-                            {
-                                var statsSorted = stats.Stats.OrderBy(s => s.PeriodDuration).ToList();
-                                var statData = new StatData();
-                                for (var i = 0; i < 4; i++)
-                                    statData.Pdata[i] = new PeriodData(statsSorted[i]);
-                                statData.CorrectTotalValue();
-                                tpState.StatData = statData;
-                            }
+                            var statsSorted = stats.Stats.OrderBy(s => s.PeriodDuration).ToList();
+                            var statData = new StatData();
+                            for (var i = 0; i < 4; i++)
+                                statData.Pdata[i] = new PeriodData(statsSorted[i]);
+                            statData.CorrectTotalValue();
+                            tpState.StatData = statData;
                         }
                     }
+                }
 
                 // Increment statistics time counter (or reset if it's time)
                 if (tpState.StatRequestCounter < Settings.UpdStatsPeriodSec*1000 / Period)
@@ -287,17 +249,31 @@ namespace csmon.Models.Services
                         // Get pools to add
                         var addPools = tpState.PoolsIn.TakeLast(addNum).ToList();
                         tpState.PoolsIn.RemoveRange(inCount - addNum, addNum);
+                        
+                        // Get txs to add and correct its time
+                        var addTxs = tpState.TxIn.Where(tx => addPools.Any(p => p.Hash.Equals(tx.PoolHash))).ToList();
+                        foreach (var tx in addTxs)
+                        {
+                            tpState.TxIn.Remove(tx);
+                            tx.Time = curTime;
+                        }
+
                         // Correct time
                         foreach (var pool in addPools)
                             pool.Time = curTime;
+
                         // Add pools
                         tpState.PoolsOut = addPools.Concat(tpState.PoolsOut.Take(SizeOutAll - addNum)).ToList();                            
+
+                        // Add txs
+                        tpState.TxOut = addTxs.Concat(tpState.TxOut.Take(SizeOutAll - addNum)).ToList();
                     }
                     //Debug.Print($"net: {tpState.Net.Id} addNum={addNum} InCount={tpState.PoolsIn.Count} OutCount={tpState.PoolsOut.Count}\n");
                 }
 
                 // Convert                
                 var lastPoolInfos = tpState.PoolsOut.Take(SizeOut).ToList();
+                var lastTxs = tpState.TxOut.Take(SizeOut).ToList();
 
                 // Calculate TPS point
                 if ((int)(curTime - curTime.Date).TotalSeconds % Settings.TpsIntervalSec == 0)
@@ -311,6 +287,7 @@ namespace csmon.Models.Services
                 var indexData = new IndexData
                 {
                     LastBlocks = lastPoolInfos,
+                    LastTransactions = lastTxs,
                     LastBlockData = { Now = curTime }
                 };
                 if (lastPoolInfos.Any())
