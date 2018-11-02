@@ -77,18 +77,6 @@ namespace csmon.Models
             return ConvertHash(Base58Encoding.Decode(hash));
         }
 
-        // Formats currency amount into string form (Main API)
-        public static string FormatAmount(NodeApi.Amount value)
-        {
-            if (value.Fraction == 0) return $"{value.Integral}.0";
-
-            var fraction = value.Fraction.ToString();
-            while (fraction.Length < 18)
-                fraction = "0" + fraction;
-            
-            return $"{value.Integral}.{fraction.TrimEnd('0')}";
-        }
-
         // Formats currency amount into string form (Release API)
         public static string FormatAmount(Release.Amount value)
         {
