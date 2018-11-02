@@ -9,7 +9,8 @@ namespace csmon.Models
     public class IndexData
     {
         public LastBlockData LastBlockData = new LastBlockData();
-        public List<PoolInfo> LastBlocks = new List<PoolInfo>();        
+        public List<PoolInfo> LastBlocks = new List<PoolInfo>();
+        public List<TransactionInfo> LastTransactions = new List<TransactionInfo>();
     }
 
     // Information for last block animation
@@ -66,18 +67,6 @@ namespace csmon.Models
         {
         }
 
-        public PeriodData(NodeApi.PeriodStats stat)
-        {
-            AllLedgers = new StatItem(stat.PoolsCount);
-            AllTransactions = new StatItem(stat.TransactionsCount);
-            if (stat.BalancePerCurrency.ContainsKey("cs"))
-                CSVolume = new StatItem(stat.BalancePerCurrency["cs"].Integral);
-            else if (stat.BalancePerCurrency.ContainsKey("CS"))
-                CSVolume = new StatItem(stat.BalancePerCurrency["CS"].Integral);
-            SmartContracts = new StatItem(stat.SmartContractsCount);
-            Period = stat.PeriodDuration;
-        }
-
         public PeriodData(Release.PeriodStats stat)
         {
             AllLedgers = new StatItem(stat.PoolsCount);
@@ -94,7 +83,7 @@ namespace csmon.Models
     public class StatItem
     {
         public long Value;
-		
+
         public StatItem()
         {
         }
@@ -117,14 +106,6 @@ namespace csmon.Models
 
         public PoolInfo()
         {
-        }
-
-        public PoolInfo(NodeApi.Pool pool)
-        {            
-            Time = ConvUtils.UnixTimeStampToDateTime(pool.Time);
-            Hash = ConvUtils.ConvertHashAscii(pool.Hash);
-            TxCount = pool.TransactionsCount;
-            Number = pool.PoolNumber;
         }
 
         public PoolInfo(Release.Pool pool)
@@ -159,20 +140,10 @@ namespace csmon.Models
         }        
         public bool Found { get; set; }
         public string Method { get; set; }
+        public int Color { get; set; }
 
         public TransactionInfo()
         {
-        }
-
-        public TransactionInfo(int idx, string id, NodeApi.Transaction tr)
-        {
-            Index = idx;
-            Id = id;
-            Value = ConvUtils.FormatAmount(tr.Amount);
-            FromAccount = ConvUtils.ConvertHashPartial(tr.Source.Trim());
-            ToAccount = ConvUtils.ConvertHashPartial(tr.Target.Trim());
-            Currency = tr.Currency;
-            Fee = "0";
         }
 
         public TransactionInfo(int idx, Release.TransactionId id, Release.Transaction tr)
@@ -265,16 +236,6 @@ namespace csmon.Models
         {
         }
 
-        public ContractInfo(NodeApi.SmartContract sc)
-        {
-            Address = sc.Address;
-            SourceCode = ConvUtils.FormatSrc(sc.SourceCode);
-            HashState = sc.HashState;
-            Method = sc.Method;
-            Params = string.Join(", ", sc.Params);
-            ByteCodeLen = sc.ByteCode.Length;
-        }
-
         public ContractInfo(Release.SmartContract sc)
         {
             Address = Base58Encoding.Encode(sc.Address);
@@ -311,6 +272,7 @@ namespace csmon.Models
         public string PublicKey;
         public string Country;
         public string CountryName;
+        public string City;
         public string Version;
         public int Platform;
         public float Latitude;
@@ -331,6 +293,7 @@ namespace csmon.Models
             Ip = ConvUtils.GetIpCut(n.Ip);
             Country = n.Country;
             CountryName = n.Country_name;
+            City = n.City;
             Version = n.Version;
             int.TryParse(n.Platform, out Platform);
         }
