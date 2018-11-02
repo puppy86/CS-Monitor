@@ -1,0 +1,48 @@
+﻿
+@section script
+{
+    <script>
+
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                page: @ViewData["page"],
+                loading: false,
+                txData: { }
+            },
+            methods: {
+                getTxs: function (p) {
+                    this.loading = true;
+                    $.get(`${M_API}/txs/${p}`)
+                        .done(vm.onGetData)
+                        .always(function() {
+                            vm.loading = false;
+                        });
+                },
+                onGetData: function (data) {
+                    this.page = data.page;
+                    this.txData = data;
+                }
+            }
+        });
+
+        vm.getTxs(vm.page);
+    </script>
+}
+
+<h4>List of transactions processed in the network</h4>
+<div class="row justify-content-center" v-show="loading">
+    <div class="col-auto my-2">
+        <h6>Loading...</h6>
+        <div class="progress mt-1">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+</div>
+<div v-show="!loading">
+    <div class="mt-4">Transactions on page: {{txData.numStr}}</div>
+    <pb :page="page" :getfn="getTxs" :next="txData.haveNextPage"></pb>
+    <transactions :network="net" :source="txData.transactions" :noindex="true"></transactions>
+    <pb :page="page" :getfn="getTxs" :next="txData.haveNextPage"></pb>
+</div>
