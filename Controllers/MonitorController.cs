@@ -50,6 +50,12 @@ namespace csmon.Controllers
             return View();
         }
 
+        public IActionResult Transactions(int id = 1)
+        {
+            ViewData["page"] = id;
+            return View();
+        }
+
         [HttpPost]
         public IActionResult Search(string query)
         {
