@@ -26,7 +26,7 @@ namespace csmon.Models
                 {
                     Id = netSection["Id"],
                     Title = netSection["Title"],
-                    Api = $"/{netSection["Id"]}/{netSection["API"]}",
+                    Api = netSection["API"] != null ? $"/{netSection["Id"]}/{netSection["API"]}" : $"/{netSection["Id"]}/Api",
                     Ip = netSection["Ip"],
                     SignalIp = netSection["SignalIp"],
                     SignalPort = netSection["SignalPort"] != null ? int.Parse(netSection["SignalPort"]) : 8080,
