@@ -55,7 +55,7 @@ namespace csmon.Models.Services
                     _states.Add(net.Id, new TpsServiceState());
 
                 // Check DB availability
-                using (var db = ApiFab.GetDbContext())
+                using (var db = CsmonDbContext.Create())
                 {
                     var unused = db.Tps.Count();
                 }
@@ -76,7 +76,7 @@ namespace csmon.Models.Services
         {
             try
             {
-                using (var db = ApiFab.GetDbContext())
+                using (var db = CsmonDbContext.Create())
                 {
                     foreach (var network in Network.Networks)
                     {
@@ -108,7 +108,7 @@ namespace csmon.Models.Services
 
         private void OnGetTimer(object state)
         {
-            using (var db = ApiFab.GetDbContext())
+            using (var db = CsmonDbContext.Create())
             {
                 // Delete all points older than a month
                 var endDate = DateTime.Now.AddDays(-30);
@@ -141,7 +141,7 @@ namespace csmon.Models.Services
             {
                 try
                 {
-                    using (var db = ApiFab.GetDbContext())
+                    using (var db = CsmonDbContext.Create())
                     {
                         db.Database.ExecuteSqlCommand($"DELETE Tps WHERE Network='{net}'", net);
                     }
@@ -157,7 +157,7 @@ namespace csmon.Models.Services
         // Points within 24H, with 1 min interval
         public TpsInfo GetPoints24H(string net)
         {
-            using (var db = ApiFab.GetDbContext())
+            using (var db = CsmonDbContext.Create())
             {
                 // Need data for last 24h
                 var startDate = DateTime.Now.AddDays(-1);
@@ -175,7 +175,7 @@ namespace csmon.Models.Services
         // Points within a Week, with 1 hour interval
         public TpsInfo GetPointsWeek(string net)
         {
-            using (var db = ApiFab.GetDbContext())
+            using (var db = CsmonDbContext.Create())
             {
                 // Need data for last week
                 var startDate = DateTime.Now.AddDays(-7);
@@ -193,7 +193,7 @@ namespace csmon.Models.Services
         // Points within a month, with 1 day interval
         public TpsInfo GetPointsMonth(string net)
         {
-            using (var db = ApiFab.GetDbContext())
+            using (var db = CsmonDbContext.Create())
             {
                 // Need data for last month
                 var startDate = DateTime.Now.AddDays(-30);
