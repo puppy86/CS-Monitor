@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using csmon.Api;
 using csmon.Models.Db;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -63,7 +64,7 @@ namespace csmon.Models.Services
                     // This option is for debugging/testing purpose
                     try
                     {
-                        using (var db = ApiFab.GetDbContext())
+                        using (var db = CsmonDbContext.Create())
                         {
                             // Get all nodes stored in db for this network
                             var nodes = db.Nodes
@@ -119,7 +120,7 @@ namespace csmon.Models.Services
                 try
                 {
                     // Connect to DB
-                    using (var db = ApiFab.GetDbContext())
+                    using (var db = CsmonDbContext.Create())
                     {
                         // Get nodes, stored in db
                         var dbNodes = db.Nodes.ToList();
@@ -141,16 +142,29 @@ namespace csmon.Models.Services
                             }
                             else // Otherwise, try to get info by ip using ipapi.co web service
                             {
-                                var uri = new Uri("https://ipapi.co/" + $"{result.Nodes[i].Ip}/json/");
-                                var nodestr = await GetAsync(uri);
-                                var node = JsonConvert.DeserializeObject<Node>(nodestr);
-                                node.Ip = result.Nodes[i].Ip;
+                                try
+                                {
+                                    var uri = new Uri("https://ipapi.co/" + $"{result.Nodes[i].Ip}/json/");
+                                    var nodeStr = await GetAsync(uri);
+                                    nodeStr = nodeStr.Replace("\"latitude\": null,", "");
+                                    nodeStr = nodeStr.Replace("\"longitude\": null,", "");
+                                    var node = JsonConvert.DeserializeObject<Node>(nodeStr);
+                                    node.Ip = result.Nodes[i].Ip;
 
-                                // If no exceptions, store all data in db, 
-                                // because we don't want to use ipapi.co every time...
-                                db.Nodes.Add(node);
-                                db.SaveChanges();
-                                dbNodes.Add(node);
+                                    // If no exceptions, store all data in db, 
+                                    // because we don't want to use ipapi.co every time...
+                                    db.Nodes.Add(node);
+                                    db.SaveChanges();
+                                    dbNodes.Add(node);
+                                }
+                                catch (Exception e)
+                                {
+                                    _logger.LogError(e, "Exception in NodesSource");
+                                    var node = new Node {Ip = result.Nodes[i].Ip};
+                                    db.Nodes.Add(node);
+                                    db.SaveChanges();
+                                    dbNodes.Add(node);
+                                }
                             }
                         }
                     }
