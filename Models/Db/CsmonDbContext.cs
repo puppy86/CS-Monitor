@@ -36,5 +36,11 @@ namespace csmon.Models.Db
         {
             modelBuilder.Entity<Tp>().HasKey(p => new { p.Network, p.Time });
         }
+
+        // Creates DB Connection
+        public static CsmonDbContext Create()
+        {
+            return new CsmonDbContext(new DbContextOptions<CsmonDbContext>());
+        }
     }
 }
