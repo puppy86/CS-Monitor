@@ -67,9 +67,19 @@
                         .done(function (data) {
                             vm.page = data.page;
                             vm.transData = data;
+                            if (data.transactions.length > 0)
+                                vm.getTime(0);
                         })
                         .always(function () {
                             vm.loading_t = false;
+                        });
+                },
+                getTime: function (i) {
+                    $.get(`${M_API}/GetTransactionTime?id=${this.transData.transactions[i].id}`)
+                        .done(function (data) {
+                            vm.transData.transactions[i++].time = data;
+                            if (i < vm.transData.transactions.length)
+                                vm.getTime(i);
                         });
                 }
             },
