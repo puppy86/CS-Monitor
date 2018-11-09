@@ -27,6 +27,9 @@
     <Content Update="Views\Monitor\Transactions.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="Views\Tools\Dictionary.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Views\Tools\CsRequestConfirm.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
