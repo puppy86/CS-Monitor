@@ -10,6 +10,7 @@ Vue.component("transactions", {
                     <th>Id</th>                                
                     <th>From account</th>
                     <th>To account</th>
+                    <th>Time</th>
                     <th>Value</th>
                     <th>Fee</th>
                 </tr>
@@ -20,6 +21,7 @@ Vue.component("transactions", {
                     <td class="hash"><a :href="network + '/transaction/' + item.id">{{item.id}}</a></td>               
                     <td class="hash"><a :href="network + '/account/' + item.fromAccount">{{item.fromAccount}}</a></td>
                     <td class="hash"><a :href="network + '/account/' + item.toAccount">{{item.toAccount}}</a></td>
+                    <td>{{formatDateTime(item.time)}}</td>                    
                     <td>{{item.value}} {{item.currency}}</td>
                     <td>{{item.fee}}</td>
                 </tr>
@@ -57,3 +59,37 @@ Vue.component("pb", {
         </ul>`
 });
 
+Vue.mixin({
+    methods: {
+        pad: function (num) {
+            var s = `0${num}`;
+            return s.substr(s.length - 2);
+        },
+        getAge: function (time) {
+            var daysDiffInMillSec = new Date(this.model.lastBlockData.now) - new Date(time);
+            if (daysDiffInMillSec < 0) return "0";
+            var daysLeft = Math.floor(daysDiffInMillSec / 86400000);
+            daysDiffInMillSec -= daysLeft * 86400000;
+            var hoursLeft = Math.floor(daysDiffInMillSec / 3600000);
+            daysDiffInMillSec -= hoursLeft * 3600000;
+            var minutesLeft = Math.floor(daysDiffInMillSec / 60000);
+            daysDiffInMillSec -= minutesLeft * 60000;
+            var secLeft = Math.floor(daysDiffInMillSec / 1000);
+            var res = daysLeft !== 0 ? daysLeft + "d " : "";
+            res += hoursLeft !== 0 || daysLeft !== 0 ? this.pad(hoursLeft) + "h " : "";
+            res += this.pad(minutesLeft) + "m " + this.pad(secLeft) + "s";
+            return res;
+        },
+        formatDate: function(time) {
+            var dt = new Date(time);
+            return `${dt.getFullYear()}/${dt.getMonth()}/${dt.getDate()}`;
+        },
+        formatTime: function (time) {
+            var dt = new Date(time);
+            return `${this.pad(dt.getHours())}:${this.pad(dt.getMinutes())}:${this.pad(dt.getSeconds())}`;
+        },
+        formatDateTime: function (time) {
+            return new Date(time).toLocaleString();
+        }
+    }
+});
