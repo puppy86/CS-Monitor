@@ -31,7 +31,6 @@ namespace csmon.Models
                     SignalIp = netSection["SignalIp"],
                     SignalPort = netSection["SignalPort"] != null ? int.Parse(netSection["SignalPort"]) : 8080,
                     CachePools = bool.Parse(netSection["CachePools"]),
-                    RandomNodes = bool.Parse(netSection["RandomNodes"])
                 });
         }
     }

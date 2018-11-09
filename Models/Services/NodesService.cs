@@ -58,45 +58,19 @@ namespace csmon.Models.Services
         {
             foreach (var network in Network.Networks)
             {
-                if (network.RandomNodes)
-                {
-                    // if option 'RandomNodes' is on, get only nodes, stored in DB
-                    // This option is for debugging/testing purpose
-                    try
-                    {
-                        using (var db = CsmonDbContext.Create())
-                        {
-                            // Get all nodes stored in db for this network
-                            var nodes = db.Nodes
-                                .Where(n => n.Network.Equals(network.Id))
-                                .Select(n => new NodeInfo(n))
-                                .ToList();
+                // if no signal server configured, just skip this network
+                if (string.IsNullOrEmpty(network.SignalIp)) continue;
 
-                            // Put it here, where client page gets the data 
-                            _states[network.Id].Nodes = nodes;
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // ignored
-                    }
+                try
+                {
+                    // Update the list of nodes from API of signal server
+                    await UpdateNetworkNodes(network);
                 }
-                else // Otherwise, deal with the signal server
+                catch (Exception e)
                 {
-                    // if no signal server configured, just skip this network
-                    if (string.IsNullOrEmpty(network.SignalIp)) continue;
-
-                    try
-                    {
-                        // Update the list of nodes from API of signal server
-                        await UpdateNetworkNodes(network);
-                    }
-                    catch (Exception e)
-                    {
-                        // In case of error (server unavailable), log this and clear the list
-                        _logger.LogError(e, "Exception in NodesSource");
-                        _states[network.Id].Nodes = new List<NodeInfo>();
-                    }
+                    // In case of error (server unavailable), log this and clear the list
+                    _logger.LogError(e, "Exception in NodesSource");
+                    _states[network.Id].Nodes = new List<NodeInfo>();
                 }
             }
 
@@ -205,8 +179,7 @@ namespace csmon.Models.Services
                 Nodes = listNodes,
                 HaveNextPage = nodesCount > offset + numPerPage,
                 LastPage = ConvUtils.GetNumPages(nodesCount, numPerPage),
-                NumStr = nodesCount > 0 ? $"{offset + 1} - {offset + listNodes.Count} of {nodesCount}" : "0",
-                ShowKey = !Network.GetById(network).RandomNodes
+                NumStr = nodesCount > 0 ? $"{offset + 1} - {offset + listNodes.Count} of {nodesCount}" : "0"
             };
             return result;            
         }

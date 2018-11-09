@@ -13,9 +13,6 @@ namespace csmon.Models.Db
         // Table for nodes data (Country, Location, etc.)
         public DbSet<Node> Nodes { get; set; }
 
-        // A list of pre-defined smart contract addresses
-        public DbSet<Smart> Smarts { get; set; }
-
         // Table for storing network speed measurements, that used for displaying chart on the "Transactions per second" page
         public DbSet<Tp> Tps { get; set; }
 

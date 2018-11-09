@@ -209,7 +209,6 @@ namespace csmon.Models
         public string SignalIp;
         public int SignalPort = 8080;
         public bool CachePools;
-        public bool RandomNodes;
         public bool Updating;
 
         public static List<Network> Networks = new List<Network>();
@@ -303,7 +302,6 @@ namespace csmon.Models
     public class NodesData : PageData
     {
         public List<NodeInfo> Nodes;
-        public bool ShowKey = true;
     }
 
     // A point for diagram with time-based x-axis
