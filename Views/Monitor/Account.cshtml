@@ -36,8 +36,8 @@
                         .done(function(data) {
                             vm.page = data.page;
                             vm.transData = data;
-                            //if (data.transactions.length > 0)
-                            //    vm.getTime(0);
+                            if (data.transactions.length > 0)
+                                vm.getTime(0);
                         })
                         .always(function() {
                             vm.loading_t = false;
@@ -49,7 +49,7 @@
                         .done(function(data) {
                             vm.transData.transactions[i++].time = data;
                             if (i < vm.transData.transactions.length)
-                                vm.getAge(i);
+                                vm.getTime(i);
                         });
                 },
 

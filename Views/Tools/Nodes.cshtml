@@ -122,7 +122,7 @@
         <thead class="thead-light">
             <tr>
                 <th>IP</th>
-                <th v-show="nodesData.showKey">Node public key</th>
+                <th>Node public key</th>
                 <th>Country</th>
                 <th>Version</th>
                 <th>Platform</th>
@@ -131,7 +131,7 @@
         <tbody>
             <tr v-for="item in nodesData.nodes">
                 <td>{{item.ip}}</td>
-                <td v-show="nodesData.showKey">{{item.publicKey}}</td>
+                <td>{{item.publicKey}}</td>
                 <td><img :src="'https://www.countryflags.io/'+item.country+'/shiny/32.png'" alt=""> {{item.countryName}}</td>
                 <td>v{{item.version}}</td>
                 <td v-if="item.platform == 0"><img src="/img/Linux.png" alt=""> Linux</td>

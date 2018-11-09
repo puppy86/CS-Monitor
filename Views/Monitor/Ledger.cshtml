@@ -35,6 +35,9 @@
                         .done(function (data) {
                             vm.page = data.page;
                             vm.transData = data;
+                            vm.transData.transactions.forEach(function(t) {
+                                t.time = vm.pool.time;
+                            });
                         })
                         .always(function() {
                             vm.loading_t = false;
