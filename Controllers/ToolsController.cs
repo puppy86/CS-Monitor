@@ -37,6 +37,11 @@ namespace csmon.Controllers
             return View();
         }
 
+        public IActionResult Dictionary()
+        {
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> CsRequestSubmit(string address, string email, int amount)
         {
