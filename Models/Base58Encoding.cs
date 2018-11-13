@@ -38,6 +38,8 @@ namespace csmon.Models
 
 		public static string Encode(byte[] data)
 		{
+		    if (data == null) return string.Empty;
+
 			// Decode byte[] to BigInteger
 			BigInteger intData = 0;
 			for (int i = 0; i < data.Length; i++)
