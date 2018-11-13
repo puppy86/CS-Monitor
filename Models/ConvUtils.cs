@@ -9,10 +9,17 @@ namespace csmon.Models
     public static class ConvUtils
     {
         // Converts unix time stamp to DateTime
+        public static DateTime UnixTimeStampToDateTimeS(long unixTimeStamp)
+        {
+            var dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToUniversalTime();
+            return dtDateTime;
+        }
+
         public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
         {
             var dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            dtDateTime = dtDateTime.AddMilliseconds(unixTimeStamp).ToLocalTime();
+            dtDateTime = dtDateTime.AddMilliseconds(unixTimeStamp).ToUniversalTime();
             return dtDateTime;
         }
 
@@ -80,12 +87,11 @@ namespace csmon.Models
         // Formats currency amount into string form (Release API)
         public static string FormatAmount(Release.Amount value)
         {
+            if (value == null) return string.Empty;
             if (value.Fraction == 0) return $"{value.Integral}.0";
-
             var fraction = value.Fraction.ToString();
             while (fraction.Length < 18)
                 fraction = "0" + fraction;
-
             return $"{value.Integral}.{fraction.TrimEnd('0')}";
         }
 
