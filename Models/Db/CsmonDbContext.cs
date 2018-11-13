@@ -2,9 +2,7 @@
 
 namespace csmon.Models.Db
 {
-    /// <summary>
-    /// DB context for working with MS SQL database
-    /// </summary>
+    // DB context for working with MS SQL database
     public class CsmonDbContext : DbContext
     {
         // Connection string
