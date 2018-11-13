@@ -122,21 +122,30 @@
         <thead class="thead-light">
             <tr>
                 <th>IP</th>
+                <th>State</th>
                 <th>Node public key</th>
                 <th>Country</th>
                 <th>Version</th>
                 <th>Platform</th>
+                <th>Count Trust</th>
+                <th>Time Registration</th>
+                <th>Time Active</th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="item in nodesData.nodes">
                 <td>{{item.ip}}</td>
-                <td>{{item.publicKey}}</td>
+                <td v-if="item.active" class="text-success">Online</td>
+                <td v-else class="text-danger">Offline</td>
+                <td class="hash"><a :href="net + '/tools/node/' + item.publicKey">{{item.publicKey}}</a></td>
                 <td><img :src="'https://www.countryflags.io/'+item.country+'/shiny/32.png'" alt=""> {{item.countryName}}</td>
                 <td>v{{item.version}}</td>
                 <td v-if="item.platform == 0"><img src="/img/Linux.png" alt=""> Linux</td>
                 <td v-else-if="item.platform == 1"><img src="/img/macos.png" alt=""> Mac OS</td>
                 <td v-else><img src="/img/Windows.png" alt=""> Windows</td>
+                <td>{{item.countTrust}}</td>
+                <td>{{formatDateTime(item.timeRegistration)}}</td>
+                <td>{{getTimeSpan(item.timeActive)}}</td>
             </tr>
         </tbody>
     </table>
