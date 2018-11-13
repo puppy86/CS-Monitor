@@ -28,6 +28,8 @@ namespace Release
     private long _time;
     private int _transactionsCount;
     private long _poolNumber;
+    private byte[] _writer;
+    private Amount _totalFee;
 
     public byte[] Hash
     {
@@ -94,6 +96,32 @@ namespace Release
       }
     }
 
+    public byte[] Writer
+    {
+      get
+      {
+        return _writer;
+      }
+      set
+      {
+        __isset.writer = true;
+        this._writer = value;
+      }
+    }
+
+    public Amount TotalFee
+    {
+      get
+      {
+        return _totalFee;
+      }
+      set
+      {
+        __isset.totalFee = true;
+        this._totalFee = value;
+      }
+    }
+
 
     public Isset __isset;
     #if !SILVERLIGHT
@@ -105,6 +133,8 @@ namespace Release
       public bool time;
       public bool transactionsCount;
       public bool poolNumber;
+      public bool writer;
+      public bool totalFee;
     }
 
     public Pool() {
@@ -156,6 +186,21 @@ namespace Release
             case 5:
               if (field.Type == TType.I64) {
                 PoolNumber = iprot.ReadI64();
+              } else { 
+                TProtocolUtil.Skip(iprot, field.Type);
+              }
+              break;
+            case 6:
+              if (field.Type == TType.String) {
+                Writer = iprot.ReadBinary();
+              } else { 
+                TProtocolUtil.Skip(iprot, field.Type);
+              }
+              break;
+            case 7:
+              if (field.Type == TType.Struct) {
+                TotalFee = new Amount();
+                TotalFee.Read(iprot);
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -221,6 +266,22 @@ namespace Release
           oprot.WriteI64(PoolNumber);
           oprot.WriteFieldEnd();
         }
+        if (Writer != null && __isset.writer) {
+          field.Name = "writer";
+          field.Type = TType.String;
+          field.ID = 6;
+          oprot.WriteFieldBegin(field);
+          oprot.WriteBinary(Writer);
+          oprot.WriteFieldEnd();
+        }
+        if (TotalFee != null && __isset.totalFee) {
+          field.Name = "totalFee";
+          field.Type = TType.Struct;
+          field.ID = 7;
+          oprot.WriteFieldBegin(field);
+          TotalFee.Write(oprot);
+          oprot.WriteFieldEnd();
+        }
         oprot.WriteFieldStop();
         oprot.WriteStructEnd();
       }
@@ -262,6 +323,18 @@ namespace Release
         __first = false;
         __sb.Append("PoolNumber: ");
         __sb.Append(PoolNumber);
+      }
+      if (Writer != null && __isset.writer) {
+        if(!__first) { __sb.Append(", "); }
+        __first = false;
+        __sb.Append("Writer: ");
+        __sb.Append(Writer);
+      }
+      if (TotalFee != null && __isset.totalFee) {
+        if(!__first) { __sb.Append(", "); }
+        __first = false;
+        __sb.Append("TotalFee: ");
+        __sb.Append(TotalFee== null ? "<null>" : TotalFee.ToString());
       }
       __sb.Append(")");
       return __sb.ToString();
