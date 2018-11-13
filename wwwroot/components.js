@@ -80,6 +80,21 @@ Vue.mixin({
             res += this.pad(minutesLeft) + "m " + this.pad(secLeft) + "s";
             return res;
         },
+        getTimeSpan: function (time) {
+            if (time < 0) return "0";
+            let sec = time;
+            var daysLeft = Math.floor(sec / 86400);
+            sec -= daysLeft * 86400;
+            var hoursLeft = Math.floor(sec / 3600);
+            sec -= hoursLeft * 3600;
+            var minutesLeft = Math.floor(sec / 60);
+            sec -= minutesLeft * 60;
+            
+            var res = daysLeft !== 0 ? daysLeft + "d " : "";
+            res += hoursLeft !== 0 || daysLeft !== 0 ? this.pad(hoursLeft) + "h " : "";
+            res += this.pad(minutesLeft) + "m " + this.pad(sec) + "s";
+            return res;
+        },
         formatDate: function(time) {
             var dt = new Date(time);
             return `${dt.getFullYear()}/${dt.getMonth()}/${dt.getDate()}`;
