@@ -50,8 +50,8 @@
             (function (d, w, c) {
                 (w[c] = w[c] || []).push(function () {
                     try {
-                        w.yaCounter44398234 = new Ya.Metrika2({
-                            id: 44398234,
+                        w.yaCounter51067157 = new Ya.Metrika2({
+                            id: 51067157,
                             clickmap: true,
                             trackLinks: true,
                             accurateTrackBounce: true,
@@ -95,32 +95,43 @@
         </noscript>
         <!-- End Google Tag Manager (noscript) -->
         <!-- Yandex.Metrika counter (noscript) -->
-        <noscript><div><img src="https://mc.yandex.ru/watch/44398234" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+        <noscript><div><img src="https://mc.yandex.ru/watch/51067157" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
         <!-- /Yandex.Metrika counter (noscript)-->
     </environment>
     <map name="image-map">
-        <area target="" alt="Credits.com" title="Credits.com" href="~/@network" coords="1,1,165,42" shape="rect">
-        <area target="" alt="Home" title="Home" href="~/@network" coords="165,1,297,42" shape="rect">
+        <area target="" alt="Credits.com" title="Credits.com" href="https://credits.com" coords="1,1,47,42" shape="rect">
+        <area target="" alt="Home" title="Home" href="~/@network" coords="47,1,180,42" shape="rect">
     </map>
 
-    <header class="fixed-top">
+    <header class="fixed-top bg-light">
         <nav class="navbar navbar-light bg-light mw1000">
-            <ul class="nav ml-auto">
-                <li class="nav-item dropdown">
-                    <strong>Network: </strong>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle py-0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            @networkObj.Title
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            @foreach (var n in Network.Networks)
-                            {
-                                <a class="dropdown-item" href="~/@n.Id/">@n.Title</a>
-                            }
+            <div class="d-block d-md-none d-lg-block" style="width: 150px"></div>
+            <div class="d-none d-md-block ">
+                <form id="search-form" action="~/@network/search" method="post">
+                    <div class="input-group">
+                        <input type="text" name="query" placeholder="Search transaction, block, account, etc" class="form-control form-control-sm" style="width: 450px">
+                        <div class="input-group-append ">
+                            <button class="btn btn-outline-secondary btn-sm" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
                         </div>
                     </div>
-                </li>
-            </ul>
+                </form>
+            </div>
+            <div class="nav-item dropdown">
+                <strong>Network: </strong>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle py-0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        @networkObj.Title
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        @foreach (var n in Network.Networks)
+                        {
+                            <a class="dropdown-item" href="~/@n.Id/">@n.Title</a>
+                        }
+                    </div>
+                </div>
+            </div>
         </nav>
         <div class="bg-dark navbar-shadow">
             <nav class="navbar navbar-expand-md navbar-dark bg-dark mw1000">
@@ -133,15 +144,12 @@
                         <li class="nav-item" id="navItemHome">
                             <a class="nav-link" href="~/@network/index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="http://wallet.credits.com" target="_blank">Wallet</a>
-                        </li>
                         <li class="nav-item dropdown d-none d-md-block">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Blockchain
                             </a>
                             <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown1">
-                                <a class="dropdown-item " href="~/@network/ledgers">Blocks</a>
+                                <a class="dropdown-item " href="~/@network/blocks">Blocks</a>
                                 <a class="dropdown-item " href="~/@network/transactions">Transactions</a>
                                 <a class="dropdown-item " href="~/@network/contracts">Smart contracts</a>
                             </div>
@@ -166,7 +174,7 @@
                             </div>
                         </li>
                         <li class="nav-item d-md-none">
-                            <a class="nav-link" href="~/@network/ledgers">Blocks</a>
+                            <a class="nav-link" href="~/@network/blocks">Blocks</a>
                         </li>
                         <li class="nav-item d-md-none">
                             <a class="nav-link" href="~/@network/transactions">Transactions</a>
@@ -187,12 +195,9 @@
                 </div>
             </nav>
         </div>
-        @if (network!="main")
-        {
-            <div id="infoBar" class="info-bar">
-                Application to get Credits (CS) coins for testing. Please send a <a href="~/@network/tools/csrequest">request</a>
-            </div>
-        }
+        <div id="infoBar" class="info-bar">
+            Application to get Credits (CS) coins for testing. Please send a <a href="~/@network/tools/csrequest">request</a>
+        </div>
     </header>
     <main class="container content mw1000">
         @if (networkObj.Updating)
@@ -229,7 +234,7 @@
                     <div class="col-12 col-md-3">
                         <ul class="navbar-nav flex-column">
                             <li class="nav-item">
-                                <a class="nav-link" href="~/@network/ledgers">Blocks</a>
+                                <a class="nav-link" href="~/@network/blocks">Blocks</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="~/@network/contracts">Smart contracts</a>
