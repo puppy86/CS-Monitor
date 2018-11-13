@@ -17,6 +17,7 @@ namespace csmon.Models.Services
     {
         // Gets a list of blockchain network nodes by given network id
         NodesData GetNodes(string network, int page);
+        NodeInfo GetNode(string net, string key);
     }
 
     // The service that communicates with signal servers and stores info about network nodes
@@ -49,7 +50,7 @@ namespace csmon.Models.Services
                 _states.Add(net.Id, new NodesServiceState());
 
             // Create the timer and complete
-            _timer = new Timer(OnTimer, null, _period, 0);
+            _timer = new Timer(OnTimer, null, 5000, 0);
             return Task.CompletedTask;
         }
 
@@ -97,49 +98,56 @@ namespace csmon.Models.Services
                     using (var db = CsmonDbContext.Create())
                     {
                         // Get nodes, stored in db
-                        var dbNodes = db.Nodes.ToList();
+                        var dbNodes = db.Nodes.Where(n => n.Network == network.Id).ToList();
 
-                        for (var i = 0; i < nodes.Count; i++)
-                        {                            
-                            var nodeInfo = nodes[i];
+                        // Add new nodes into db and update existing
+                        foreach (var node in nodes)
+                        {
+                            var dbNode = dbNodes.FirstOrDefault(n => n.PublicKey.Equals(node.PublicKey));
+                            if(dbNode == null)
+                                db.Nodes.Add(new Node(node, network.Id));
+                            else if (!node.EqualsDbNode(dbNode))
+                                db.Nodes.Update(node.UpdateDbNode(dbNode));
+                        }
+                        db.SaveChanges();
 
+                        // Get Non-Active nodes from db
+                        foreach (var node in dbNodes.Where(n => !nodes.Any(d => d.PublicKey.Equals(n.PublicKey))))
+                            nodes.Add(new NodeInfo(node));
+
+                        // Find geo data for nodes
+                        foreach (var ip in nodes.Select(n => n.Ip).Distinct())
+                        {
                             // Try to find node in db by ip address
-                            var exnode = dbNodes.FirstOrDefault(n => n.Ip.Equals(result.Nodes[i].Ip));
+                            var location = db.Locations.FirstOrDefault(l => l.Ip.Equals(ip));
 
-                            // If found, get stored country from it
-                            if (exnode != null)
-                            {
-                                nodeInfo.Country = exnode.Country;
-                                nodeInfo.CountryName = exnode.Country_name;
-                                nodeInfo.Latitude = exnode.Latitude;
-                                nodeInfo.Longitude = exnode.Longitude;
-                            }
-                            else // Otherwise, try to get info by ip using ipapi.co web service
+                            // If not found, try to get info by ip using ipapi.co web service
+                            if (location == null)
                             {
                                 try
                                 {
-                                    var uri = new Uri("https://ipapi.co/" + $"{result.Nodes[i].Ip}/json/");
+                                    var uri = new Uri("https://ipapi.co/" + $"{ip}/json/");
                                     var nodeStr = await GetAsync(uri);
                                     nodeStr = nodeStr.Replace("\"latitude\": null,", "");
                                     nodeStr = nodeStr.Replace("\"longitude\": null,", "");
-                                    var node = JsonConvert.DeserializeObject<Node>(nodeStr);
-                                    node.Ip = result.Nodes[i].Ip;
-
-                                    // If no exceptions, store all data in db, 
-                                    // because we don't want to use ipapi.co every time...
-                                    db.Nodes.Add(node);
+                                    location = JsonConvert.DeserializeObject<Location>(nodeStr);
+                                    location.Ip = ip;
+                                    if (location.Org.Length > 64)
+                                        location.Org = location.Org.Substring(0, 64);
+                                    // Store data in db
+                                    db.Locations.Add(location);
                                     db.SaveChanges();
-                                    dbNodes.Add(node);
                                 }
                                 catch (Exception e)
                                 {
-                                    _logger.LogError(e, "Exception in NodesSource");
-                                    var node = new Node {Ip = result.Nodes[i].Ip};
-                                    db.Nodes.Add(node);
-                                    db.SaveChanges();
-                                    dbNodes.Add(node);
+                                    _logger.LogError(e, "");
+                                    continue;
                                 }
                             }
+
+                            // Set location data to nodes
+                            foreach (var nodeInfo in nodes.Where(n => n.Ip.Equals(ip)))
+                                nodeInfo.SetLocation(location);
                         }
                     }
                 }
@@ -148,8 +156,12 @@ namespace csmon.Models.Services
                     // ignored
                 }
 
-                // Put the list into the storage
-                _states[network.Id].Nodes = nodes;
+                // Hide Ip addresses before output
+                foreach (var nodeInfo in nodes)
+                    nodeInfo.HideIp();
+
+                // Put the ordered list into the storage
+                _states[network.Id].Nodes = nodes.OrderByDescending(n=>n.Active).ThenBy(n => n.Ip).ToList();
             }
         }
 
@@ -184,7 +196,12 @@ namespace csmon.Models.Services
             return result;            
         }
 
-        // Setvice stop point, called by the framework
+        public NodeInfo GetNode(string net, string key)
+        {
+            return _states[net].Nodes.FirstOrDefault(n => n.PublicKey == key);
+        }
+
+        // Service stop point, called by the framework
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _timer?.Change(Timeout.Infinite, 0);
