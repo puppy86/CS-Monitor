@@ -56,7 +56,7 @@ namespace csmon.Models
     public class PeriodData
     {
         public StatItem AllTransactions = new StatItem();
-        public StatItem AllLedgers = new StatItem();
+        public StatItem AllBlocks = new StatItem();
         public StatItem CSVolume = new StatItem();
         public StatItem SmartContracts = new StatItem();
         public StatItem ScTransactions = new StatItem();
@@ -69,7 +69,7 @@ namespace csmon.Models
 
         public PeriodData(Release.PeriodStats stat)
         {
-            AllLedgers = new StatItem(stat.PoolsCount);
+            AllBlocks = new StatItem(stat.PoolsCount);
             AllTransactions = new StatItem(stat.TransactionsCount);
             if(stat.BalancePerCurrency.ContainsKey(1))
                 CSVolume = new StatItem(stat.BalancePerCurrency[1].Integral);
@@ -103,6 +103,7 @@ namespace csmon.Models
         public int TxCount { get; set; }
         public string Value { get; set; }
         public string Fee { get; set; }
+        public string Writer { get; set; }
 
         public PoolInfo()
         {
@@ -114,6 +115,8 @@ namespace csmon.Models
             Hash = ConvUtils.ConvertHash(pool.Hash);
             TxCount = pool.TransactionsCount;
             Number = pool.PoolNumber;
+            Fee = ConvUtils.FormatAmount(pool.TotalFee);
+            Writer = Base58Encoding.Encode(pool.Writer);
         }
     }
 
@@ -172,10 +175,10 @@ namespace csmon.Models
         public string NumStr;
     }
 
-    // Contains list of ledgers
-    public class LedgersData : PageData
+    // Contains list of blocks
+    public class BlocksData : PageData
     {
-        public List<PoolInfo> Ledgers = new List<PoolInfo>();
+        public List<PoolInfo> Blocks = new List<PoolInfo>();
     }
 
     // Contains list of transactions
@@ -273,28 +276,76 @@ namespace csmon.Models
         public string CountryName;
         public string City;
         public string Version;
-        public int Platform;
+        public byte Platform;
+        public int CountTrust;
+        public DateTime TimeRegistration;
+        public long TimeActive;
         public float Latitude;
         public float Longitude;
+        public bool Active;
+
+        public NodeInfo()
+        {
+            Ip = string.Empty;
+        }
 
         public NodeInfo(ServerApi.ServerNode n)
         {
-            Ip = ConvUtils.GetIpCut(n.Ip);
+            Ip = n.Ip;
             if (n.PublicKey.All("0123456789ABCDEF".Contains))
                 PublicKey = ConvUtils.ConvertHashPartial(n.PublicKey);
-            Version = n.Version;
-            int.TryParse(n.Platform, out Platform);
-            
+            Version = n.Version ?? string.Empty;
+            byte.TryParse(n.Platform, out Platform);
+            CountTrust = n.CountTrust;
+            TimeRegistration = ConvUtils.UnixTimeStampToDateTimeS(n.TimeRegistration);
+            TimeActive = n.TimeActive;
+            Active = true;
         }
 
         public NodeInfo(Node n)
         {
-            Ip = ConvUtils.GetIpCut(n.Ip);
-            Country = n.Country;
-            CountryName = n.Country_name;
-            City = n.City;
+            PublicKey = n.PublicKey;
+            Ip = n.Ip;
             Version = n.Version;
-            int.TryParse(n.Platform, out Platform);
+            Platform = n.Platform;
+            CountTrust = n.CountTrust;
+            TimeRegistration = n.TimeRegistration;
+            TimeActive = n.TimeActive;
+        }
+
+        public void SetLocation(Location l)
+        {
+            Country = l.Country;
+            CountryName = l.Country_name;
+            City = l.City;
+            Latitude = l.Latitude;
+            Longitude = l.Longitude;
+        }
+
+        public void HideIp()
+        {
+            Ip = ConvUtils.GetIpCut(Ip);
+        }
+
+        public bool EqualsDbNode(Node dbNode)
+        {
+            return Ip.Equals(dbNode.Ip)
+                   && Version.Equals(dbNode.Version)
+                   && Platform.Equals(dbNode.Platform)
+                   && CountTrust.Equals(dbNode.CountTrust)
+                   && TimeRegistration.Equals(dbNode.TimeRegistration)
+                   && TimeActive.Equals(dbNode.TimeActive);
+        }
+
+        public Node UpdateDbNode(Node dbNode)
+        {
+            dbNode.Ip = Ip;
+            dbNode.Version = Version;
+            dbNode.Platform = Platform;
+            dbNode.CountTrust = CountTrust;
+            dbNode.TimeRegistration = TimeRegistration;
+            dbNode.TimeActive = TimeActive;
+            return dbNode;
         }
     }
 
