@@ -10,8 +10,11 @@ namespace csmon.Models.Db
         // Connection string
         public const string ConnectionString = "Data Source=localhost;Initial Catalog=csmon;Integrated Security=True";
 
-        // Table for nodes data (Country, Location, etc.)
+        // Table for nodes data
         public DbSet<Node> Nodes { get; set; }
+
+        // Table for locations data
+        public DbSet<Location> Locations { get; set; }
 
         // Table for storing network speed measurements, that used for displaying chart on the "Transactions per second" page
         public DbSet<Tp> Tps { get; set; }
