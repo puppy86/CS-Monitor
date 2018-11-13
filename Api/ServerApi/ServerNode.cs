@@ -29,6 +29,9 @@ namespace ServerApi
     private string _hash;
     private string _publicKey;
     private string _platform;
+    private int _countTrust;
+    private long _timeRegistration;
+    private long _timeActive;
 
     public string Ip
     {
@@ -108,6 +111,45 @@ namespace ServerApi
       }
     }
 
+    public int CountTrust
+    {
+      get
+      {
+        return _countTrust;
+      }
+      set
+      {
+        __isset.countTrust = true;
+        this._countTrust = value;
+      }
+    }
+
+    public long TimeRegistration
+    {
+      get
+      {
+        return _timeRegistration;
+      }
+      set
+      {
+        __isset.timeRegistration = true;
+        this._timeRegistration = value;
+      }
+    }
+
+    public long TimeActive
+    {
+      get
+      {
+        return _timeActive;
+      }
+      set
+      {
+        __isset.timeActive = true;
+        this._timeActive = value;
+      }
+    }
+
 
     public Isset __isset;
     #if !SILVERLIGHT
@@ -120,6 +162,9 @@ namespace ServerApi
       public bool hash;
       public bool publicKey;
       public bool platform;
+      public bool countTrust;
+      public bool timeRegistration;
+      public bool timeActive;
     }
 
     public ServerNode() {
@@ -178,6 +223,27 @@ namespace ServerApi
             case 6:
               if (field.Type == TType.String) {
                 Platform = iprot.ReadString();
+              } else { 
+                TProtocolUtil.Skip(iprot, field.Type);
+              }
+              break;
+            case 7:
+              if (field.Type == TType.I32) {
+                CountTrust = iprot.ReadI32();
+              } else { 
+                TProtocolUtil.Skip(iprot, field.Type);
+              }
+              break;
+            case 8:
+              if (field.Type == TType.I64) {
+                TimeRegistration = iprot.ReadI64();
+              } else { 
+                TProtocolUtil.Skip(iprot, field.Type);
+              }
+              break;
+            case 9:
+              if (field.Type == TType.I64) {
+                TimeActive = iprot.ReadI64();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -251,6 +317,30 @@ namespace ServerApi
           oprot.WriteString(Platform);
           oprot.WriteFieldEnd();
         }
+        if (__isset.countTrust) {
+          field.Name = "countTrust";
+          field.Type = TType.I32;
+          field.ID = 7;
+          oprot.WriteFieldBegin(field);
+          oprot.WriteI32(CountTrust);
+          oprot.WriteFieldEnd();
+        }
+        if (__isset.timeRegistration) {
+          field.Name = "timeRegistration";
+          field.Type = TType.I64;
+          field.ID = 8;
+          oprot.WriteFieldBegin(field);
+          oprot.WriteI64(TimeRegistration);
+          oprot.WriteFieldEnd();
+        }
+        if (__isset.timeActive) {
+          field.Name = "timeActive";
+          field.Type = TType.I64;
+          field.ID = 9;
+          oprot.WriteFieldBegin(field);
+          oprot.WriteI64(TimeActive);
+          oprot.WriteFieldEnd();
+        }
         oprot.WriteFieldStop();
         oprot.WriteStructEnd();
       }
@@ -298,6 +388,24 @@ namespace ServerApi
         __first = false;
         __sb.Append("Platform: ");
         __sb.Append(Platform);
+      }
+      if (__isset.countTrust) {
+        if(!__first) { __sb.Append(", "); }
+        __first = false;
+        __sb.Append("CountTrust: ");
+        __sb.Append(CountTrust);
+      }
+      if (__isset.timeRegistration) {
+        if(!__first) { __sb.Append(", "); }
+        __first = false;
+        __sb.Append("TimeRegistration: ");
+        __sb.Append(TimeRegistration);
+      }
+      if (__isset.timeActive) {
+        if(!__first) { __sb.Append(", "); }
+        __first = false;
+        __sb.Append("TimeActive: ");
+        __sb.Append(TimeActive);
       }
       __sb.Append(")");
       return __sb.ToString();
