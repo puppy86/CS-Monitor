@@ -42,6 +42,12 @@ namespace csmon.Controllers
             return View();
         }
 
+        public IActionResult Node(string id)
+        {
+            ViewData["id"] = id;
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> CsRequestSubmit(string address, string email, int amount)
         {

@@ -28,7 +28,7 @@ namespace csmon.Controllers
             return View(new IndexData());
         }
 
-        public IActionResult Ledger(string id, int page=1)
+        public IActionResult Block(string id, int page=1)
         {
             ViewData["blockId"] = id;
             ViewData["page"] = page;
@@ -47,7 +47,7 @@ namespace csmon.Controllers
             return View();
         }
 
-        public IActionResult Ledgers(int id = 1)
+        public IActionResult Blocks(int id = 1)
         {
             ViewData["page"] = id;
             return View();
@@ -72,7 +72,7 @@ namespace csmon.Controllers
 
             // Block hash
             if (query.All("0123456789ABCDEF".Contains))
-                return Redirect($"/{Net}/{nameof(Ledger)}/{query}");
+                return Redirect($"/{Net}/{nameof(Block)}/{query}");
 
             // Probably a smart contract in Hex encoding, if its an account then smart contract page will redirect to it itself
             if (query.All("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".Contains))

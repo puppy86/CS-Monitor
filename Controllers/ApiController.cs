@@ -54,23 +54,23 @@ namespace csmon.Controllers
         }
 
         // Returns the list of blocks on given page (id), from cache
-        public LedgersData Ledgers(int id)
+        public BlocksData Blocks(int id)
         {
             const int limit = 100;
             if (id <= 0) id = 1; // Page
 
             // Get the list of cached blocks, from given page (we cache last 100K blocks)
-            var ledgers = _indexService.GetPools(Net, (id - 1) * limit, limit);
+            var blocks = _indexService.GetPools(Net, (id - 1) * limit, limit);
 
             // Prepare all data for page and return
             var lastPage = ConvUtils.GetNumPages(IndexService.SizeOutAll, limit);
-            var result = new LedgersData
+            var result = new BlocksData
             {
                 Page = id,
-                Ledgers = ledgers,
+                Blocks = blocks,
                 HaveNextPage = id < lastPage,
                 LastPage = lastPage,
-                NumStr = ledgers.Any() ? $"{ledgers.Last().Number} - {ledgers.First().Number}" : "-"
+                NumStr = blocks.Any() ? $"{blocks.Last().Number} - {blocks.First().Number}" : "-"
             };
             return result;
         }
@@ -345,6 +345,12 @@ namespace csmon.Controllers
         public NodesData GetNodesData(int id = 1)
         {
             return _nodesService.GetNodes(Net, id);
+        }
+
+        // Gets data for "Network nodes" page by given page
+        public NodeInfo GetNodeData(string id)
+        {
+            return _nodesService.GetNode(Net, id) ?? new NodeInfo();
         }
 
         // Gets data for "Activity Graph" page (not used for now)
