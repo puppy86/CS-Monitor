@@ -1,0 +1,117 @@
+﻿
+@section script
+{
+    <script>
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                blockId: "@ViewData["blockId"]",
+                pool: {},
+                page: @ViewData["page"],
+                transData: {},
+                loading: false,
+                loading_t: false,
+                found: true
+            },
+            methods: {
+                getPoolData: function() {
+                    this.loading = true;
+                    $.get(`${M_API}/PoolData/${this.blockId}`)
+                        .done(function(data) {
+                            if (data.found === true) {
+                                vm.pool = data.info;
+                                vm.getTransactions(vm.page);
+                            } else
+                                vm.found = false;
+                        })
+                        .always(function() {
+                            vm.loading = false;
+                        });
+                },
+                getTransactions: function(p) {
+                    this.loading_t = true;
+                    $.get(`${M_API}/PoolTransactions?hash=${this.blockId}&page=${p}&txcount=${this.pool.txCount}`)
+                        .done(function (data) {
+                            vm.page = data.page;
+                            vm.transData = data;
+                            vm.transData.transactions.forEach(function(t) {
+                                t.time = vm.pool.time;
+                            });
+                        })
+                        .always(function() {
+                            vm.loading_t = false;
+                        });
+                }
+            },
+            created: function() {
+                this.getPoolData();
+            }
+        });
+    </script>
+}
+
+<div class="row justify-content-center" v-show="loading">
+    <div class="col-auto">
+        <h6>Loading block info...</h6>
+        <div class="progress mt-1">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+</div>
+
+<div v-show="!found">
+    <h4 class="main_title padding_top_60 p_bot20">Block not found: {{blockId}}</h4>
+</div>
+<div v-show="found && !loading">
+    <h4 class="main_title padding_top_60 p_bot20">Block #{{pool.number}}</h4>
+    <ul class="nav nav-tabs mt-3 border-bottom-0">
+        <li class="nav-item">
+            <a class="nav-link active text-info">Block Info</a>
+        </li>
+    </ul>
+    <div class="tab-content table-responsive">
+        <table class="table table-sm border-left border-bottom">
+            <thead>
+            <tr></tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Number:</td>
+                <td>{{pool.number}}</td>
+            </tr>
+            <tr>
+                <td>Hash:</td>
+                <td class="crop_text">{{pool.hash}}</td>
+            </tr>
+            <tr>
+                <td>Status:</td>
+                <td class="text-success">Success</td>
+            </tr>
+            <tr>
+                <td>Time stamp:</td>
+                <td>{{new Date(pool.time).toLocaleString()}}</td>
+            </tr>
+            <tr>
+                <td>Txs count:</td>
+                <td>{{pool.txCount}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h4 class="my-3">List of transactions</h4>
+    <div class="mt-4">Transactions {{transData.numStr}}</div>
+    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pb>
+
+    <transactions :network="net" :source="transData.transactions"></transactions>
+
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <div class="progress mt-1" v-show="loading_t">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pb>
+</div>
