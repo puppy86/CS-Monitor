@@ -46,24 +46,26 @@
     <div class="table-responsive">
         <table class="table table-sm table-striped border-bottom border-primary mb-0 table_info_trans">
             <thead>
-            <tr>
-                <th>№</th>
-                <th>Time</th>
-                <th>Hash</th>
-                <th>Writer</th>
-                <th>Tx count</th>
-                <th>Total Fee</th>
-            </tr>
+                <tr>
+                    <th>№</th>
+                    <th>Time</th>
+                    <th>Hash</th>
+                    <th>Tx count</th>
+                    <th>Total Fee</th>
+                    <th>Writer</th>
+                    @*<th>Writer Fee</th>*@
+                </tr>
             </thead>
             <tbody>
-            <tr v-for="item in blocksData.blocks">
-                <td>{{item.number}}</td>
-                <td>{{new Date(item.time).toLocaleString()}}</td>
-                <td class="hash"><a :href="net + '/block/' + item.hash">{{item.hash}}</a></td>
-                <td class="hash"><a :href="net + '/tools/node/' + item.writer">{{item.writer}}</a></td>
-                <td>{{item.txCount}}</td>
-                <td>{{item.fee}}</td>
-            </tr>
+                <tr v-for="item in blocksData.blocks">
+                    <td><a :href="net + '/block/' + item.hash">{{item.number}}</a></td>
+                    <td>{{new Date(item.time).toLocaleString()}}</td>
+                    <td class="hash"><a :href="net + '/block/' + item.hash">{{item.hash}}</a></td>
+                    <td>{{item.txCount}}</td>
+                    <td>{{item.fee}}</td>
+                    <td class="hash"><a :href="net + '/tools/node/' + item.writer">{{item.writer}}</a></td>
+                    @*<td>{{item.writerFee}}</td>*@
+                </tr>
             </tbody>
         </table>
     </div>

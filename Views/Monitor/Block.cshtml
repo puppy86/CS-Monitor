@@ -76,26 +76,34 @@
             <tr></tr>
             </thead>
             <tbody>
-            <tr>
-                <td>Number:</td>
-                <td>{{pool.number}}</td>
-            </tr>
-            <tr>
-                <td>Hash:</td>
-                <td class="crop_text">{{pool.hash}}</td>
-            </tr>
-            <tr>
-                <td>Status:</td>
-                <td class="text-success">Success</td>
-            </tr>
-            <tr>
-                <td>Time stamp:</td>
-                <td>{{new Date(pool.time).toLocaleString()}}</td>
-            </tr>
-            <tr>
-                <td>Txs count:</td>
-                <td>{{pool.txCount}}</td>
-            </tr>
+                <tr>
+                    <td>Number:</td>
+                    <td>{{pool.number}}</td>
+                </tr>
+                <tr>
+                    <td>Hash:</td>
+                    <td class="crop_text">{{pool.hash}}</td>
+                </tr>
+                <tr>
+                    <td>Status:</td>
+                    <td class="text-success">Success</td>
+                </tr>
+                <tr>
+                    <td>Writer:</td>
+                    <td class="crop_text"><a :href="net + '/tools/node/' + pool.writer">{{pool.writer}}</a></td>
+                </tr>
+                <tr>
+                    <td>Time stamp:</td>
+                    <td>{{new Date(pool.time).toLocaleString()}}</td>
+                </tr>
+                <tr>
+                    <td>Txs count:</td>
+                    <td>{{pool.txCount}}</td>
+                </tr>
+                <tr>
+                    <td>Total Fee:</td>
+                    <td>{{pool.fee}}</td>
+                </tr>
             </tbody>
         </table>
     </div>
