@@ -1,9 +1,10 @@
 ﻿using System.Linq;
-using System.Threading;
+using csmon.Api;
 using csmon.Models;
 using csmon.Models.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Release;
 
 namespace csmon.Controllers
 {
@@ -20,6 +21,12 @@ namespace csmon.Controllers
         public MonitorController(IConfiguration configuration, IIndexService indexService)
         {
             _indexService = indexService;
+        }
+
+        // Helper method that creates Node API thrift client
+        private API.Client CreateApi()
+        {
+            return ApiFab.CreateReleaseApi(Network.GetById(Net).Ip);
         }
 
         public IActionResult Index()
@@ -53,6 +60,12 @@ namespace csmon.Controllers
             return View();
         }
 
+        public IActionResult Accounts(int id = 1)
+        {
+            ViewData["page"] = id;
+            return View();
+        }
+
         public IActionResult Transactions(int id = 1)
         {
             ViewData["page"] = id;
@@ -63,7 +76,14 @@ namespace csmon.Controllers
         public IActionResult Search(string query)
         {
             // if search query is empty, return back on same page
-            if (string.IsNullOrEmpty(query))
+            if (query == null)
+                return Redirect(Request.Headers["Referer"].ToString());
+
+            // Trim query
+            query = query.Trim();
+
+            // if search query is empty, return back on same page
+            if (query.Length == 0)
                 return Redirect(Request.Headers["Referer"].ToString());
 
             // if search query contains dot, then its probably a transaction id, redirect to transaction page with the id
@@ -74,9 +94,17 @@ namespace csmon.Controllers
             if (query.All("0123456789ABCDEF".Contains))
                 return Redirect($"/{Net}/{nameof(Block)}/{query}");
 
-            // Probably a smart contract in Hex encoding, if its an account then smart contract page will redirect to it itself
+            // Accounts & Smart contracts
+            // ReSharper disable StringLiteralTypo
             if (query.All("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".Contains))
-                return Redirect($"/{Net}/{nameof(Contract)}/{query}");
+            // ReSharper enable StringLiteralTypo
+                using (var client = CreateApi())
+                {
+                    var smartContract = client.SmartContractGet(Base58Encoding.Decode(query));
+                    if(smartContract.Status.Code == 0)
+                        return Redirect($"/{Net}/{nameof(Contract)}/{query}");
+                    return Redirect($"/{Net}/{nameof(Account)}/{query}");
+                }
 
             // Go to not found page in other cases
             ViewData["id"] = query;
