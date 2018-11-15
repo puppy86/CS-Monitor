@@ -36,7 +36,8 @@ namespace Release
       TransactionId WaitForSmartTransaction(byte[] smart_address);
       SmartContractsListGetResult SmartContractsAllListGet(long offset, long limit);
       SmartMethodParamsGetResult SmartMethodParamsGet(byte[] address, long id);
-      WalletsGetResult WalletsGet(long offset, long limit);
+      WalletsGetResult WalletsGet(long offset, long limit, sbyte ordCol, bool desc);
+      WritersGetResult WritersGet(int page);
     }
 
     public interface Iface : ISync {
@@ -109,8 +110,12 @@ namespace Release
       SmartMethodParamsGetResult End_SmartMethodParamsGet(IAsyncResult asyncResult);
       #endif
       #if SILVERLIGHT
-      IAsyncResult Begin_WalletsGet(AsyncCallback callback, object state, long offset, long limit);
+      IAsyncResult Begin_WalletsGet(AsyncCallback callback, object state, long offset, long limit, sbyte ordCol, bool desc);
       WalletsGetResult End_WalletsGet(IAsyncResult asyncResult);
+      #endif
+      #if SILVERLIGHT
+      IAsyncResult Begin_WritersGet(AsyncCallback callback, object state, int page);
+      WritersGetResult End_WritersGet(IAsyncResult asyncResult);
       #endif
     }
 
@@ -1234,9 +1239,9 @@ namespace Release
 
       
       #if SILVERLIGHT
-      public IAsyncResult Begin_WalletsGet(AsyncCallback callback, object state, long offset, long limit)
+      public IAsyncResult Begin_WalletsGet(AsyncCallback callback, object state, long offset, long limit, sbyte ordCol, bool desc)
       {
-        return send_WalletsGet(callback, state, offset, limit);
+        return send_WalletsGet(callback, state, offset, limit, ordCol, desc);
       }
 
       public WalletsGetResult End_WalletsGet(IAsyncResult asyncResult)
@@ -1247,28 +1252,30 @@ namespace Release
 
       #endif
 
-      public WalletsGetResult WalletsGet(long offset, long limit)
+      public WalletsGetResult WalletsGet(long offset, long limit, sbyte ordCol, bool desc)
       {
         #if !SILVERLIGHT
-        send_WalletsGet(offset, limit);
+        send_WalletsGet(offset, limit, ordCol, desc);
         return recv_WalletsGet();
 
         #else
-        var asyncResult = Begin_WalletsGet(null, null, offset, limit);
+        var asyncResult = Begin_WalletsGet(null, null, offset, limit, ordCol, desc);
         return End_WalletsGet(asyncResult);
 
         #endif
       }
       #if SILVERLIGHT
-      public IAsyncResult send_WalletsGet(AsyncCallback callback, object state, long offset, long limit)
+      public IAsyncResult send_WalletsGet(AsyncCallback callback, object state, long offset, long limit, sbyte ordCol, bool desc)
       #else
-      public void send_WalletsGet(long offset, long limit)
+      public void send_WalletsGet(long offset, long limit, sbyte ordCol, bool desc)
       #endif
       {
         oprot_.WriteMessageBegin(new TMessage("WalletsGet", TMessageType.Call, seqid_));
         WalletsGet_args args = new WalletsGet_args();
         args.Offset = offset;
         args.Limit = limit;
+        args.OrdCol = ordCol;
+        args.Desc = desc;
         args.Write(oprot_);
         oprot_.WriteMessageEnd();
         #if SILVERLIGHT
@@ -1295,6 +1302,68 @@ namespace Release
         throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "WalletsGet failed: unknown result");
       }
 
+      
+      #if SILVERLIGHT
+      public IAsyncResult Begin_WritersGet(AsyncCallback callback, object state, int page)
+      {
+        return send_WritersGet(callback, state, page);
+      }
+
+      public WritersGetResult End_WritersGet(IAsyncResult asyncResult)
+      {
+        oprot_.Transport.EndFlush(asyncResult);
+        return recv_WritersGet();
+      }
+
+      #endif
+
+      public WritersGetResult WritersGet(int page)
+      {
+        #if !SILVERLIGHT
+        send_WritersGet(page);
+        return recv_WritersGet();
+
+        #else
+        var asyncResult = Begin_WritersGet(null, null, page);
+        return End_WritersGet(asyncResult);
+
+        #endif
+      }
+      #if SILVERLIGHT
+      public IAsyncResult send_WritersGet(AsyncCallback callback, object state, int page)
+      #else
+      public void send_WritersGet(int page)
+      #endif
+      {
+        oprot_.WriteMessageBegin(new TMessage("WritersGet", TMessageType.Call, seqid_));
+        WritersGet_args args = new WritersGet_args();
+        args.Page = page;
+        args.Write(oprot_);
+        oprot_.WriteMessageEnd();
+        #if SILVERLIGHT
+        return oprot_.Transport.BeginFlush(callback, state);
+        #else
+        oprot_.Transport.Flush();
+        #endif
+      }
+
+      public WritersGetResult recv_WritersGet()
+      {
+        TMessage msg = iprot_.ReadMessageBegin();
+        if (msg.Type == TMessageType.Exception) {
+          TApplicationException x = TApplicationException.Read(iprot_);
+          iprot_.ReadMessageEnd();
+          throw x;
+        }
+        WritersGet_result result = new WritersGet_result();
+        result.Read(iprot_);
+        iprot_.ReadMessageEnd();
+        if (result.__isset.success) {
+          return result.Success;
+        }
+        throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "WritersGet failed: unknown result");
+      }
+
     }
     public class Processor : TProcessor {
       public Processor(ISync iface)
@@ -1318,6 +1387,7 @@ namespace Release
         processMap_["SmartContractsAllListGet"] = SmartContractsAllListGet_Process;
         processMap_["SmartMethodParamsGet"] = SmartMethodParamsGet_Process;
         processMap_["WalletsGet"] = WalletsGet_Process;
+        processMap_["WritersGet"] = WritersGet_Process;
       }
 
       protected delegate void ProcessFunction(int seqid, TProtocol iprot, TProtocol oprot);
@@ -1834,7 +1904,7 @@ namespace Release
         WalletsGet_result result = new WalletsGet_result();
         try
         {
-          result.Success = iface_.WalletsGet(args.Offset, args.Limit);
+          result.Success = iface_.WalletsGet(args.Offset, args.Limit, args.OrdCol, args.Desc);
           oprot.WriteMessageBegin(new TMessage("WalletsGet", TMessageType.Reply, seqid)); 
           result.Write(oprot);
         }
@@ -1848,6 +1918,34 @@ namespace Release
           Console.Error.WriteLine(ex.ToString());
           TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
           oprot.WriteMessageBegin(new TMessage("WalletsGet", TMessageType.Exception, seqid));
+          x.Write(oprot);
+        }
+        oprot.WriteMessageEnd();
+        oprot.Transport.Flush();
+      }
+
+      public void WritersGet_Process(int seqid, TProtocol iprot, TProtocol oprot)
+      {
+        WritersGet_args args = new WritersGet_args();
+        args.Read(iprot);
+        iprot.ReadMessageEnd();
+        WritersGet_result result = new WritersGet_result();
+        try
+        {
+          result.Success = iface_.WritersGet(args.Page);
+          oprot.WriteMessageBegin(new TMessage("WritersGet", TMessageType.Reply, seqid)); 
+          result.Write(oprot);
+        }
+        catch (TTransportException)
+        {
+          throw;
+        }
+        catch (Exception ex)
+        {
+          Console.Error.WriteLine("Error occurred in processor:");
+          Console.Error.WriteLine(ex.ToString());
+          TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
+          oprot.WriteMessageBegin(new TMessage("WritersGet", TMessageType.Exception, seqid));
           x.Write(oprot);
         }
         oprot.WriteMessageEnd();
@@ -5874,6 +5972,8 @@ namespace Release
     {
       private long _offset;
       private long _limit;
+      private sbyte _ordCol;
+      private bool _desc;
 
       public long Offset
       {
@@ -5901,6 +6001,32 @@ namespace Release
         }
       }
 
+      public sbyte OrdCol
+      {
+        get
+        {
+          return _ordCol;
+        }
+        set
+        {
+          __isset.ordCol = true;
+          this._ordCol = value;
+        }
+      }
+
+      public bool Desc
+      {
+        get
+        {
+          return _desc;
+        }
+        set
+        {
+          __isset.desc = true;
+          this._desc = value;
+        }
+      }
+
 
       public Isset __isset;
       #if !SILVERLIGHT
@@ -5909,6 +6035,8 @@ namespace Release
       public struct Isset {
         public bool offset;
         public bool limit;
+        public bool ordCol;
+        public bool desc;
       }
 
       public WalletsGet_args() {
@@ -5939,6 +6067,20 @@ namespace Release
               case 2:
                 if (field.Type == TType.I64) {
                   Limit = iprot.ReadI64();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              case 3:
+                if (field.Type == TType.Byte) {
+                  OrdCol = iprot.ReadByte();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              case 4:
+                if (field.Type == TType.Bool) {
+                  Desc = iprot.ReadBool();
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
                 }
@@ -5980,6 +6122,22 @@ namespace Release
             oprot.WriteI64(Limit);
             oprot.WriteFieldEnd();
           }
+          if (__isset.ordCol) {
+            field.Name = "ordCol";
+            field.Type = TType.Byte;
+            field.ID = 3;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteByte(OrdCol);
+            oprot.WriteFieldEnd();
+          }
+          if (__isset.desc) {
+            field.Name = "desc";
+            field.Type = TType.Bool;
+            field.ID = 4;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteBool(Desc);
+            oprot.WriteFieldEnd();
+          }
           oprot.WriteFieldStop();
           oprot.WriteStructEnd();
         }
@@ -6003,6 +6161,18 @@ namespace Release
           __first = false;
           __sb.Append("Limit: ");
           __sb.Append(Limit);
+        }
+        if (__isset.ordCol) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("OrdCol: ");
+          __sb.Append(OrdCol);
+        }
+        if (__isset.desc) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Desc: ");
+          __sb.Append(Desc);
         }
         __sb.Append(")");
         return __sb.ToString();
@@ -6109,6 +6279,226 @@ namespace Release
 
       public override string ToString() {
         StringBuilder __sb = new StringBuilder("WalletsGet_result(");
+        bool __first = true;
+        if (Success != null && __isset.success) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Success: ");
+          __sb.Append(Success== null ? "<null>" : Success.ToString());
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class WritersGet_args : TBase
+    {
+      private int _page;
+
+      public int Page
+      {
+        get
+        {
+          return _page;
+        }
+        set
+        {
+          __isset.page = true;
+          this._page = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool page;
+      }
+
+      public WritersGet_args() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 1:
+                if (field.Type == TType.I32) {
+                  Page = iprot.ReadI32();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("WritersGet_args");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+          if (__isset.page) {
+            field.Name = "page";
+            field.Type = TType.I32;
+            field.ID = 1;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteI32(Page);
+            oprot.WriteFieldEnd();
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("WritersGet_args(");
+        bool __first = true;
+        if (__isset.page) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Page: ");
+          __sb.Append(Page);
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class WritersGet_result : TBase
+    {
+      private WritersGetResult _success;
+
+      public WritersGetResult Success
+      {
+        get
+        {
+          return _success;
+        }
+        set
+        {
+          __isset.success = true;
+          this._success = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool success;
+      }
+
+      public WritersGet_result() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 0:
+                if (field.Type == TType.Struct) {
+                  Success = new WritersGetResult();
+                  Success.Read(iprot);
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("WritersGet_result");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+
+          if (this.__isset.success) {
+            if (Success != null) {
+              field.Name = "Success";
+              field.Type = TType.Struct;
+              field.ID = 0;
+              oprot.WriteFieldBegin(field);
+              Success.Write(oprot);
+              oprot.WriteFieldEnd();
+            }
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("WritersGet_result(");
         bool __first = true;
         if (Success != null && __isset.success) {
           if(!__first) { __sb.Append(", "); }
