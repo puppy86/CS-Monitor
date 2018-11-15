@@ -89,22 +89,7 @@
     </script>
 }
 
-<div class="row justify-content-center">
-    <div class="col-12 col-md-8">
-        <form id="search-form" action="~/@network/search" method="post">
-            <div class="input-group mb-3">
-                <input type="text" name="query" placeholder="Search transaction, block, account, etc" class="form-control">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="submit">
-                        <i class="fa fa-search"></i>
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="row mt-3">
+<div class="row mt-1">
     <div class="col-12 col-md-4 my-3">
         <div class="card h-100 " >
             <h6 class="card-header">Top Block</h6>
@@ -118,7 +103,7 @@
             <li class="nav-item" v-bind:class="{bgActiveTab:activeTab === 'last24Hours'}">
                 <a class="nav-link" v-bind:class="{active: activeTab === 'last24Hours'}" href="#" v-on:click="activeTab = 'last24Hours'">24 hours</a>
             </li>
-            <li class="nav-item" v-bind:class="{bgActiveTab:activeTab === 'lastWeek'}">
+            <li class="nav-item d-none d-sm-block" v-bind:class="{bgActiveTab:activeTab === 'lastWeek'}">
                 <a class="nav-link" v-bind:class="{active: activeTab === 'lastWeek'}" href="#" v-on:click="activeTab = 'lastWeek'">Last week</a>
             </li>
             <li class="nav-item d-none d-sm-block" v-bind:class="{bgActiveTab:activeTab === 'lastMonth'}">
