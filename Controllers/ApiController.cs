@@ -111,7 +111,7 @@ namespace csmon.Controllers
                 {
                     Page = 1,
                     Found = pool.IsFound,
-                    Info = new PoolInfo(pool.Pool)
+                    Info = new BlockInfo(pool.Pool)
                 };
                 return result;
             }
@@ -357,6 +357,30 @@ namespace csmon.Controllers
         public GraphData GetGraphData()
         {
             return _graphService.GetGraphData();
+        }
+
+        // Returns the list of Accounts on given page (id), from cache
+        public AccountsData Accounts(int id)
+        {
+            const int limit = 50;
+            if (id <= 0) id = 1; // Page
+
+            using (var client = CreateApi())
+            {
+                // Get the list accounts
+                var accounts = client.WalletsGet((id - 1) * limit, limit + 1, 0, true);
+
+                // Prepare all data for page and return
+                var result = new AccountsData
+                {
+                    Accounts = accounts.Wallets.Take(limit).Select(w => new AccountData(w)).ToList(),
+                    Page = id,
+                    HaveNextPage = accounts.Wallets.Count > limit,
+                    LastPage = 0,
+                    NumStr = accounts.Wallets.Any() ? $"{(id - 1) * limit + 1} - {id*limit}" : "-"
+                };
+                return result;
+            }
         }
     }
 }
