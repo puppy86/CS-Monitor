@@ -103,102 +103,107 @@
         <area target="" alt="Home" title="Home" href="~/@network" coords="47,1,180,42" shape="rect">
     </map>
 
-    <header class="fixed-top bg-light">
-        <nav class="navbar navbar-light bg-light mw1000">
-            <div class="d-block d-md-none d-lg-block" style="width: 150px"></div>
-            <div class="d-none d-md-block ">
-                <form id="search-form" action="~/@network/search" method="post">
-                    <div class="input-group">
-                        <input type="text" name="query" placeholder="Search transaction, block, account, etc" class="form-control form-control-sm" style="width: 450px">
-                        <div class="input-group-append ">
-                            <button class="btn btn-outline-secondary btn-sm" type="submit">
-                                <i class="fa fa-search"></i>
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="nav-item dropdown">
-                <strong>Network: </strong>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle py-0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        @networkObj.Title
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        @foreach (var n in Network.Networks)
-                        {
-                            <a class="dropdown-item" href="~/@n.Id/">@n.Title</a>
-                        }
+<header class="fixed-top bg-light">
+    <nav class="navbar navbar-light bg-light mw1000">
+        <div class="d-block d-md-none d-lg-block" style="width: 150px"></div>
+        <div class="d-none d-md-block ">
+            <form id="search-form-top" action="~/@network/search" method="post">
+                <div class="input-group">
+                    <input type="text" name="query" placeholder="Search transaction, block, account, etc" class="form-control form-control-sm" style="width: 450px">
+                    <div class="input-group-append ">
+                        <button class="btn btn-outline-secondary btn-sm" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
                     </div>
                 </div>
+            </form>
+        </div>
+        <div class="nav-item dropdown my-1">
+            <strong>Network: </strong>
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle py-0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    @networkObj.Title
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @foreach (var n in Network.Networks)
+                    {
+                        <a class="dropdown-item" href="~/@n.Id/">@n.Title</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="bg-dark navbar-shadow">
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark mw1000">
+            <img src="/img/logo.png" usemap="#image-map" alt="" />
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="navbarSupportedContent" class="collapse navbar-collapse">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item" id="navItemHome">
+                        <a class="nav-link" href="~/@network/index">Home</a>
+                    </li>
+                    <li class="nav-item dropdown d-none d-md-block">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Blockchain
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown1">
+                            <a class="dropdown-item " href="~/@network/blocks">Blocks</a>
+                            <a class="dropdown-item " href="~/@network/transactions">Transactions</a>
+                            <a class="dropdown-item " href="~/@network/contracts">Smart contracts</a>
+                            <a class="dropdown-item " href="~/@network/accounts">Accounts</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown d-none d-md-block">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Network
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown2">
+                            <a class="dropdown-item " href="~/@network/tools/nodes">Network nodes</a>
+                            <a class="dropdown-item " href="~/@network/tools/tps">Transactions per second</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown d-none d-md-block">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown3" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Misc
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown3">
+                            <a class="dropdown-item " href="~/@network/tools/csrequest">Request coins</a>
+                            <a class="dropdown-item " href="https://developers.credits.com" target="_blank">For developers</a>
+                            <a class="dropdown-item " href="~/@network/tools/dictionary">Terms reference</a>
+                        </div>
+                    </li>
+                    <li class="nav-item d-md-none">
+                        <a class="nav-link" href="~/@network/blocks">Blocks</a>
+                    </li>
+                    <li class="nav-item d-md-none">
+                        <a class="nav-link" href="~/@network/transactions">Transactions</a>
+                    </li>
+                    <li class="nav-item d-md-none">
+                        <a class="nav-link" href="~/@network/contracts">Smart contracts</a>
+                    </li>
+                    <li class="nav-item d-md-none">
+                        <a class="nav-link" href="~/@network/accounts">Accounts</a>
+                    </li>
+                    <li class="nav-item d-md-none">
+                        <a class="nav-link" href="~/@network/tools/nodes">Network nodes</a>
+                    </li>
+                    <li class="nav-item d-md-none">
+                        <a class="nav-link" href="~/@network/tools/tps">Transactions per second</a>
+                    </li>
+                    <li class="nav-item d-md-none">
+                        <a class="nav-link" href="~/@network/tools/csrequest">Request coins</a>
+                    </li>
+                </ul>
             </div>
         </nav>
-        <div class="bg-dark navbar-shadow">
-            <nav class="navbar navbar-expand-md navbar-dark bg-dark mw1000">
-                <img src="/img/logo.png" usemap="#image-map" alt="" />
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div id="navbarSupportedContent" class="collapse navbar-collapse">
-                    <ul class="navbar-nav ml-auto">
-                        <li class="nav-item" id="navItemHome">
-                            <a class="nav-link" href="~/@network/index">Home</a>
-                        </li>
-                        <li class="nav-item dropdown d-none d-md-block">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Blockchain
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown1">
-                                <a class="dropdown-item " href="~/@network/blocks">Blocks</a>
-                                <a class="dropdown-item " href="~/@network/transactions">Transactions</a>
-                                <a class="dropdown-item " href="~/@network/contracts">Smart contracts</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown d-none d-md-block">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Network
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown2">
-                                <a class="dropdown-item " href="~/@network/tools/nodes">Network nodes</a>
-                                <a class="dropdown-item " href="~/@network/tools/tps">Transactions per second</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown d-none d-md-block">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown3" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Misc
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown3">
-                                <a class="dropdown-item " href="~/@network/tools/csrequest">Request coins</a>
-                                <a class="dropdown-item " href="https://developers.credits.com" target="_blank">For developers</a>
-                                <a class="dropdown-item " href="~/@network/tools/dictionary">Terms reference</a>
-                            </div>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="~/@network/blocks">Blocks</a>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="~/@network/transactions">Transactions</a>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="~/@network/contracts">Smart contracts</a>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="~/@network/tools/nodes">Network nodes</a>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="~/@network/tools/tps">Transactions per second</a>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="~/@network/tools/csrequest">Request coins</a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </div>
-        <div id="infoBar" class="info-bar">
-            Application to get Credits (CS) coins for testing. Please send a <a href="~/@network/tools/csrequest">request</a>
-        </div>
-    </header>
+    </div>
+</header>
+    <div id="spaceTop" class="row"></div>
+    <div id="infoBar" class="info-bar">
+        <a href="~/@network/tools/csrequest">Apply</a> to get Credits (CS) coins for testing
+    </div>
     <main class="container content mw1000">
         @if (networkObj.Updating)
         {
@@ -206,6 +211,21 @@
         }
         else
         {
+            <div class="row justify-content-center mt-2">
+                <div class="col-12 d-md-none">
+                    <form id="search-form" action="~/@network/search" method="post">
+                        <div class="input-group mb-3">
+                            <input type="text" name="query" placeholder="Search transaction, block, account, etc" class="form-control">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="submit">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <div id="app">
                 @RenderBody()
             </div>
@@ -262,11 +282,11 @@
         </div>
     </footer>
     <div class="container py-3 mw1000">
-        <div class="row">
-            <div class="col-auto copyright-text">
+        
+            <div class="copyright-text">
                 <p>&copy; 2018 <a href="https://credits.com">CREDITS.COM</a> All Rights Reserved.</p>
             </div>
-        </div>
+        
     </div>
     <script>
         const M_API = "@m_api";
