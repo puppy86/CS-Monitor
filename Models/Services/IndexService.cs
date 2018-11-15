@@ -19,7 +19,7 @@ namespace csmon.Models.Services
         TpsInfo GetTpsInfo(string network);
         IndexData GetIndexData(string network);
         StatData GetStatData(string network);
-        List<PoolInfo> GetPools(string network, int offset, int limit);
+        List<BlockInfo> GetPools(string network, int offset, int limit);
         List<TransactionInfo> GetTxs(string network, int offset, int limit);
     }
 
@@ -34,8 +34,8 @@ namespace csmon.Models.Services
             public Timer TimerForCache; // Timer for caching
             public readonly ConcurrentQueue<Point> Points = new ConcurrentQueue<Point>(); // TPS points
             public readonly object PoolsLock = new object(); // Sync object for lock
-            public volatile List<PoolInfo> PoolsIn = new List<PoolInfo>(); // Input blocks cache
-            public volatile List<PoolInfo> PoolsOut = new List<PoolInfo>();  // Output blocks cache
+            public volatile List<BlockInfo> PoolsIn = new List<BlockInfo>(); // Input blocks cache
+            public volatile List<BlockInfo> PoolsOut = new List<BlockInfo>();  // Output blocks cache
             public volatile List<TransactionInfo> TxIn = new List<TransactionInfo>();  // Input tx cache
             public volatile List<TransactionInfo> TxOut = new List<TransactionInfo>();  // Output tx cache
             public int StatRequestCounter; // For counting period of requesting statistics
@@ -108,7 +108,7 @@ namespace csmon.Models.Services
             return _states[network].IndexData;
         }
 
-        public List<PoolInfo> GetPools(string network, int offset, int limit)
+        public List<BlockInfo> GetPools(string network, int offset, int limit)
         {
             return _states[network].PoolsOut.Skip(offset).Take(limit).ToList();
         }
@@ -129,10 +129,10 @@ namespace csmon.Models.Services
                     if (tpState.Net.Updating) tpState.Net.Updating = false;
 
                     // Request blocks
-                    if ((!tpState.PoolsOut.Any() && !tpState.PoolsIn.Any()))
+                    if (!tpState.PoolsOut.Any() && !tpState.PoolsIn.Any())
                     {
                         var result = client.PoolListGet(0, SizeOut);
-                        tpState.PoolsOut = result.Pools.Where(p => p.PoolNumber > 0).Select(p => new PoolInfo(p)).ToList();
+                        tpState.PoolsOut = result.Pools.Where(p => p.PoolNumber > 0).Select(p => new BlockInfo(p)).ToList();
                     }
                     else
                     {
@@ -153,8 +153,8 @@ namespace csmon.Models.Services
                         {
                             lock (tpState.PoolsLock)
                             {
-                                tpState.PoolsOut = new List<PoolInfo>();
-                                tpState.PoolsIn = new List<PoolInfo>();
+                                tpState.PoolsOut = new List<BlockInfo>();
+                                tpState.PoolsIn = new List<BlockInfo>();
                             }
                             firstPoolNum = 0;
 
@@ -179,7 +179,7 @@ namespace csmon.Models.Services
                         // Append new blocks and txs to the input cache
                         lock (tpState.PoolsLock)
                         {
-                            tpState.PoolsIn = newPools.Select(p => new PoolInfo(p)).Concat(tpState.PoolsIn).ToList();
+                            tpState.PoolsIn = newPools.Select(p => new BlockInfo(p)).Concat(tpState.PoolsIn).ToList();
                             tpState.TxIn = newTx.Concat(tpState.TxIn).ToList();
                         }
                     }
@@ -194,7 +194,7 @@ namespace csmon.Models.Services
                             var statData = new StatData();
                             for (var i = 0; i < 4; i++)
                                 statData.Pdata[i] = new PeriodData(statsSorted[i]);
-                            statData.CorrectTotalValue();
+                            //statData.CorrectTotalValue();
                             tpState.StatData = statData;
                         }
                     }
