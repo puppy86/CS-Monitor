@@ -3,7 +3,7 @@ body {
 }
 
 .mw1000 {
-    min-width: 364px;
+    min-width: 303px;
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
@@ -23,21 +23,33 @@ body {
     position: relative;
 }
 
+#spaceTop {
+    margin-top: 105px;
+}
 .info-bar {
     background-color: #fff9ca;
     padding: 7px;
     font-size: 14px;    
     text-align: center;
+    overflow-x: hidden;
+    white-space: nowrap;
 }
 
 .content {
-    margin-top: 160px;
     min-height: 400px;
 }
 
 .table_info_trans td, .table_info_trans th {
     padding: 7px 15px;
     font-size: 15px;
+}
+
+.table_info_nodes td, .table_info_nodes th {
+    padding: 7px 12px;
+    font-size: 15px;    
+}
+
+.table_info_nodes td, .table_info_trans td {
     white-space: nowrap;
 }
 
