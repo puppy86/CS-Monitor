@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using csmon.Models.Db;
 
+// ReSharper disable UnusedMember.Global
 namespace csmon.Models
 {
     // Contains data for main page
     public class IndexData
     {
         public LastBlockData LastBlockData = new LastBlockData();
-        public List<PoolInfo> LastBlocks = new List<PoolInfo>();
+        public List<BlockInfo> LastBlocks = new List<BlockInfo>();
         public List<TransactionInfo> LastTransactions = new List<TransactionInfo>();
     }
 
@@ -22,7 +23,7 @@ namespace csmon.Models
         public DateTime Now;
     }
 
-    // Contains statisticts data
+    // Contains statistics data
     public class StatData
     {
         public PeriodData[] Pdata = new PeriodData[4];
@@ -37,15 +38,7 @@ namespace csmon.Models
             for (var i = 0; i < Pdata.Length; i++)
                 Pdata[i] = new PeriodData();
         }
-
-        public void Correct(int n)
-        {
-            if (Last24Hours.SmartContracts.Value == 0) Last24Hours.SmartContracts.Value = n;
-            if (LastWeek.SmartContracts.Value == 0) LastWeek.SmartContracts.Value = n;
-            if (LastMonth.SmartContracts.Value == 0) LastMonth.SmartContracts.Value = n;
-            if (Total.SmartContracts.Value == 0) Total.SmartContracts.Value = n;
-        }
-
+        
         public void CorrectTotalValue()
         {
             Total.CSVolume.Value = LastMonth.CSVolume.Value;
@@ -83,6 +76,7 @@ namespace csmon.Models
     public class StatItem
     {
         public long Value;
+        //public float PercentChange;
 
         public StatItem()
         {
@@ -95,7 +89,7 @@ namespace csmon.Models
     }
 
     // Pool
-    public class PoolInfo
+    public class BlockInfo
     {
         public long Number { get; set; }
         public DateTime Time { get; set; }        
@@ -104,12 +98,13 @@ namespace csmon.Models
         public string Value { get; set; }
         public string Fee { get; set; }
         public string Writer { get; set; }
+        public string WriterFee { get; set; }
 
-        public PoolInfo()
+        public BlockInfo()
         {
         }
 
-        public PoolInfo(Release.Pool pool)
+        public BlockInfo(Release.Pool pool)
         {
             Time = ConvUtils.UnixTimeStampToDateTime(pool.Time);
             Hash = ConvUtils.ConvertHash(pool.Hash);
@@ -178,14 +173,14 @@ namespace csmon.Models
     // Contains list of blocks
     public class BlocksData : PageData
     {
-        public List<PoolInfo> Blocks = new List<PoolInfo>();
+        public List<BlockInfo> Blocks = new List<BlockInfo>();
     }
 
     // Contains list of transactions
     public class TransactionsData : PageData
     {
         public bool Found;
-        public PoolInfo Info = new PoolInfo();
+        public BlockInfo Info = new BlockInfo();
         public List<TransactionInfo> Transactions = new List<TransactionInfo>();
     }
 
@@ -254,10 +249,10 @@ namespace csmon.Models
         public int Index;
         public string Address;
 
-        public ContractLinkInfo(int index, string addr)
+        public ContractLinkInfo(int index, string address)
         {
             Index = index;
-            Address = addr;
+            Address = address;
         }
     }
 
@@ -283,6 +278,8 @@ namespace csmon.Models
         public float Latitude;
         public float Longitude;
         public bool Active;
+        public string TotalFee;
+        public int TimesWriter;
 
         public NodeInfo()
         {
@@ -311,7 +308,7 @@ namespace csmon.Models
             CountTrust = n.CountTrust;
             TimeRegistration = n.TimeRegistration;
             TimeActive = n.TimeActive;
-        }
+        }        
 
         public void SetLocation(Location l)
         {
@@ -352,6 +349,8 @@ namespace csmon.Models
     // Contains list of nodes
     public class NodesData : PageData
     {
+        public int OnlineCount;
+        public int OfflineCount;
         public List<NodeInfo> Nodes;
     }
 
@@ -367,5 +366,28 @@ namespace csmon.Models
     {
         public Point[] Points; // Chart points
         public bool ShowTypeBtn; // Show the button for change chart type
+    }
+
+    // Account (Wallet) information
+    public class AccountData
+    {
+        public string Address;
+        public string Balance;
+        public int TxCount;
+        public DateTime FirstTxDateTime;
+
+        public AccountData(Release.WalletInfo info)
+        {
+            Address = Base58Encoding.Encode(info.Address);
+            Balance = ConvUtils.FormatAmount(info.Balance);
+            TxCount = (int) info.TransactionsNumber;
+            FirstTxDateTime = ConvUtils.UnixTimeStampToDateTime(info.FirstTransactionTime);
+        }
+    }
+
+    // Contains list of wallets
+    public class AccountsData : PageData
+    {
+        public List<AccountData> Accounts = new List<AccountData>();
     }
 }
