@@ -151,9 +151,36 @@ namespace csmon.Models.Services
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    // ignored
+                    _logger.LogError(e, "");
+                }
+
+                // Collect additional info about nodes from the network
+                try
+                {
+                    using (var cnt = ApiFab.CreateReleaseApi(network.Ip))
+                    {
+                        var page = 0;
+                        while (true)
+                        {
+                            var writers = cnt.WritersGet(page++);
+                            if(!writers.Writers.Any()) break;
+                            foreach (var writer in writers.Writers)
+                            {
+                                var key = Base58Encoding.Encode(writer.Address);
+                                var node = nodes.FirstOrDefault(n => n.PublicKey == key);
+                                if(node == null) continue;
+                                node.TotalFee = ConvUtils.FormatAmount(writer.FeeCollected);
+                                node.TimesWriter = writer.TimesWriter;
+                            }
+                        }
+                        
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "");
                 }
 
                 // Hide Ip addresses before output
@@ -189,6 +216,8 @@ namespace csmon.Models.Services
             {
                 Page = page,
                 Nodes = listNodes,
+                OnlineCount = nodes.Count(n => n.Active),
+                OfflineCount = nodes.Count(n => !n.Active),
                 HaveNextPage = nodesCount > offset + numPerPage,
                 LastPage = ConvUtils.GetNumPages(nodesCount, numPerPage),
                 NumStr = nodesCount > 0 ? $"{offset + 1} - {offset + listNodes.Count} of {nodesCount}" : "0"
