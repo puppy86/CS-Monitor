@@ -91,7 +91,7 @@ namespace csmon.Controllers
                 return RedirectToAction(nameof(Transaction), new {id = query, netwok = Net });
 
             // Block hash
-            if (query.All("0123456789ABCDEF".Contains))
+            if (query.All("0123456789ABCDEFabcdef".Contains))
                 return Redirect($"/{Net}/{nameof(Block)}/{query}");
 
             // Accounts & Smart contracts
@@ -129,6 +129,18 @@ namespace csmon.Controllers
         }
 
         public IActionResult Contract(string id)
+        {
+            ViewData["id"] = id;
+            return View();
+        }
+
+        public IActionResult Tokens(int id = 1)
+        {
+            ViewData["page"] = id;
+            return View();
+        }
+
+        public IActionResult Token(string id)
         {
             ViewData["id"] = id;
             return View();
