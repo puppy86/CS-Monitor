@@ -76,7 +76,6 @@ namespace csmon.Models
     public class StatItem
     {
         public long Value;
-        //public float PercentChange;
 
         public StatItem()
         {
@@ -389,5 +388,20 @@ namespace csmon.Models
     public class AccountsData : PageData
     {
         public List<AccountData> Accounts = new List<AccountData>();
+    }
+
+    // Contains list of tokens
+    public class TokensData : PageData
+    {
+        public List<Token> Tokens = new List<Token>();
+    }
+
+    // Contains token data
+    public class TokenInfo
+    {
+        public Token Token;
+        public bool Found;
+        public List<TokenProperty> Properties;
+        public List<TransactionInfo> Transactions;
     }
 }
