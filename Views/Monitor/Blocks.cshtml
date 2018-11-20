@@ -42,7 +42,7 @@
 </div>
 <div v-show="!loading">
     <div class="mt-4">Blocks {{blocksData.numStr}}</div>
-    <pb :page="page" :getfn="getBlocks" :next="blocksData.haveNextPage" :hidelast="true"></pb>
+    <pb :page="page" :getfn="getBlocks" :next="blocksData.haveNextPage" :last="blocksData.lastPage"></pb>
     <div class="table-responsive">
         <table class="table table-sm table-striped border-bottom border-primary mb-0 table_info_trans">
             <thead>
@@ -69,5 +69,5 @@
             </tbody>
         </table>
     </div>
-    <pb :page="page" :getfn="getBlocks" :next="blocksData.haveNextPage" :hidelast="true"></pb>
+    <pb :page="page" :getfn="getBlocks" :next="blocksData.haveNextPage" :last="blocksData.lastPage"></pb>
 </div>
