@@ -9,20 +9,26 @@
                 net: M_NET,
                 page: @ViewData["page"],
                 loading: false,
-                accountsData: { }
+                accountsData: {},
+                sort: localStorage["accSort"] !== undefined ? localStorage["accSort"] : 1
             },
             methods: {
-                getAccounts: function (p) {
+                getAccounts: function(p) {
                     this.loading = true;
-                    $.get(`${M_API}/accounts/${p}`)
+                    $.get(`${M_API}/accounts?page=${p}&sort=${this.sort}`)
                         .done(vm.onGetData)
                         .always(function() {
                             vm.loading = false;
                         });
                 },
-                onGetData: function (data) {
+                onGetData: function(data) {
                     this.page = data.page;
                     this.accountsData = data;
+                },
+                getSorted: function (s) {
+                    this.sort = s;
+                    localStorage["accSort"] = s;
+                    this.getAccounts(this.page);
                 }
             }
         });
@@ -48,9 +54,21 @@
             <thead>
                 <tr>
                     <th>Address</th>
-                    <th>Balance CS</th>
-                    <th>Registered</th>
-                    <th>Tx count</th>
+                    <th v-on:click="getSorted(sort == 0 ? 1 : 0)" style="cursor: pointer">
+                        Balance CS
+                        <span v-if="sort==0">▲</span>
+                        <span v-else-if="sort==1">▼</span>
+                    </th>
+                    <th v-on:click="getSorted(sort == 2 ? 3 : 2)" style="cursor: pointer">
+                        Registered
+                        <span v-if="sort==2">▲</span>
+                        <span v-else-if="sort==3">▼</span>
+                    </th>
+                    <th v-on:click="getSorted(sort == 4 ? 5 : 4)" style="cursor: pointer">
+                        Tx count
+                        <span v-if="sort==4">▲</span>
+                        <span v-else-if="sort==5">▼</span>
+                    </th>
                 </tr>
             </thead>
             <tbody>
