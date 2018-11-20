@@ -1,0 +1,126 @@
+﻿
+@section script
+{
+    <script>
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                net: M_NET,
+                Address: "@ViewData["id"]",
+                tokenData: {
+                    token: {}
+                },
+                loading: false,
+                loading_t: false,
+                page: 1,
+                transData: {}
+            },
+            methods: {
+                getData: function() {
+                    this.loading = true;
+                    $.get(`${M_API}/Token?id=${this.Address}`)
+                        .done(function(data) {
+                            vm.tokenData = data;
+                            if (data.found)
+                                vm.getTransactions(vm.page);
+                            else
+                                window.location.href = `${M_NET}/NotFound/${vm.Address}`;
+                        }).always(function() {
+                            vm.loading = false;
+                        });
+                },
+                getTransactions: function (p) {
+                    this.loading_t = true;
+                    $.get(`${M_API}/ContractTransactions?id=${this.id}&page=${p}`)
+                        .done(function (data) {
+                            vm.page = data.page;
+                            vm.transData = data;
+                            if (data.transactions.length > 0)
+                                vm.getTime(0);
+                        })
+                        .always(function () {
+                            vm.loading_t = false;
+                        });
+                },
+                getTime: function (i) {
+                    $.get(`${M_API}/GetTransactionTime?id=${this.transData.transactions[i].id}`)
+                        .done(function (data) {
+                            vm.transData.transactions[i++].time = data;
+                            if (i < vm.transData.transactions.length)
+                                vm.getTime(i);
+                        });
+                }
+            },
+            created: function() {
+                this.getData();
+            }
+        });
+
+    </script>
+}
+
+
+<div class="row justify-content-center" v-show="loading">
+    <div class="col-auto">
+        <h6>Loading token data...</h6>
+        <div class="progress mt-1">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+</div>
+
+<div v-show="!loading">
+    <h4 class="main_title padding_top_60 p_bot20">Token <small>{{Address}}</small></h4>
+    <ul class="nav nav-tabs mt-3 border-bottom-0">
+        <li class="nav-item">
+            <a class="nav-link active text-info">Information</a>
+        </li>
+    </ul>
+    <div class="tab-content table-responsive">
+        <table class="table table-sm border-left border-bottom">
+            <thead>
+                <tr></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Contract address: </td>
+                    <td>{{Address}}</td>
+                </tr>
+                <tr>
+                    <td>Id: </td>
+                    <td>{{tokenData.token.id}}</td>
+                </tr>
+                <tr>
+                    <td>Name: </td>
+                    <td>{{tokenData.token.name}}</td>
+                </tr>
+                <tr>
+                    <td>Site: </td>
+                    <td><a :href="'http://' + tokenData.token.site" target="_blank">{{tokenData.token.site}}</a></td>
+                </tr>
+                <tr>
+                    <td>Email: </td>
+                    <td>{{tokenData.token.email}}</td>
+                </tr>
+                <tr v-for="prop in tokenData.properties">
+                    <td>{{prop.property}}</td>
+                    <td>{{prop.value}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h4 class="mt-4">Transactions {{transData.numStr}}</h4>
+    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pb>
+
+    <transactions v-show="!loading_t" :network="net" :source="transData.transactions"></transactions>
+
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <div class="progress mt-1" v-show="loading_t">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pb>
+</div>
