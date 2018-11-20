@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using csmon.Api;
 using csmon.Models;
+using csmon.Models.Db;
 using csmon.Models.Services;
 using Microsoft.AspNetCore.Mvc;
 using Release;
@@ -59,20 +60,49 @@ namespace csmon.Controllers
             const int limit = 100;
             if (id <= 0) id = 1; // Page
 
+            var lastBlock = _indexService.GetIndexData(Net).LastBlockData.LastBlock;
+            var lastPage = ConvUtils.GetNumPages(lastBlock, limit);
+
             // Get the list of cached blocks, from given page (we cache last 100K blocks)
             var blocks = _indexService.GetPools(Net, (id - 1) * limit, limit);
 
             // Prepare all data for page and return
-            var lastPage = ConvUtils.GetNumPages(IndexService.SizeOutAll, limit);
             var result = new BlocksData
             {
                 Page = id,
                 Blocks = blocks,
                 HaveNextPage = id < lastPage,
                 LastPage = lastPage,
-                NumStr = blocks.Any() ? $"{blocks.Last().Number} - {blocks.First().Number}" : "-"
+                NumStr = blocks.Any() ? $"{blocks.Last().Number} - {blocks.First().Number} of total {lastBlock}" : "-"
             };
             return result;
+        }
+
+        // Returns the list of blocks on given page (id)
+        public BlocksData BlocksStable(int id)
+        {
+            const int limit = 100;
+            if (id <= 0) id = 1; // Page
+
+            var stats = _indexService.GetStatData(Net);
+            var lastPage = ConvUtils.GetNumPages(stats.Total.AllBlocks.Value, limit);
+
+            using (var client = CreateApi())
+            {
+                //client.PoolListGetStable()
+                var blocks = client.PoolListGet((id - 1) * limit, limit).Pools.Select(p => new BlockInfo(p)).ToList();
+
+                var result = new BlocksData
+                {
+                    Page = id,
+                    Blocks = blocks,
+                    HaveNextPage = id < lastPage,
+                    LastPage = lastPage,
+                    NumStr = blocks.Any() ? $"{blocks.Last().Number} - {blocks.First().Number}" : "-"
+                };
+                return result;
+            }
+
         }
 
         // Returns the list of txs on given page (id), from cache
@@ -360,25 +390,75 @@ namespace csmon.Controllers
         }
 
         // Returns the list of Accounts on given page (id), from cache
-        public AccountsData Accounts(int id)
+        public AccountsData Accounts(int page, int sort)
         {
             const int limit = 50;
-            if (id <= 0) id = 1; // Page
+            if (page <= 0) page = 1; // Page
 
             using (var client = CreateApi())
             {
                 // Get the list accounts
-                var accounts = client.WalletsGet((id - 1) * limit, limit + 1, 0, true);
+                var accounts = client.WalletsGet((page - 1) * limit, limit + 1, (sbyte) (sort/2), sort % 2 > 0);
 
                 // Prepare all data for page and return
                 var result = new AccountsData
                 {
                     Accounts = accounts.Wallets.Take(limit).Select(w => new AccountData(w)).ToList(),
-                    Page = id,
+                    Page = page,
                     HaveNextPage = accounts.Wallets.Count > limit,
                     LastPage = 0,
-                    NumStr = accounts.Wallets.Any() ? $"{(id - 1) * limit + 1} - {id*limit}" : "-"
+                    NumStr = accounts.Wallets.Any() ? $"{(page - 1) * limit + 1} - {page*limit}" : "-"
                 };
+                return result;
+            }
+        }
+
+        // Returns the list of Tokens on given page (id), from db
+        public TokensData Tokens(int page)
+        {
+            const int limit = 50;
+            if (page <= 0) page = 1; // Page
+            
+            using (var db = CsmonDbContext.Create())
+            {
+                var tokensCount = db.Tokens.Count();
+                var lastPage = ConvUtils.GetNumPages(tokensCount, limit);
+
+                var tokens = db.Tokens.Skip((page - 1) * limit).Take(limit).ToList();
+                // Prepare all data for page and return
+                var result = new TokensData
+                {
+                    Tokens = tokens,
+                    Page = page,
+                    HaveNextPage = page < lastPage,
+                    LastPage = lastPage,
+                    NumStr = tokensCount > 0 ? $"{(page - 1) * limit + 1} - {(page - 1) * limit + tokens.Count} of {tokensCount}" : "-"
+                };
+
+                for (var i = 1; i <= result.Tokens.Count; i++)
+                    result.Tokens[i-1].Index = i + (page - 1) * limit;
+
+                return result;
+            }
+        }
+
+        // Returns Token data by id, from db
+        public TokenInfo Token(string id)
+        {
+            using (var db = CsmonDbContext.Create())
+            {
+                var token = db.Tokens.FirstOrDefault(t => t.Address == id);
+                if(token == null) return new TokenInfo();
+
+                // Prepare all data for page and return
+                var result = new TokenInfo
+                {
+                    Found = true,
+                    Token = token,
+                    Properties = db.TokensProperties.Where(tp => tp.TokenAddress == id).ToList(),
+                    Transactions = new List<TransactionInfo>()
+                };
+
                 return result;
             }
         }
