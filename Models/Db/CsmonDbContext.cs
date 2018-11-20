@@ -20,6 +20,10 @@ namespace csmon.Models.Db
         //  A query for requesting TPS data, from the Tps page
         public DbQuery<Point> Points { get; set; }
 
+        // Tables for tokens data
+        public DbSet<Token> Tokens { get; set; }
+        public DbSet<TokenProperty> TokensProperties { get; set; }
+
         public CsmonDbContext(DbContextOptions options)
             : base(options)
         {
@@ -33,6 +37,7 @@ namespace csmon.Models.Db
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Tp>().HasKey(p => new { p.Network, p.Time });
+            modelBuilder.Entity<TokenProperty>().HasKey(tp => new { TokenId = tp.TokenAddress, tp.Property });
         }
 
         // Creates DB Connection
