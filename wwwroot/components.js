@@ -34,7 +34,7 @@ Vue.component("transactions", {
 Vue.component("pb", {
     props: ["page", "getfn", "next", "last", "hidelast"],
     template:
-        `<ul class="pagination pagination-sm justify-content-end  my-1" v-show="page > 1 || next">
+        `<ul class="pagination pagination-sm justify-content-end  my-1">
             <li v-bind:class="{'page-item':true, disabled:page<=1}">
                 <a class="page-link" href="#" v-on:click="getfn(1)" >First</a>
             </li>
