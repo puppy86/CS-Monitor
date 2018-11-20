@@ -159,11 +159,11 @@ namespace csmon.Models
         /// <param name="count">Total count of items</param>
         /// <param name="numPerPage">Number of items displayed at one page</param>
         /// <returns></returns>
-        public static int GetNumPages(int count, int numPerPage)
+        public static int GetNumPages(long count, int numPerPage)
         {
             if (count <= 0) return 1;
-            if (count % numPerPage == 0) return count / numPerPage;
-            return count / numPerPage + 1;
+            if (count % numPerPage == 0) return (int) count / numPerPage;
+            return (int) count / numPerPage + 1;
         }
 
         /// <summary>
