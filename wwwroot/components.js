@@ -41,7 +41,12 @@ Vue.component("pb", {
             <li v-bind:class="{'page-item':true, disabled:page<=1}">
                 <a class="page-link" href="#" v-on:click="getfn(page - 1)">Prev</a>
             </li>
-            <li class="page-item" v-show="page>1">
+
+            <li class="page-item" v-show="page!=null">
+                <a class="page-link"> {{page}} of {{last}} </a>                
+            </li>
+
+            <!--<li class="page-item" v-show="page>1">
                 <a class="page-link" href="#" v-on:click="getfn(page - 1)"> {{page-1}} </a>                
             </li>
             <li class="page-item active">
@@ -49,7 +54,8 @@ Vue.component("pb", {
             </li>
             <li class="page-item" v-show="(last !== undefined)&&(page+1 <= last)">
                 <a class="page-link" href="#" v-on:click="getfn(page + 1)"> {{page+1}} </a>                
-            </li>
+            </li>-->
+
             <li v-bind:class="{'page-item':true, disabled:!next}">
                 <a class="page-link" href="#" v-on:click="getfn(page + 1)">Next</a>
             </li>
