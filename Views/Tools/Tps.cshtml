@@ -1,12 +1,12 @@
 ﻿@section head
-{
+    {
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.7.2/dist/Chart.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.6.5/chartjs-plugin-zoom.min.js"></script>
 }
 
 @section script
-{
+    {
     <script>
 
         var chartConfig =
@@ -104,11 +104,11 @@
                             vm.chart.update();
                         }).always(function () {
                             vm.loading = false;
-                            if(vm.item.value == 0)
-                                vm.timeoutHandle = setTimeout(vm.getData, 2000);                            
+                            if (vm.item.value == 0)
+                                vm.timeoutHandle = setTimeout(vm.getData, 2000);
                         });
                 },
-                menuItemSet: function(item) {
+                menuItemSet: function (item) {
                     this.item = item;
                     clearTimeout(this.timeoutHandle);
                     vm.getData();
@@ -122,6 +122,12 @@
     </script>
 }
 
+<nav aria-label="breadcrumb mt-2">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a :href="net + '/index'">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Tps</li>
+    </ol>
+</nav>
 
 <h4 class="my-3">Transactions per second</h4>
 <div class="row">

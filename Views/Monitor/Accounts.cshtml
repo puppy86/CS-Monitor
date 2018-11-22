@@ -37,6 +37,13 @@
     </script>
 }
 
+<nav aria-label="breadcrumb mt-2">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a :href="net + '/index'">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Accounts</li>
+    </ol>
+</nav>
+
 <h4>List of Accounts</h4>
 <div class="row justify-content-center" v-show="loading">
     <div class="col-auto my-2">
@@ -48,7 +55,7 @@
 </div>
 <div v-show="!loading">
     <div class="mt-4">Accounts {{accountsData.numStr}}</div>
-    <pb :page="page" :getfn="getAccounts" :next="accountsData.haveNextPage" :hidelast="true"></pb>
+    <pb :page="page" :getfn="getAccounts" :next="accountsData.haveNextPage" :hidelast="true" :last="accountsData.lastPage"></pb>
     <div class="table-responsive">
         <table class="table table-sm table-striped border-bottom border-primary mb-0 table_info_trans">
             <thead>
@@ -81,5 +88,5 @@
             </tbody>
         </table>
     </div>
-    <pb :page="page" :getfn="getAccounts" :next="accountsData.haveNextPage" :hidelast="true"></pb>
+    <pb :page="page" :getfn="getAccounts" :next="accountsData.haveNextPage" :hidelast="true" :last="accountsData.lastPage"></pb>
 </div>

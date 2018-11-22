@@ -3,15 +3,22 @@
     var network = Context.GetRouteData().Values["network"].ToString();
 }
 @section head
-{
+    {
     <script src='https://www.google.com/recaptcha/api.js'></script>
 }
 @section script
-{
+    {
     <script>
         $("#infoBar").hide();
     </script>
 }
+
+<nav aria-label="breadcrumb mt-2">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a :href="net + '/index'">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">CS Request</li>
+    </ol>
+</nav>
 
 <h3 class="my-3">Application to get Credits (CS) coins for testing</h3>
 <div style="max-width: 600px">

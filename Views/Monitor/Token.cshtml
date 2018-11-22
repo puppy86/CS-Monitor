@@ -1,6 +1,15 @@
-﻿
+﻿@section head
+    {
+    <style>
+        .imglink {
+            width: 16px;
+            filter: invert(60%);
+            margin-right: 5px;
+        }
+    </style>
+}
 @section script
-{
+    {
     <script>
         var vm = new Vue({
             el: "#app",
@@ -59,6 +68,13 @@
     </script>
 }
 
+<nav aria-label="breadcrumb mt-2">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a :href="net + '/index'">Home</a></li>
+        <li class="breadcrumb-item"><a :href="net + '/tokens'">Tokens</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Token info</li>
+    </ol>
+</nav>
 
 <div class="row justify-content-center" v-show="loading">
     <div class="col-auto">
@@ -102,9 +118,15 @@
                     <td>Email: </td>
                     <td>{{tokenData.token.email}}</td>
                 </tr>
-                <tr v-for="prop in tokenData.properties">
-                    <td>{{prop.property}}</td>
-                    <td>{{prop.value}}</td>
+                <tr>
+                    <td>Links: </td>
+                    <td>
+                        <span v-for="prop in tokenData.properties">
+                            <a :href="prop.value" target="_blank">
+                                <img :src="'/img/social/' + prop.property + '.png'" alt="" class="imglink"/>
+                            </a>
+                        </span>
+                    </td>
                 </tr>
             </tbody>
         </table>

@@ -31,6 +31,13 @@
     </script>
 }
 
+<nav aria-label="breadcrumb mt-2">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a :href="net + '/index'">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Smart Contracts</li>
+    </ol>
+</nav>
+
 <div class="row justify-content-center" v-show="loading">
     <div class="col-auto">
         <h6>Loading...</h6>
@@ -42,7 +49,7 @@
 <div v-show="!loading">
     <h4 class="my-3">Smart contracts</h4>
     <div class="mt-4">Contracts {{contractsData.numStr}}</div>
-    <pb :page="page" :getfn="getContracts" :next="contractsData.haveNextPage"></pb>
+    <pb :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" :last="contractsData.lastPage"></pb>
     <div class="table-responsive">
         <table class="table table-sm table-striped border-bottom border-primary table_info_trans">
             <thead class="thead-light">
@@ -63,5 +70,5 @@
             </tbody>
         </table>
     </div>
-    <pb :page="page" :getfn="getContracts" :next="contractsData.haveNextPage"></pb>
+    <pb :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" :last="contractsData.lastPage"></pb>
 </div>

@@ -1,5 +1,5 @@
 ﻿@section head
-{
+    {
     <script src="https://cdn.jsdelivr.net/npm/vivagraphjs@0.10.1/dist/vivagraph.min.js"></script>
 
     <style>
@@ -48,7 +48,7 @@
 }
 
 @section script
-{
+    {
     <script>
 
         var vm = new Vue({
@@ -117,6 +117,15 @@
         }
     </script>
 }
+
+<nav aria-label="breadcrumb mt-2">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a :href="net + '/index'">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Activity Graph</li>
+    </ol>
+</nav>
+
+
 <h4 class="my-3">Activity Graph</h4>
 
 <div class="whitepanel">

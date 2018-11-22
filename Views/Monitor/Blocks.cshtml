@@ -31,7 +31,15 @@
     </script>
 }
 
+<nav aria-label="breadcrumb mt-2">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a :href="net + '/index'">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Blocks</li>
+    </ol>
+</nav>
+
 <h4>All blocks processed in the network</h4>
+<p class="my-2">Showing the last 100k blocks (total Blocks count {{blocksData.lastBlock}})</p>
 <div class="row justify-content-center" v-show="loading">
     <div class="col-auto my-2">
         <h6>Loading...</h6>
@@ -53,7 +61,6 @@
                     <th>Tx count</th>
                     <th>Total Fee</th>
                     <th>Writer</th>
-                    @*<th>Writer Fee</th>*@
                 </tr>
             </thead>
             <tbody>
@@ -64,7 +71,6 @@
                     <td>{{item.txCount}}</td>
                     <td>{{item.fee}}</td>
                     <td class="hash"><a :href="net + '/tools/node/' + item.writer">{{item.writer}}</a></td>
-                    @*<td>{{item.writerFee}}</td>*@
                 </tr>
             </tbody>
         </table>

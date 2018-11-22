@@ -90,6 +90,14 @@
     </script>
 }
 
+<nav aria-label="breadcrumb mt-2">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a :href="net + '/index'">Home</a></li>
+        <li class="breadcrumb-item"><a :href="net + '/contracts'">Smart Contracts</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Smart Contract info</li>
+    </ol>
+</nav>
+
 <div class="row justify-content-center" v-show="loading">
     <div class="col-auto">
         <h6>Loading contract info...</h6>
@@ -143,7 +151,7 @@
             </ul>
             <div v-show="activeTab === 'transactions'">
                 <div class="mt-4">Transactions {{transData.numStr}}</div>
-                <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pb>
+                <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pb>
 
                 <transactions v-show="!loading_t" :network="net" :source="transData.transactions"></transactions>
 
@@ -154,7 +162,7 @@
                         </div>
                     </div>
                 </div>
-                <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pb>
+                <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pb>
             </div>
             <div v-show="activeTab === 'source'">
                 <div class="px-3">

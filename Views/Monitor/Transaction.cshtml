@@ -32,6 +32,14 @@
     </script>
 }
 
+<nav aria-label="breadcrumb mt-2">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a :href="net + '/index'">Home</a></li>
+        <li class="breadcrumb-item"><a :href="net + '/transactions'">Transactions</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Transaction info</li>
+    </ol>
+</nav>
+
 <div class="row justify-content-center" v-show="loading">
     <div class="col-auto">
         <h6>Loading transaction info...</h6>

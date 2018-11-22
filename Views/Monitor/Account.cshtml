@@ -87,6 +87,13 @@
     </script>
 }
 
+<nav aria-label="breadcrumb mt-2">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a :href="net + '/index'">Home</a></li>
+        <li class="breadcrumb-item"><a :href="net + '/accounts'">Accounts</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Account info</li>
+    </ol>
+</nav>
 
 <div class="row justify-content-center" v-show="loading">
     <div class="col-auto">
@@ -138,7 +145,7 @@
 
     <h4 class="my-3">List of transactions</h4>
     <div class="mt-4">Transactions {{transData.numStr}}</div>
-    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pb>
+    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pb>
 
     <transactions v-show="!loading_t" :network="net" :source="transData.transactions"></transactions>
 
@@ -149,5 +156,5 @@
             </div>
         </div>
     </div>
-    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pb>
+    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pb>
 </div>

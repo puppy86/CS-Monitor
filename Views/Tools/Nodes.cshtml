@@ -1,5 +1,5 @@
 ﻿@section head
-{
+    {
     <style>
         #map {
             width: 100%;
@@ -21,7 +21,7 @@
 }
 
 @section script
-{
+    {
     <script>
 
         var vm = new Vue({
@@ -38,7 +38,7 @@
                         .done(function (data) {
                             vm.page = data.page;
                             vm.nodesData = data;
-                            vm.mapNodes = data.nodes.filter(function(node) {
+                            vm.mapNodes = data.nodes.filter(function (node) {
                                 return node.latitude != 0 && node.longitude != 0;
                             });
                             initMap(data.nodes);
@@ -63,22 +63,22 @@
             const markers = vm.mapNodes.map(function (location, i) {
                 let platformName = location.platform == 0 ? 'Linux' : 'Windows';
                 const contentString = `<table>
-                                            <th>IP:</th>
-                                            <td>${location.ip}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Version:</th>
-                                            <td>v${location.version}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Platform:</th>
-                                            <td>${platformName}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Country:</th>
-                                            <td>${location.countryName}</td>
-                                        </tr>
-                                    </table>`;
+                                                <th>IP:</th>
+                                                <td>${location.ip}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Version:</th>
+                                                <td>v${location.version}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Platform:</th>
+                                                <td>${platformName}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Country:</th>
+                                                <td>${location.countryName}</td>
+                                            </tr>
+                                        </table>`;
 
                 var infoWindow = new google.maps.InfoWindow({
                     content: contentString
@@ -109,6 +109,12 @@
 
 }
 
+<nav aria-label="breadcrumb mt-2">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a :href="net + '/index'">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Nodes</li>
+    </ol>
+</nav>
 
 <h4 class="my-3">Credits Network Nodes</h4>
 <h6 class="my-2">All working nodes in the network</h6>

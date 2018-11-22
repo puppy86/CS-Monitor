@@ -1,4 +1,9 @@
-﻿
+﻿<nav aria-label="breadcrumb mt-2">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a :href="net + '/index'">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Terms reference</li>
+    </ol>
+</nav>
 
 <h3 class="my-3">Terms reference</h3>
 
@@ -37,11 +42,11 @@
         <tr>
             <th scope="row">Recipient</th>
             <td>Account to the balance of which the transaction amount is transferred</td>
-        </tr>    
+        </tr>
         <tr>
             <th scope="row">Member balance</th>
             <td>The sum of transaction prices received by the member minus the amount of transaction prices sent by the member</td>
-        </tr>    
+        </tr>
         <tr>
             <th scope="row">Private key</th>
             <td>A 64-byte string of binary data, a pair of cryptographic keys in a cryptographic system with a public key</td>
@@ -149,9 +154,11 @@
         </tr>
         <tr>
             <th scope="row">Consensus</th>
-            <td>A decision to include a certain block in the blockchain, which is possible to achieve only after verification.
+            <td>
+                A decision to include a certain block in the blockchain, which is possible to achieve only after verification.
                 Verification of transaction by all members of the network. By reaching consensus, all nodes have the same blockchain structure.
-                Consensus is reached when all network participants confirm the validity of the transaction, ensuring the identity of the information on all computers</td>
+                Consensus is reached when all network participants confirm the validity of the transaction, ensuring the identity of the information on all computers
+            </td>
         </tr>
         <tr>
             <th scope="row">Database integrity</th>
