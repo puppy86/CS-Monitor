@@ -38,6 +38,13 @@ namespace Release
       SmartMethodParamsGetResult SmartMethodParamsGet(byte[] address, long id);
       WalletsGetResult WalletsGet(long offset, long limit, sbyte ordCol, bool desc);
       WritersGetResult WritersGet(int page);
+      TokenBalancesResult TokenBalancesGet(byte[] address);
+      TokenTransfersResult TokenTransfersGet(byte[] token, long offset, long limit);
+      TokenTransfersResult TokenWalletTransfersGet(byte[] token, byte[] address, long offset, long limit);
+      TokenTransactionsResult TokenTransactionsGet(byte[] token, long offset, long limit);
+      TokenInfoResult TokenInfoGet(byte[] token);
+      TokenHoldersResult TokenHoldersGet(byte[] token, long offset, long limit);
+      TokensListResult TokensListGet(long offset, long limit);
     }
 
     public interface Iface : ISync {
@@ -116,6 +123,34 @@ namespace Release
       #if SILVERLIGHT
       IAsyncResult Begin_WritersGet(AsyncCallback callback, object state, int page);
       WritersGetResult End_WritersGet(IAsyncResult asyncResult);
+      #endif
+      #if SILVERLIGHT
+      IAsyncResult Begin_TokenBalancesGet(AsyncCallback callback, object state, byte[] address);
+      TokenBalancesResult End_TokenBalancesGet(IAsyncResult asyncResult);
+      #endif
+      #if SILVERLIGHT
+      IAsyncResult Begin_TokenTransfersGet(AsyncCallback callback, object state, byte[] token, long offset, long limit);
+      TokenTransfersResult End_TokenTransfersGet(IAsyncResult asyncResult);
+      #endif
+      #if SILVERLIGHT
+      IAsyncResult Begin_TokenWalletTransfersGet(AsyncCallback callback, object state, byte[] token, byte[] address, long offset, long limit);
+      TokenTransfersResult End_TokenWalletTransfersGet(IAsyncResult asyncResult);
+      #endif
+      #if SILVERLIGHT
+      IAsyncResult Begin_TokenTransactionsGet(AsyncCallback callback, object state, byte[] token, long offset, long limit);
+      TokenTransactionsResult End_TokenTransactionsGet(IAsyncResult asyncResult);
+      #endif
+      #if SILVERLIGHT
+      IAsyncResult Begin_TokenInfoGet(AsyncCallback callback, object state, byte[] token);
+      TokenInfoResult End_TokenInfoGet(IAsyncResult asyncResult);
+      #endif
+      #if SILVERLIGHT
+      IAsyncResult Begin_TokenHoldersGet(AsyncCallback callback, object state, byte[] token, long offset, long limit);
+      TokenHoldersResult End_TokenHoldersGet(IAsyncResult asyncResult);
+      #endif
+      #if SILVERLIGHT
+      IAsyncResult Begin_TokensListGet(AsyncCallback callback, object state, long offset, long limit);
+      TokensListResult End_TokensListGet(IAsyncResult asyncResult);
       #endif
     }
 
@@ -1364,6 +1399,450 @@ namespace Release
         throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "WritersGet failed: unknown result");
       }
 
+      
+      #if SILVERLIGHT
+      public IAsyncResult Begin_TokenBalancesGet(AsyncCallback callback, object state, byte[] address)
+      {
+        return send_TokenBalancesGet(callback, state, address);
+      }
+
+      public TokenBalancesResult End_TokenBalancesGet(IAsyncResult asyncResult)
+      {
+        oprot_.Transport.EndFlush(asyncResult);
+        return recv_TokenBalancesGet();
+      }
+
+      #endif
+
+      public TokenBalancesResult TokenBalancesGet(byte[] address)
+      {
+        #if !SILVERLIGHT
+        send_TokenBalancesGet(address);
+        return recv_TokenBalancesGet();
+
+        #else
+        var asyncResult = Begin_TokenBalancesGet(null, null, address);
+        return End_TokenBalancesGet(asyncResult);
+
+        #endif
+      }
+      #if SILVERLIGHT
+      public IAsyncResult send_TokenBalancesGet(AsyncCallback callback, object state, byte[] address)
+      #else
+      public void send_TokenBalancesGet(byte[] address)
+      #endif
+      {
+        oprot_.WriteMessageBegin(new TMessage("TokenBalancesGet", TMessageType.Call, seqid_));
+        TokenBalancesGet_args args = new TokenBalancesGet_args();
+        args.Address = address;
+        args.Write(oprot_);
+        oprot_.WriteMessageEnd();
+        #if SILVERLIGHT
+        return oprot_.Transport.BeginFlush(callback, state);
+        #else
+        oprot_.Transport.Flush();
+        #endif
+      }
+
+      public TokenBalancesResult recv_TokenBalancesGet()
+      {
+        TMessage msg = iprot_.ReadMessageBegin();
+        if (msg.Type == TMessageType.Exception) {
+          TApplicationException x = TApplicationException.Read(iprot_);
+          iprot_.ReadMessageEnd();
+          throw x;
+        }
+        TokenBalancesGet_result result = new TokenBalancesGet_result();
+        result.Read(iprot_);
+        iprot_.ReadMessageEnd();
+        if (result.__isset.success) {
+          return result.Success;
+        }
+        throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "TokenBalancesGet failed: unknown result");
+      }
+
+      
+      #if SILVERLIGHT
+      public IAsyncResult Begin_TokenTransfersGet(AsyncCallback callback, object state, byte[] token, long offset, long limit)
+      {
+        return send_TokenTransfersGet(callback, state, token, offset, limit);
+      }
+
+      public TokenTransfersResult End_TokenTransfersGet(IAsyncResult asyncResult)
+      {
+        oprot_.Transport.EndFlush(asyncResult);
+        return recv_TokenTransfersGet();
+      }
+
+      #endif
+
+      public TokenTransfersResult TokenTransfersGet(byte[] token, long offset, long limit)
+      {
+        #if !SILVERLIGHT
+        send_TokenTransfersGet(token, offset, limit);
+        return recv_TokenTransfersGet();
+
+        #else
+        var asyncResult = Begin_TokenTransfersGet(null, null, token, offset, limit);
+        return End_TokenTransfersGet(asyncResult);
+
+        #endif
+      }
+      #if SILVERLIGHT
+      public IAsyncResult send_TokenTransfersGet(AsyncCallback callback, object state, byte[] token, long offset, long limit)
+      #else
+      public void send_TokenTransfersGet(byte[] token, long offset, long limit)
+      #endif
+      {
+        oprot_.WriteMessageBegin(new TMessage("TokenTransfersGet", TMessageType.Call, seqid_));
+        TokenTransfersGet_args args = new TokenTransfersGet_args();
+        args.Token = token;
+        args.Offset = offset;
+        args.Limit = limit;
+        args.Write(oprot_);
+        oprot_.WriteMessageEnd();
+        #if SILVERLIGHT
+        return oprot_.Transport.BeginFlush(callback, state);
+        #else
+        oprot_.Transport.Flush();
+        #endif
+      }
+
+      public TokenTransfersResult recv_TokenTransfersGet()
+      {
+        TMessage msg = iprot_.ReadMessageBegin();
+        if (msg.Type == TMessageType.Exception) {
+          TApplicationException x = TApplicationException.Read(iprot_);
+          iprot_.ReadMessageEnd();
+          throw x;
+        }
+        TokenTransfersGet_result result = new TokenTransfersGet_result();
+        result.Read(iprot_);
+        iprot_.ReadMessageEnd();
+        if (result.__isset.success) {
+          return result.Success;
+        }
+        throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "TokenTransfersGet failed: unknown result");
+      }
+
+      
+      #if SILVERLIGHT
+      public IAsyncResult Begin_TokenWalletTransfersGet(AsyncCallback callback, object state, byte[] token, byte[] address, long offset, long limit)
+      {
+        return send_TokenWalletTransfersGet(callback, state, token, address, offset, limit);
+      }
+
+      public TokenTransfersResult End_TokenWalletTransfersGet(IAsyncResult asyncResult)
+      {
+        oprot_.Transport.EndFlush(asyncResult);
+        return recv_TokenWalletTransfersGet();
+      }
+
+      #endif
+
+      public TokenTransfersResult TokenWalletTransfersGet(byte[] token, byte[] address, long offset, long limit)
+      {
+        #if !SILVERLIGHT
+        send_TokenWalletTransfersGet(token, address, offset, limit);
+        return recv_TokenWalletTransfersGet();
+
+        #else
+        var asyncResult = Begin_TokenWalletTransfersGet(null, null, token, address, offset, limit);
+        return End_TokenWalletTransfersGet(asyncResult);
+
+        #endif
+      }
+      #if SILVERLIGHT
+      public IAsyncResult send_TokenWalletTransfersGet(AsyncCallback callback, object state, byte[] token, byte[] address, long offset, long limit)
+      #else
+      public void send_TokenWalletTransfersGet(byte[] token, byte[] address, long offset, long limit)
+      #endif
+      {
+        oprot_.WriteMessageBegin(new TMessage("TokenWalletTransfersGet", TMessageType.Call, seqid_));
+        TokenWalletTransfersGet_args args = new TokenWalletTransfersGet_args();
+        args.Token = token;
+        args.Address = address;
+        args.Offset = offset;
+        args.Limit = limit;
+        args.Write(oprot_);
+        oprot_.WriteMessageEnd();
+        #if SILVERLIGHT
+        return oprot_.Transport.BeginFlush(callback, state);
+        #else
+        oprot_.Transport.Flush();
+        #endif
+      }
+
+      public TokenTransfersResult recv_TokenWalletTransfersGet()
+      {
+        TMessage msg = iprot_.ReadMessageBegin();
+        if (msg.Type == TMessageType.Exception) {
+          TApplicationException x = TApplicationException.Read(iprot_);
+          iprot_.ReadMessageEnd();
+          throw x;
+        }
+        TokenWalletTransfersGet_result result = new TokenWalletTransfersGet_result();
+        result.Read(iprot_);
+        iprot_.ReadMessageEnd();
+        if (result.__isset.success) {
+          return result.Success;
+        }
+        throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "TokenWalletTransfersGet failed: unknown result");
+      }
+
+      
+      #if SILVERLIGHT
+      public IAsyncResult Begin_TokenTransactionsGet(AsyncCallback callback, object state, byte[] token, long offset, long limit)
+      {
+        return send_TokenTransactionsGet(callback, state, token, offset, limit);
+      }
+
+      public TokenTransactionsResult End_TokenTransactionsGet(IAsyncResult asyncResult)
+      {
+        oprot_.Transport.EndFlush(asyncResult);
+        return recv_TokenTransactionsGet();
+      }
+
+      #endif
+
+      public TokenTransactionsResult TokenTransactionsGet(byte[] token, long offset, long limit)
+      {
+        #if !SILVERLIGHT
+        send_TokenTransactionsGet(token, offset, limit);
+        return recv_TokenTransactionsGet();
+
+        #else
+        var asyncResult = Begin_TokenTransactionsGet(null, null, token, offset, limit);
+        return End_TokenTransactionsGet(asyncResult);
+
+        #endif
+      }
+      #if SILVERLIGHT
+      public IAsyncResult send_TokenTransactionsGet(AsyncCallback callback, object state, byte[] token, long offset, long limit)
+      #else
+      public void send_TokenTransactionsGet(byte[] token, long offset, long limit)
+      #endif
+      {
+        oprot_.WriteMessageBegin(new TMessage("TokenTransactionsGet", TMessageType.Call, seqid_));
+        TokenTransactionsGet_args args = new TokenTransactionsGet_args();
+        args.Token = token;
+        args.Offset = offset;
+        args.Limit = limit;
+        args.Write(oprot_);
+        oprot_.WriteMessageEnd();
+        #if SILVERLIGHT
+        return oprot_.Transport.BeginFlush(callback, state);
+        #else
+        oprot_.Transport.Flush();
+        #endif
+      }
+
+      public TokenTransactionsResult recv_TokenTransactionsGet()
+      {
+        TMessage msg = iprot_.ReadMessageBegin();
+        if (msg.Type == TMessageType.Exception) {
+          TApplicationException x = TApplicationException.Read(iprot_);
+          iprot_.ReadMessageEnd();
+          throw x;
+        }
+        TokenTransactionsGet_result result = new TokenTransactionsGet_result();
+        result.Read(iprot_);
+        iprot_.ReadMessageEnd();
+        if (result.__isset.success) {
+          return result.Success;
+        }
+        throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "TokenTransactionsGet failed: unknown result");
+      }
+
+      
+      #if SILVERLIGHT
+      public IAsyncResult Begin_TokenInfoGet(AsyncCallback callback, object state, byte[] token)
+      {
+        return send_TokenInfoGet(callback, state, token);
+      }
+
+      public TokenInfoResult End_TokenInfoGet(IAsyncResult asyncResult)
+      {
+        oprot_.Transport.EndFlush(asyncResult);
+        return recv_TokenInfoGet();
+      }
+
+      #endif
+
+      public TokenInfoResult TokenInfoGet(byte[] token)
+      {
+        #if !SILVERLIGHT
+        send_TokenInfoGet(token);
+        return recv_TokenInfoGet();
+
+        #else
+        var asyncResult = Begin_TokenInfoGet(null, null, token);
+        return End_TokenInfoGet(asyncResult);
+
+        #endif
+      }
+      #if SILVERLIGHT
+      public IAsyncResult send_TokenInfoGet(AsyncCallback callback, object state, byte[] token)
+      #else
+      public void send_TokenInfoGet(byte[] token)
+      #endif
+      {
+        oprot_.WriteMessageBegin(new TMessage("TokenInfoGet", TMessageType.Call, seqid_));
+        TokenInfoGet_args args = new TokenInfoGet_args();
+        args.Token = token;
+        args.Write(oprot_);
+        oprot_.WriteMessageEnd();
+        #if SILVERLIGHT
+        return oprot_.Transport.BeginFlush(callback, state);
+        #else
+        oprot_.Transport.Flush();
+        #endif
+      }
+
+      public TokenInfoResult recv_TokenInfoGet()
+      {
+        TMessage msg = iprot_.ReadMessageBegin();
+        if (msg.Type == TMessageType.Exception) {
+          TApplicationException x = TApplicationException.Read(iprot_);
+          iprot_.ReadMessageEnd();
+          throw x;
+        }
+        TokenInfoGet_result result = new TokenInfoGet_result();
+        result.Read(iprot_);
+        iprot_.ReadMessageEnd();
+        if (result.__isset.success) {
+          return result.Success;
+        }
+        throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "TokenInfoGet failed: unknown result");
+      }
+
+      
+      #if SILVERLIGHT
+      public IAsyncResult Begin_TokenHoldersGet(AsyncCallback callback, object state, byte[] token, long offset, long limit)
+      {
+        return send_TokenHoldersGet(callback, state, token, offset, limit);
+      }
+
+      public TokenHoldersResult End_TokenHoldersGet(IAsyncResult asyncResult)
+      {
+        oprot_.Transport.EndFlush(asyncResult);
+        return recv_TokenHoldersGet();
+      }
+
+      #endif
+
+      public TokenHoldersResult TokenHoldersGet(byte[] token, long offset, long limit)
+      {
+        #if !SILVERLIGHT
+        send_TokenHoldersGet(token, offset, limit);
+        return recv_TokenHoldersGet();
+
+        #else
+        var asyncResult = Begin_TokenHoldersGet(null, null, token, offset, limit);
+        return End_TokenHoldersGet(asyncResult);
+
+        #endif
+      }
+      #if SILVERLIGHT
+      public IAsyncResult send_TokenHoldersGet(AsyncCallback callback, object state, byte[] token, long offset, long limit)
+      #else
+      public void send_TokenHoldersGet(byte[] token, long offset, long limit)
+      #endif
+      {
+        oprot_.WriteMessageBegin(new TMessage("TokenHoldersGet", TMessageType.Call, seqid_));
+        TokenHoldersGet_args args = new TokenHoldersGet_args();
+        args.Token = token;
+        args.Offset = offset;
+        args.Limit = limit;
+        args.Write(oprot_);
+        oprot_.WriteMessageEnd();
+        #if SILVERLIGHT
+        return oprot_.Transport.BeginFlush(callback, state);
+        #else
+        oprot_.Transport.Flush();
+        #endif
+      }
+
+      public TokenHoldersResult recv_TokenHoldersGet()
+      {
+        TMessage msg = iprot_.ReadMessageBegin();
+        if (msg.Type == TMessageType.Exception) {
+          TApplicationException x = TApplicationException.Read(iprot_);
+          iprot_.ReadMessageEnd();
+          throw x;
+        }
+        TokenHoldersGet_result result = new TokenHoldersGet_result();
+        result.Read(iprot_);
+        iprot_.ReadMessageEnd();
+        if (result.__isset.success) {
+          return result.Success;
+        }
+        throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "TokenHoldersGet failed: unknown result");
+      }
+
+      
+      #if SILVERLIGHT
+      public IAsyncResult Begin_TokensListGet(AsyncCallback callback, object state, long offset, long limit)
+      {
+        return send_TokensListGet(callback, state, offset, limit);
+      }
+
+      public TokensListResult End_TokensListGet(IAsyncResult asyncResult)
+      {
+        oprot_.Transport.EndFlush(asyncResult);
+        return recv_TokensListGet();
+      }
+
+      #endif
+
+      public TokensListResult TokensListGet(long offset, long limit)
+      {
+        #if !SILVERLIGHT
+        send_TokensListGet(offset, limit);
+        return recv_TokensListGet();
+
+        #else
+        var asyncResult = Begin_TokensListGet(null, null, offset, limit);
+        return End_TokensListGet(asyncResult);
+
+        #endif
+      }
+      #if SILVERLIGHT
+      public IAsyncResult send_TokensListGet(AsyncCallback callback, object state, long offset, long limit)
+      #else
+      public void send_TokensListGet(long offset, long limit)
+      #endif
+      {
+        oprot_.WriteMessageBegin(new TMessage("TokensListGet", TMessageType.Call, seqid_));
+        TokensListGet_args args = new TokensListGet_args();
+        args.Offset = offset;
+        args.Limit = limit;
+        args.Write(oprot_);
+        oprot_.WriteMessageEnd();
+        #if SILVERLIGHT
+        return oprot_.Transport.BeginFlush(callback, state);
+        #else
+        oprot_.Transport.Flush();
+        #endif
+      }
+
+      public TokensListResult recv_TokensListGet()
+      {
+        TMessage msg = iprot_.ReadMessageBegin();
+        if (msg.Type == TMessageType.Exception) {
+          TApplicationException x = TApplicationException.Read(iprot_);
+          iprot_.ReadMessageEnd();
+          throw x;
+        }
+        TokensListGet_result result = new TokensListGet_result();
+        result.Read(iprot_);
+        iprot_.ReadMessageEnd();
+        if (result.__isset.success) {
+          return result.Success;
+        }
+        throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "TokensListGet failed: unknown result");
+      }
+
     }
     public class Processor : TProcessor {
       public Processor(ISync iface)
@@ -1388,6 +1867,13 @@ namespace Release
         processMap_["SmartMethodParamsGet"] = SmartMethodParamsGet_Process;
         processMap_["WalletsGet"] = WalletsGet_Process;
         processMap_["WritersGet"] = WritersGet_Process;
+        processMap_["TokenBalancesGet"] = TokenBalancesGet_Process;
+        processMap_["TokenTransfersGet"] = TokenTransfersGet_Process;
+        processMap_["TokenWalletTransfersGet"] = TokenWalletTransfersGet_Process;
+        processMap_["TokenTransactionsGet"] = TokenTransactionsGet_Process;
+        processMap_["TokenInfoGet"] = TokenInfoGet_Process;
+        processMap_["TokenHoldersGet"] = TokenHoldersGet_Process;
+        processMap_["TokensListGet"] = TokensListGet_Process;
       }
 
       protected delegate void ProcessFunction(int seqid, TProtocol iprot, TProtocol oprot);
@@ -1946,6 +2432,202 @@ namespace Release
           Console.Error.WriteLine(ex.ToString());
           TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
           oprot.WriteMessageBegin(new TMessage("WritersGet", TMessageType.Exception, seqid));
+          x.Write(oprot);
+        }
+        oprot.WriteMessageEnd();
+        oprot.Transport.Flush();
+      }
+
+      public void TokenBalancesGet_Process(int seqid, TProtocol iprot, TProtocol oprot)
+      {
+        TokenBalancesGet_args args = new TokenBalancesGet_args();
+        args.Read(iprot);
+        iprot.ReadMessageEnd();
+        TokenBalancesGet_result result = new TokenBalancesGet_result();
+        try
+        {
+          result.Success = iface_.TokenBalancesGet(args.Address);
+          oprot.WriteMessageBegin(new TMessage("TokenBalancesGet", TMessageType.Reply, seqid)); 
+          result.Write(oprot);
+        }
+        catch (TTransportException)
+        {
+          throw;
+        }
+        catch (Exception ex)
+        {
+          Console.Error.WriteLine("Error occurred in processor:");
+          Console.Error.WriteLine(ex.ToString());
+          TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
+          oprot.WriteMessageBegin(new TMessage("TokenBalancesGet", TMessageType.Exception, seqid));
+          x.Write(oprot);
+        }
+        oprot.WriteMessageEnd();
+        oprot.Transport.Flush();
+      }
+
+      public void TokenTransfersGet_Process(int seqid, TProtocol iprot, TProtocol oprot)
+      {
+        TokenTransfersGet_args args = new TokenTransfersGet_args();
+        args.Read(iprot);
+        iprot.ReadMessageEnd();
+        TokenTransfersGet_result result = new TokenTransfersGet_result();
+        try
+        {
+          result.Success = iface_.TokenTransfersGet(args.Token, args.Offset, args.Limit);
+          oprot.WriteMessageBegin(new TMessage("TokenTransfersGet", TMessageType.Reply, seqid)); 
+          result.Write(oprot);
+        }
+        catch (TTransportException)
+        {
+          throw;
+        }
+        catch (Exception ex)
+        {
+          Console.Error.WriteLine("Error occurred in processor:");
+          Console.Error.WriteLine(ex.ToString());
+          TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
+          oprot.WriteMessageBegin(new TMessage("TokenTransfersGet", TMessageType.Exception, seqid));
+          x.Write(oprot);
+        }
+        oprot.WriteMessageEnd();
+        oprot.Transport.Flush();
+      }
+
+      public void TokenWalletTransfersGet_Process(int seqid, TProtocol iprot, TProtocol oprot)
+      {
+        TokenWalletTransfersGet_args args = new TokenWalletTransfersGet_args();
+        args.Read(iprot);
+        iprot.ReadMessageEnd();
+        TokenWalletTransfersGet_result result = new TokenWalletTransfersGet_result();
+        try
+        {
+          result.Success = iface_.TokenWalletTransfersGet(args.Token, args.Address, args.Offset, args.Limit);
+          oprot.WriteMessageBegin(new TMessage("TokenWalletTransfersGet", TMessageType.Reply, seqid)); 
+          result.Write(oprot);
+        }
+        catch (TTransportException)
+        {
+          throw;
+        }
+        catch (Exception ex)
+        {
+          Console.Error.WriteLine("Error occurred in processor:");
+          Console.Error.WriteLine(ex.ToString());
+          TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
+          oprot.WriteMessageBegin(new TMessage("TokenWalletTransfersGet", TMessageType.Exception, seqid));
+          x.Write(oprot);
+        }
+        oprot.WriteMessageEnd();
+        oprot.Transport.Flush();
+      }
+
+      public void TokenTransactionsGet_Process(int seqid, TProtocol iprot, TProtocol oprot)
+      {
+        TokenTransactionsGet_args args = new TokenTransactionsGet_args();
+        args.Read(iprot);
+        iprot.ReadMessageEnd();
+        TokenTransactionsGet_result result = new TokenTransactionsGet_result();
+        try
+        {
+          result.Success = iface_.TokenTransactionsGet(args.Token, args.Offset, args.Limit);
+          oprot.WriteMessageBegin(new TMessage("TokenTransactionsGet", TMessageType.Reply, seqid)); 
+          result.Write(oprot);
+        }
+        catch (TTransportException)
+        {
+          throw;
+        }
+        catch (Exception ex)
+        {
+          Console.Error.WriteLine("Error occurred in processor:");
+          Console.Error.WriteLine(ex.ToString());
+          TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
+          oprot.WriteMessageBegin(new TMessage("TokenTransactionsGet", TMessageType.Exception, seqid));
+          x.Write(oprot);
+        }
+        oprot.WriteMessageEnd();
+        oprot.Transport.Flush();
+      }
+
+      public void TokenInfoGet_Process(int seqid, TProtocol iprot, TProtocol oprot)
+      {
+        TokenInfoGet_args args = new TokenInfoGet_args();
+        args.Read(iprot);
+        iprot.ReadMessageEnd();
+        TokenInfoGet_result result = new TokenInfoGet_result();
+        try
+        {
+          result.Success = iface_.TokenInfoGet(args.Token);
+          oprot.WriteMessageBegin(new TMessage("TokenInfoGet", TMessageType.Reply, seqid)); 
+          result.Write(oprot);
+        }
+        catch (TTransportException)
+        {
+          throw;
+        }
+        catch (Exception ex)
+        {
+          Console.Error.WriteLine("Error occurred in processor:");
+          Console.Error.WriteLine(ex.ToString());
+          TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
+          oprot.WriteMessageBegin(new TMessage("TokenInfoGet", TMessageType.Exception, seqid));
+          x.Write(oprot);
+        }
+        oprot.WriteMessageEnd();
+        oprot.Transport.Flush();
+      }
+
+      public void TokenHoldersGet_Process(int seqid, TProtocol iprot, TProtocol oprot)
+      {
+        TokenHoldersGet_args args = new TokenHoldersGet_args();
+        args.Read(iprot);
+        iprot.ReadMessageEnd();
+        TokenHoldersGet_result result = new TokenHoldersGet_result();
+        try
+        {
+          result.Success = iface_.TokenHoldersGet(args.Token, args.Offset, args.Limit);
+          oprot.WriteMessageBegin(new TMessage("TokenHoldersGet", TMessageType.Reply, seqid)); 
+          result.Write(oprot);
+        }
+        catch (TTransportException)
+        {
+          throw;
+        }
+        catch (Exception ex)
+        {
+          Console.Error.WriteLine("Error occurred in processor:");
+          Console.Error.WriteLine(ex.ToString());
+          TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
+          oprot.WriteMessageBegin(new TMessage("TokenHoldersGet", TMessageType.Exception, seqid));
+          x.Write(oprot);
+        }
+        oprot.WriteMessageEnd();
+        oprot.Transport.Flush();
+      }
+
+      public void TokensListGet_Process(int seqid, TProtocol iprot, TProtocol oprot)
+      {
+        TokensListGet_args args = new TokensListGet_args();
+        args.Read(iprot);
+        iprot.ReadMessageEnd();
+        TokensListGet_result result = new TokensListGet_result();
+        try
+        {
+          result.Success = iface_.TokensListGet(args.Offset, args.Limit);
+          oprot.WriteMessageBegin(new TMessage("TokensListGet", TMessageType.Reply, seqid)); 
+          result.Write(oprot);
+        }
+        catch (TTransportException)
+        {
+          throw;
+        }
+        catch (Exception ex)
+        {
+          Console.Error.WriteLine("Error occurred in processor:");
+          Console.Error.WriteLine(ex.ToString());
+          TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
+          oprot.WriteMessageBegin(new TMessage("TokensListGet", TMessageType.Exception, seqid));
           x.Write(oprot);
         }
         oprot.WriteMessageEnd();
@@ -6499,6 +7181,1906 @@ namespace Release
 
       public override string ToString() {
         StringBuilder __sb = new StringBuilder("WritersGet_result(");
+        bool __first = true;
+        if (Success != null && __isset.success) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Success: ");
+          __sb.Append(Success== null ? "<null>" : Success.ToString());
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokenBalancesGet_args : TBase
+    {
+      private byte[] _address;
+
+      public byte[] Address
+      {
+        get
+        {
+          return _address;
+        }
+        set
+        {
+          __isset.address = true;
+          this._address = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool address;
+      }
+
+      public TokenBalancesGet_args() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 1:
+                if (field.Type == TType.String) {
+                  Address = iprot.ReadBinary();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokenBalancesGet_args");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+          if (Address != null && __isset.address) {
+            field.Name = "address";
+            field.Type = TType.String;
+            field.ID = 1;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteBinary(Address);
+            oprot.WriteFieldEnd();
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokenBalancesGet_args(");
+        bool __first = true;
+        if (Address != null && __isset.address) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Address: ");
+          __sb.Append(Address);
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokenBalancesGet_result : TBase
+    {
+      private TokenBalancesResult _success;
+
+      public TokenBalancesResult Success
+      {
+        get
+        {
+          return _success;
+        }
+        set
+        {
+          __isset.success = true;
+          this._success = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool success;
+      }
+
+      public TokenBalancesGet_result() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 0:
+                if (field.Type == TType.Struct) {
+                  Success = new TokenBalancesResult();
+                  Success.Read(iprot);
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokenBalancesGet_result");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+
+          if (this.__isset.success) {
+            if (Success != null) {
+              field.Name = "Success";
+              field.Type = TType.Struct;
+              field.ID = 0;
+              oprot.WriteFieldBegin(field);
+              Success.Write(oprot);
+              oprot.WriteFieldEnd();
+            }
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokenBalancesGet_result(");
+        bool __first = true;
+        if (Success != null && __isset.success) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Success: ");
+          __sb.Append(Success== null ? "<null>" : Success.ToString());
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokenTransfersGet_args : TBase
+    {
+      private byte[] _token;
+      private long _offset;
+      private long _limit;
+
+      public byte[] Token
+      {
+        get
+        {
+          return _token;
+        }
+        set
+        {
+          __isset.token = true;
+          this._token = value;
+        }
+      }
+
+      public long Offset
+      {
+        get
+        {
+          return _offset;
+        }
+        set
+        {
+          __isset.offset = true;
+          this._offset = value;
+        }
+      }
+
+      public long Limit
+      {
+        get
+        {
+          return _limit;
+        }
+        set
+        {
+          __isset.limit = true;
+          this._limit = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool token;
+        public bool offset;
+        public bool limit;
+      }
+
+      public TokenTransfersGet_args() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 1:
+                if (field.Type == TType.String) {
+                  Token = iprot.ReadBinary();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              case 2:
+                if (field.Type == TType.I64) {
+                  Offset = iprot.ReadI64();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              case 3:
+                if (field.Type == TType.I64) {
+                  Limit = iprot.ReadI64();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokenTransfersGet_args");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+          if (Token != null && __isset.token) {
+            field.Name = "token";
+            field.Type = TType.String;
+            field.ID = 1;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteBinary(Token);
+            oprot.WriteFieldEnd();
+          }
+          if (__isset.offset) {
+            field.Name = "offset";
+            field.Type = TType.I64;
+            field.ID = 2;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteI64(Offset);
+            oprot.WriteFieldEnd();
+          }
+          if (__isset.limit) {
+            field.Name = "limit";
+            field.Type = TType.I64;
+            field.ID = 3;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteI64(Limit);
+            oprot.WriteFieldEnd();
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokenTransfersGet_args(");
+        bool __first = true;
+        if (Token != null && __isset.token) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Token: ");
+          __sb.Append(Token);
+        }
+        if (__isset.offset) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Offset: ");
+          __sb.Append(Offset);
+        }
+        if (__isset.limit) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Limit: ");
+          __sb.Append(Limit);
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokenTransfersGet_result : TBase
+    {
+      private TokenTransfersResult _success;
+
+      public TokenTransfersResult Success
+      {
+        get
+        {
+          return _success;
+        }
+        set
+        {
+          __isset.success = true;
+          this._success = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool success;
+      }
+
+      public TokenTransfersGet_result() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 0:
+                if (field.Type == TType.Struct) {
+                  Success = new TokenTransfersResult();
+                  Success.Read(iprot);
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokenTransfersGet_result");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+
+          if (this.__isset.success) {
+            if (Success != null) {
+              field.Name = "Success";
+              field.Type = TType.Struct;
+              field.ID = 0;
+              oprot.WriteFieldBegin(field);
+              Success.Write(oprot);
+              oprot.WriteFieldEnd();
+            }
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokenTransfersGet_result(");
+        bool __first = true;
+        if (Success != null && __isset.success) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Success: ");
+          __sb.Append(Success== null ? "<null>" : Success.ToString());
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokenWalletTransfersGet_args : TBase
+    {
+      private byte[] _token;
+      private byte[] _address;
+      private long _offset;
+      private long _limit;
+
+      public byte[] Token
+      {
+        get
+        {
+          return _token;
+        }
+        set
+        {
+          __isset.token = true;
+          this._token = value;
+        }
+      }
+
+      public byte[] Address
+      {
+        get
+        {
+          return _address;
+        }
+        set
+        {
+          __isset.address = true;
+          this._address = value;
+        }
+      }
+
+      public long Offset
+      {
+        get
+        {
+          return _offset;
+        }
+        set
+        {
+          __isset.offset = true;
+          this._offset = value;
+        }
+      }
+
+      public long Limit
+      {
+        get
+        {
+          return _limit;
+        }
+        set
+        {
+          __isset.limit = true;
+          this._limit = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool token;
+        public bool address;
+        public bool offset;
+        public bool limit;
+      }
+
+      public TokenWalletTransfersGet_args() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 1:
+                if (field.Type == TType.String) {
+                  Token = iprot.ReadBinary();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              case 2:
+                if (field.Type == TType.String) {
+                  Address = iprot.ReadBinary();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              case 3:
+                if (field.Type == TType.I64) {
+                  Offset = iprot.ReadI64();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              case 4:
+                if (field.Type == TType.I64) {
+                  Limit = iprot.ReadI64();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokenWalletTransfersGet_args");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+          if (Token != null && __isset.token) {
+            field.Name = "token";
+            field.Type = TType.String;
+            field.ID = 1;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteBinary(Token);
+            oprot.WriteFieldEnd();
+          }
+          if (Address != null && __isset.address) {
+            field.Name = "address";
+            field.Type = TType.String;
+            field.ID = 2;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteBinary(Address);
+            oprot.WriteFieldEnd();
+          }
+          if (__isset.offset) {
+            field.Name = "offset";
+            field.Type = TType.I64;
+            field.ID = 3;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteI64(Offset);
+            oprot.WriteFieldEnd();
+          }
+          if (__isset.limit) {
+            field.Name = "limit";
+            field.Type = TType.I64;
+            field.ID = 4;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteI64(Limit);
+            oprot.WriteFieldEnd();
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokenWalletTransfersGet_args(");
+        bool __first = true;
+        if (Token != null && __isset.token) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Token: ");
+          __sb.Append(Token);
+        }
+        if (Address != null && __isset.address) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Address: ");
+          __sb.Append(Address);
+        }
+        if (__isset.offset) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Offset: ");
+          __sb.Append(Offset);
+        }
+        if (__isset.limit) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Limit: ");
+          __sb.Append(Limit);
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokenWalletTransfersGet_result : TBase
+    {
+      private TokenTransfersResult _success;
+
+      public TokenTransfersResult Success
+      {
+        get
+        {
+          return _success;
+        }
+        set
+        {
+          __isset.success = true;
+          this._success = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool success;
+      }
+
+      public TokenWalletTransfersGet_result() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 0:
+                if (field.Type == TType.Struct) {
+                  Success = new TokenTransfersResult();
+                  Success.Read(iprot);
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokenWalletTransfersGet_result");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+
+          if (this.__isset.success) {
+            if (Success != null) {
+              field.Name = "Success";
+              field.Type = TType.Struct;
+              field.ID = 0;
+              oprot.WriteFieldBegin(field);
+              Success.Write(oprot);
+              oprot.WriteFieldEnd();
+            }
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokenWalletTransfersGet_result(");
+        bool __first = true;
+        if (Success != null && __isset.success) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Success: ");
+          __sb.Append(Success== null ? "<null>" : Success.ToString());
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokenTransactionsGet_args : TBase
+    {
+      private byte[] _token;
+      private long _offset;
+      private long _limit;
+
+      public byte[] Token
+      {
+        get
+        {
+          return _token;
+        }
+        set
+        {
+          __isset.token = true;
+          this._token = value;
+        }
+      }
+
+      public long Offset
+      {
+        get
+        {
+          return _offset;
+        }
+        set
+        {
+          __isset.offset = true;
+          this._offset = value;
+        }
+      }
+
+      public long Limit
+      {
+        get
+        {
+          return _limit;
+        }
+        set
+        {
+          __isset.limit = true;
+          this._limit = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool token;
+        public bool offset;
+        public bool limit;
+      }
+
+      public TokenTransactionsGet_args() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 1:
+                if (field.Type == TType.String) {
+                  Token = iprot.ReadBinary();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              case 2:
+                if (field.Type == TType.I64) {
+                  Offset = iprot.ReadI64();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              case 3:
+                if (field.Type == TType.I64) {
+                  Limit = iprot.ReadI64();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokenTransactionsGet_args");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+          if (Token != null && __isset.token) {
+            field.Name = "token";
+            field.Type = TType.String;
+            field.ID = 1;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteBinary(Token);
+            oprot.WriteFieldEnd();
+          }
+          if (__isset.offset) {
+            field.Name = "offset";
+            field.Type = TType.I64;
+            field.ID = 2;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteI64(Offset);
+            oprot.WriteFieldEnd();
+          }
+          if (__isset.limit) {
+            field.Name = "limit";
+            field.Type = TType.I64;
+            field.ID = 3;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteI64(Limit);
+            oprot.WriteFieldEnd();
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokenTransactionsGet_args(");
+        bool __first = true;
+        if (Token != null && __isset.token) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Token: ");
+          __sb.Append(Token);
+        }
+        if (__isset.offset) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Offset: ");
+          __sb.Append(Offset);
+        }
+        if (__isset.limit) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Limit: ");
+          __sb.Append(Limit);
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokenTransactionsGet_result : TBase
+    {
+      private TokenTransactionsResult _success;
+
+      public TokenTransactionsResult Success
+      {
+        get
+        {
+          return _success;
+        }
+        set
+        {
+          __isset.success = true;
+          this._success = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool success;
+      }
+
+      public TokenTransactionsGet_result() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 0:
+                if (field.Type == TType.Struct) {
+                  Success = new TokenTransactionsResult();
+                  Success.Read(iprot);
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokenTransactionsGet_result");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+
+          if (this.__isset.success) {
+            if (Success != null) {
+              field.Name = "Success";
+              field.Type = TType.Struct;
+              field.ID = 0;
+              oprot.WriteFieldBegin(field);
+              Success.Write(oprot);
+              oprot.WriteFieldEnd();
+            }
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokenTransactionsGet_result(");
+        bool __first = true;
+        if (Success != null && __isset.success) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Success: ");
+          __sb.Append(Success== null ? "<null>" : Success.ToString());
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokenInfoGet_args : TBase
+    {
+      private byte[] _token;
+
+      public byte[] Token
+      {
+        get
+        {
+          return _token;
+        }
+        set
+        {
+          __isset.token = true;
+          this._token = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool token;
+      }
+
+      public TokenInfoGet_args() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 1:
+                if (field.Type == TType.String) {
+                  Token = iprot.ReadBinary();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokenInfoGet_args");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+          if (Token != null && __isset.token) {
+            field.Name = "token";
+            field.Type = TType.String;
+            field.ID = 1;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteBinary(Token);
+            oprot.WriteFieldEnd();
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokenInfoGet_args(");
+        bool __first = true;
+        if (Token != null && __isset.token) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Token: ");
+          __sb.Append(Token);
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokenInfoGet_result : TBase
+    {
+      private TokenInfoResult _success;
+
+      public TokenInfoResult Success
+      {
+        get
+        {
+          return _success;
+        }
+        set
+        {
+          __isset.success = true;
+          this._success = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool success;
+      }
+
+      public TokenInfoGet_result() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 0:
+                if (field.Type == TType.Struct) {
+                  Success = new TokenInfoResult();
+                  Success.Read(iprot);
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokenInfoGet_result");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+
+          if (this.__isset.success) {
+            if (Success != null) {
+              field.Name = "Success";
+              field.Type = TType.Struct;
+              field.ID = 0;
+              oprot.WriteFieldBegin(field);
+              Success.Write(oprot);
+              oprot.WriteFieldEnd();
+            }
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokenInfoGet_result(");
+        bool __first = true;
+        if (Success != null && __isset.success) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Success: ");
+          __sb.Append(Success== null ? "<null>" : Success.ToString());
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokenHoldersGet_args : TBase
+    {
+      private byte[] _token;
+      private long _offset;
+      private long _limit;
+
+      public byte[] Token
+      {
+        get
+        {
+          return _token;
+        }
+        set
+        {
+          __isset.token = true;
+          this._token = value;
+        }
+      }
+
+      public long Offset
+      {
+        get
+        {
+          return _offset;
+        }
+        set
+        {
+          __isset.offset = true;
+          this._offset = value;
+        }
+      }
+
+      public long Limit
+      {
+        get
+        {
+          return _limit;
+        }
+        set
+        {
+          __isset.limit = true;
+          this._limit = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool token;
+        public bool offset;
+        public bool limit;
+      }
+
+      public TokenHoldersGet_args() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 1:
+                if (field.Type == TType.String) {
+                  Token = iprot.ReadBinary();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              case 2:
+                if (field.Type == TType.I64) {
+                  Offset = iprot.ReadI64();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              case 3:
+                if (field.Type == TType.I64) {
+                  Limit = iprot.ReadI64();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokenHoldersGet_args");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+          if (Token != null && __isset.token) {
+            field.Name = "token";
+            field.Type = TType.String;
+            field.ID = 1;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteBinary(Token);
+            oprot.WriteFieldEnd();
+          }
+          if (__isset.offset) {
+            field.Name = "offset";
+            field.Type = TType.I64;
+            field.ID = 2;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteI64(Offset);
+            oprot.WriteFieldEnd();
+          }
+          if (__isset.limit) {
+            field.Name = "limit";
+            field.Type = TType.I64;
+            field.ID = 3;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteI64(Limit);
+            oprot.WriteFieldEnd();
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokenHoldersGet_args(");
+        bool __first = true;
+        if (Token != null && __isset.token) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Token: ");
+          __sb.Append(Token);
+        }
+        if (__isset.offset) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Offset: ");
+          __sb.Append(Offset);
+        }
+        if (__isset.limit) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Limit: ");
+          __sb.Append(Limit);
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokenHoldersGet_result : TBase
+    {
+      private TokenHoldersResult _success;
+
+      public TokenHoldersResult Success
+      {
+        get
+        {
+          return _success;
+        }
+        set
+        {
+          __isset.success = true;
+          this._success = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool success;
+      }
+
+      public TokenHoldersGet_result() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 0:
+                if (field.Type == TType.Struct) {
+                  Success = new TokenHoldersResult();
+                  Success.Read(iprot);
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokenHoldersGet_result");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+
+          if (this.__isset.success) {
+            if (Success != null) {
+              field.Name = "Success";
+              field.Type = TType.Struct;
+              field.ID = 0;
+              oprot.WriteFieldBegin(field);
+              Success.Write(oprot);
+              oprot.WriteFieldEnd();
+            }
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokenHoldersGet_result(");
+        bool __first = true;
+        if (Success != null && __isset.success) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Success: ");
+          __sb.Append(Success== null ? "<null>" : Success.ToString());
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokensListGet_args : TBase
+    {
+      private long _offset;
+      private long _limit;
+
+      public long Offset
+      {
+        get
+        {
+          return _offset;
+        }
+        set
+        {
+          __isset.offset = true;
+          this._offset = value;
+        }
+      }
+
+      public long Limit
+      {
+        get
+        {
+          return _limit;
+        }
+        set
+        {
+          __isset.limit = true;
+          this._limit = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool offset;
+        public bool limit;
+      }
+
+      public TokensListGet_args() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 1:
+                if (field.Type == TType.I64) {
+                  Offset = iprot.ReadI64();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              case 2:
+                if (field.Type == TType.I64) {
+                  Limit = iprot.ReadI64();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokensListGet_args");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+          if (__isset.offset) {
+            field.Name = "offset";
+            field.Type = TType.I64;
+            field.ID = 1;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteI64(Offset);
+            oprot.WriteFieldEnd();
+          }
+          if (__isset.limit) {
+            field.Name = "limit";
+            field.Type = TType.I64;
+            field.ID = 2;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteI64(Limit);
+            oprot.WriteFieldEnd();
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokensListGet_args(");
+        bool __first = true;
+        if (__isset.offset) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Offset: ");
+          __sb.Append(Offset);
+        }
+        if (__isset.limit) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Limit: ");
+          __sb.Append(Limit);
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class TokensListGet_result : TBase
+    {
+      private TokensListResult _success;
+
+      public TokensListResult Success
+      {
+        get
+        {
+          return _success;
+        }
+        set
+        {
+          __isset.success = true;
+          this._success = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool success;
+      }
+
+      public TokensListGet_result() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 0:
+                if (field.Type == TType.Struct) {
+                  Success = new TokensListResult();
+                  Success.Read(iprot);
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("TokensListGet_result");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+
+          if (this.__isset.success) {
+            if (Success != null) {
+              field.Name = "Success";
+              field.Type = TType.Struct;
+              field.ID = 0;
+              oprot.WriteFieldBegin(field);
+              Success.Write(oprot);
+              oprot.WriteFieldEnd();
+            }
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("TokensListGet_result(");
         bool __first = true;
         if (Success != null && __isset.success) {
           if(!__first) { __sb.Append(", "); }
