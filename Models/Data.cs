@@ -97,7 +97,6 @@ namespace csmon.Models
         public string Value { get; set; }
         public string Fee { get; set; }
         public string Writer { get; set; }
-        public string WriterFee { get; set; }
 
         public BlockInfo()
         {
@@ -172,6 +171,7 @@ namespace csmon.Models
     // Contains list of blocks
     public class BlocksData : PageData
     {
+        public long LastBlock;
         public List<BlockInfo> Blocks = new List<BlockInfo>();
     }
 
@@ -180,6 +180,7 @@ namespace csmon.Models
     {
         public bool Found;
         public BlockInfo Info = new BlockInfo();
+        public long TxCount;
         public List<TransactionInfo> Transactions = new List<TransactionInfo>();
     }
 
