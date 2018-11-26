@@ -7,7 +7,11 @@ using csmon.Models.Db;
 using csmon.Models.Services;
 using Microsoft.AspNetCore.Mvc;
 using Release;
+using TokenBalance = csmon.Models.TokenBalance;
+using TokenHolder = csmon.Models.TokenHolder;
 using TokenInfo = csmon.Models.TokenInfo;
+using TokenTransaction = csmon.Models.TokenTransaction;
+using TokenTransfer = csmon.Models.TokenTransfer;
 
 namespace csmon.Controllers
 {
@@ -55,24 +59,24 @@ namespace csmon.Controllers
             return _indexService.GetStatData(Net);
         }
 
-        // Returns the list of blocks on given page (id), from cache
-        public BlocksData Blocks(int id)
+        // Returns the list of blocks on given page, from cache
+        public BlocksData Blocks(int page, int limit)
         {
-            const int limit = 100;
-            if (id <= 0) id = 1; // Page
+            if (limit < 10 || limit > 100) limit = 25;
+            if (page <= 0) page = 1; // Page
 
             var lastBlock = _indexService.GetIndexData(Net).LastBlockData.LastBlock;
             var lastPage = ConvUtils.GetNumPages(IndexService.SizeOutAll, limit);
 
             // Get the list of cached blocks, from given page (we cache last 100K blocks)
-            var blocks = _indexService.GetPools(Net, (id - 1) * limit, limit);
+            var blocks = _indexService.GetPools(Net, (page - 1) * limit, limit);
 
             // Prepare all data for page and return
             var result = new BlocksData
             {                
-                Page = id,
+                Page = page,
                 Blocks = blocks,
-                HaveNextPage = id < lastPage,
+                HaveNextPage = page < lastPage,
                 LastPage = lastPage,
                 NumStr = blocks.Any() ? $"{blocks.Last().Number} - {blocks.First().Number} of total {lastBlock}" : "-",
                 LastBlock = lastBlock
@@ -108,25 +112,25 @@ namespace csmon.Controllers
             }
         }
 
-        // Returns the list of txs on given page (id), from cache
-        public TransactionsData Txs(int id)
+        // Returns the list of txs on given page, from cache
+        public TransactionsData Txs(int page, int limit)
         {
-            const int limit = 100;
-            if (id <= 0) id = 1; // Page
+            if (limit < 10 || limit > 100) limit = 25;
+            if (page <= 0) page = 1; // Page
 
             // Get the list of cached blocks, from given page (we cache last 100K blocks)
-            var txs = _indexService.GetTxs(Net, (id - 1) * limit, limit);
+            var txs = _indexService.GetTxs(Net, (page - 1) * limit, limit);
 
             // Prepare all data for page and return
-            var offset = limit * (id - 1);
+            var offset = limit * (page - 1);
             var stats = _indexService.GetStatData(Net);
             var lastPage = ConvUtils.GetNumPages(IndexService.SizeOutAll, limit);
 
             var result = new TransactionsData
             {
-                Page = id,
+                Page = page,
                 Transactions = txs,
-                HaveNextPage = id < lastPage,
+                HaveNextPage = page < lastPage,
                 LastPage = lastPage,
                 NumStr = txs.Any() ? $"{offset + 1} - {offset + txs.Count} of {stats.Total.AllTransactions.Value}" : "-",
                 TxCount = stats.Total.AllTransactions.Value
@@ -156,14 +160,15 @@ namespace csmon.Controllers
 
         // Gets pool transactions from API by given block hash, page
         // txcount is for making a label
-        public TransactionsData PoolTransactions(string hash, int page, int txcount)
+        public TransactionsData PoolTransactions(string hash, int page, int limit, int txcount)
         {
-            const int numPerPage = 50;
+            if (limit < 10 || limit > 100) limit = 25;
             if (page <= 0) page = 1;
+
             using (var client = CreateApi())
             {
                 // Calculate last page
-                var lastPage = ConvUtils.GetNumPages(txcount, numPerPage);
+                var lastPage = ConvUtils.GetNumPages(txcount, limit);
                 if (page > lastPage) page = lastPage;
 
                 // Prepare result
@@ -175,8 +180,8 @@ namespace csmon.Controllers
                 };
 
                 // Get the list of transactions from API
-                var offset = numPerPage * (page - 1);
-                var poolTr = client.PoolTransactionsGet(ConvUtils.ConvertHashBack(hash), offset, numPerPage);
+                var offset = limit * (page - 1);
+                var poolTr = client.PoolTransactionsGet(ConvUtils.ConvertHashBack(hash), offset, limit);
                 var i = offset + 1;
 
                 // Fill result with transactions
@@ -238,44 +243,45 @@ namespace csmon.Controllers
 
         // Gets the list of transactions by given account id, and page,
         // conv must = false if smart contract transactions requested
-        public TransactionsData AccountTransactions(string id, int page, bool conv = true)
+        public TransactionsData AccountTransactions(string id, int page, int limit, bool conv = true)
         {
-            const int numPerPage = 15;
+            if (limit < 10 || limit > 25) limit = 25;
             if (page <= 0) page = 1;
+
             using (var client = CreateApi())
             {
                 // Get the list of transactions from the API
-                var offset = numPerPage * (page - 1);
-                var trs = client.TransactionsGet(Base58Encoding.Decode(id), offset, numPerPage + 1);
-                var lastPage = ConvUtils.GetNumPages(page, numPerPage);
+                var offset = limit * (page - 1);
+                var trs = client.TransactionsGet(Base58Encoding.Decode(id), offset, limit + 1);
+                var lastPage = page;
 
                 // Prepare the result
                 var result = new TransactionsData
                 {
                     Page = page,
                     Transactions = new List<TransactionInfo>(),
-                    HaveNextPage = trs.Transactions.Count > numPerPage,
+                    HaveNextPage = trs.Transactions.Count > limit,
                     LastPage = lastPage
                 };
 
                 // Fill data and return the result
-                var count = Math.Min(numPerPage, trs.Transactions.Count);
+                var count = Math.Min(limit, trs.Transactions.Count);
                 for (var i = 0; i < count; i++)
                 {
                     var t = trs.Transactions[i];
                     var tInfo = new TransactionInfo(i + offset + 1, t.Id, t.Trxn);
                     result.Transactions.Add(tInfo);
                 }
-                result.NumStr = count > 0 ? $"{offset + 1} - {offset + count} of {trs.Transactions.Count}" : "-";
+                result.NumStr = count > 0 ? $"{offset + 1} - {offset + count} of {offset + count}" : "-";
                 return result;
             }
         }
 
         // Gets the list of transactions by given smart contract address, and page,
-        public TransactionsData ContractTransactions(string id, int page)
+        public TransactionsData ContractTransactions(string id, int page, int limit)
         {
             // ReUse method for account but with conv = false
-            return AccountTransactions(id, page, false);
+            return AccountTransactions(id, page, limit, false);
         }
 
         // Gets transaction time by transaction id
@@ -294,58 +300,43 @@ namespace csmon.Controllers
             }
         }
 
-        // Gets the list of balances by given account (id) and list of tokens 
-        public TokenAmounts AccountTokens(string id, string tokens)
-        {
-            using (var client = CreateApi())
-            {
-                // Prepare result
-                var result = new TokenAmounts();
-                if (id == null || tokens == null) return result;
-
-                // Unpack the list of tokens and get balance for each of them
-                foreach (var token in tokens.Split(","))
-                {
-                    var balance = client.BalanceGet(Base58Encoding.Decode(id), sbyte.Parse(token));
-                    result.Tokens.Add(new TokenAmount { Token = token, Value = ConvUtils.FormatAmount(balance.Amount) });
-                }
-                return result;
-            }
-        }
-
         // Gets the list of smart contracts on given page from node
-        public ContractsData GetContracts(int page)
+        public object GetContracts(int page, int limit)
         {
-            const int numPerPage = 20;
+            if (limit < 10 || limit > 100) limit = 25;
             if (page <= 0) page = 1;
 
             var stats = _indexService.GetStatData(Net);
-            var lastPage = ConvUtils.GetNumPages(stats.Total.SmartContracts.Value, numPerPage);
+            var lastPage = ConvUtils.GetNumPages(stats.Total.SmartContracts.Value, limit);
             var lastContract = stats.Total.SmartContracts.Value;
 
-            // Prepare result
-            var result = new ContractsData { Page = page };
+
             using (var client = CreateApi())
             {
                 // Get data from API
-                var offset = numPerPage * (page - 1);
-                var res = client.SmartContractsAllListGet(offset, numPerPage + 1);
+                var offset = limit * (page - 1);
+                var res = client.SmartContractsAllListGet(offset, limit + 1);
 
                 // Fill result with data
-                result.HaveNextPage = page < lastPage;
-                var count = Math.Min(numPerPage, res.SmartContractsList.Count);
+
+                var count = Math.Min(limit, res.SmartContractsList.Count);
+                var contracts = new List<ContractLinkInfo>();
                 for (var i = 0; i < count; i++)
                 {
                     var c = res.SmartContractsList[i];
                     var cInfo = new ContractLinkInfo(i + offset + 1, Base58Encoding.Encode(c.Address));
-                    result.Contracts.Add(cInfo);
+                    contracts.Add(cInfo);
                 }
-                result.LastPage = lastPage;
+  
+                return new
+                {
+                    Contracts = contracts,
+                    Page = page,
+                    HaveNextPage = page < lastPage,
+                    LastPage = lastPage,
+                    NumStr = contracts.Any() ? $"{contracts.First().Index} - {contracts.Last().Index} of total {lastContract}" : "0"
+                };
             }
-
-            // Prepare text label for the table and return the result
-            result.NumStr = result.Contracts.Any() ? $"{result.Contracts.First().Index} - {result.Contracts.Last().Index} of total {lastContract}" : "0";
-            return result;
         }
 
         // Gets smart contract information by address from API
@@ -386,9 +377,9 @@ namespace csmon.Controllers
         }
 
         // Gets data for "Network nodes" page by given page
-        public NodesData GetNodesData(int id = 1)
+        public NodesData GetNodesData(int page, int limit)
         {
-            return _nodesService.GetNodes(Net, id);
+            return _nodesService.GetNodes(Net, page, limit);
         }
 
         // Gets data for "Network nodes" page by given page
@@ -403,10 +394,10 @@ namespace csmon.Controllers
             return _graphService.GetGraphData();
         }
 
-        // Returns the list of Accounts on given page (id), from cache
-        public AccountsData Accounts(int page, int sort)
+        // Returns the list of Accounts on given page, from cache
+        public object Accounts(int page, int limit, int sort)
         {
-            const int limit = 50;
+            if (limit < 10 || limit > 100) limit = 25;
             if (page <= 0) page = 1; // Page
 
             using (var client = CreateApi())
@@ -420,7 +411,7 @@ namespace csmon.Controllers
                     .Select(w => new AccountData(w)).ToList();
 
                 // Prepare all data for page and return
-                var result = new AccountsData
+                return new 
                 {
                     Accounts = accountsLimited,
                     Page = page,
@@ -428,14 +419,13 @@ namespace csmon.Controllers
                     LastPage = lastPage,
                     NumStr = accounts.Wallets.Any() ? $"{(page - 1) * limit + 1} - {(page-1)*limit + accountsLimited.Count} of total {accounts.Wallets.Count}" : "-"
                 };
-                return result;
             }
         }
 
         // Returns the list of Tokens on given page (id), from db
-        public TokensData Tokens(int page)
+        public object Tokens(int page, int limit)
         {
-            const int limit = 50;
+            if (limit < 10 || limit > 100) limit = 25;
             if (page <= 0) page = 1; // Page
             
             using (var db = CsmonDbContext.Create())
@@ -445,7 +435,7 @@ namespace csmon.Controllers
 
                 var tokens = db.Tokens.Skip((page - 1) * limit).Take(limit).ToList();
                 // Prepare all data for page and return
-                var result = new TokensData
+                var result = new
                 {
                     Tokens = tokens,
                     Page = page,
@@ -458,6 +448,31 @@ namespace csmon.Controllers
                     result.Tokens[i-1].Index = i + (page - 1) * limit;
 
                 return result;
+            }
+        }
+
+        // Returns the list of Tokens on given page (id), from API
+        public object Tokens2(int page, int limit)
+        {
+            if (limit < 10 || limit > 100) limit = 25;
+            if (page <= 0) page = 1; // Page
+            var offset = (page - 1) * limit;
+
+            using (var client = CreateApi())
+            {
+                var tokensListResult = client.TokensListGet(offset, limit);
+                var tokens = tokensListResult.Tokens.Select((t,i) => new TokenInfo2(t)).ToList();
+                var lastPage = ConvUtils.GetNumPages(tokensListResult.Count, limit);
+
+                // Prepare all data for page and return
+                return new
+                {
+                    Tokens = tokens,
+                    Page = page,
+                    HaveNextPage = page < lastPage,
+                    LastPage = lastPage,
+                    NumStr = tokens.Count > 0 ? $"{(page - 1) * limit + 1} - {(page - 1) * limit + tokens.Count} of {tokensListResult.Count}" : "-"
+                };
             }
         }
 
@@ -479,6 +494,141 @@ namespace csmon.Controllers
                 };
 
                 return result;
+            }
+        }
+
+        // Returns Token data by id, from API
+        public TokenInfo2 Token2(string id)
+        {
+            using (var client = CreateApi())
+            {
+                var token = client.TokenInfoGet(Base58Encoding.Decode(id));
+                if (token == null || token.Status.Code > 0) return new TokenInfo2();
+
+                // Prepare all data for page and return
+                var result = new TokenInfo2(token.Token);
+                return result;
+            }
+        }
+
+        // Gets the list of transactions by given token id, and page,        
+        public object TokenTransactions(string id, int page, int limit)
+        {
+            if (limit < 10 || limit > 100) limit = 25;
+            if (page <= 0) page = 1;
+
+            using (var client = CreateApi())
+            {
+                // Get the list of transactions from the API
+                var offset = limit * (page - 1);
+                var trs = client.TokenTransactionsGet(Base58Encoding.Decode(id), offset, limit);
+                var lastPage = ConvUtils.GetNumPages(trs.Count, limit);
+                var count = trs.Transactions.Count;
+                // Prepare the result
+                return new 
+                {
+                    Page = page,
+                    Transactions = trs.Transactions.Select((t,i) => new TokenTransaction(t, i + offset + 1)).ToList(),
+                    HaveNextPage = page < lastPage,
+                    LastPage = lastPage,
+                    NumStr = count > 0 ? $"{offset + 1} - {offset + count} of {offset + count}" : "-"
+                };
+            }
+        }
+
+        // Gets the list of holders by given token id, and page,
+        public object TokenHolders(string id, int page, int limit)
+        {
+            if (limit < 10 || limit > 100) limit = 25;
+            if (page <= 0) page = 1;
+
+            using (var client = CreateApi())
+            {
+                // Get the list of holders from the API
+                var offset = limit * (page - 1);
+                var holders = client.TokenHoldersGet(Base58Encoding.Decode(id), offset, limit);
+                var lastPage = ConvUtils.GetNumPages(holders.Count, limit);
+                var count = holders.Holders.Count;
+
+                // Prepare the result
+                return new
+                {
+                    Page = page,
+                    Holders = holders.Holders.Select((t, i) => new TokenHolder(t)).ToList(),
+                    HaveNextPage = page < lastPage,
+                    LastPage = lastPage,
+                    NumStr = count > 0 ? $"{offset + 1} - {offset + count} of {offset + count}" : "-"
+                };
+            }
+        }
+
+        // Gets the list of transfers by given token id, and page,
+        public object TokenTransfers(string id, int page, int limit)
+        {
+            if (limit < 10 || limit > 100) limit = 25;
+            if (page <= 0) page = 1;
+
+            using (var client = CreateApi())
+            {
+                // Get the list of transfers from the API
+                var offset = limit * (page - 1);
+                var holders = client.TokenTransfersGet(Base58Encoding.Decode(id), offset, limit);
+                var lastPage = ConvUtils.GetNumPages(holders.Count, limit);
+
+                var count = holders.Transfers.Count;
+                // Prepare the result
+                return new 
+                {
+                    Page = page,
+                    Transfers = holders.Transfers.Select((t, i) => new TokenTransfer(t)).ToList(),
+                    HaveNextPage = page < lastPage,
+                    LastPage = lastPage,
+                    NumStr = count > 0 ? $"{offset + 1} - {offset + count} of {offset + count}" : "-"
+                };                
+            }
+        }
+
+        // Gets the list of token balances by given account id,
+        public object AccountTokens(string id)
+        {
+            using (var client = CreateApi())
+            {
+                // Get the list of transactions from the API
+                var balances = client.TokenBalancesGet(Base58Encoding.Decode(id));
+
+                // Prepare the result
+                return new
+                {
+                    Balances = balances.Balances.Select(b => new TokenBalance(b)).ToList()
+                };
+            }
+        }
+
+        // Gets the list of token transfers by given account id, token id, and page,
+        // 7zfr7JY5jyZuHZaTbWGBLdv1WVqHKz3nHgfZcTAjLVBY
+        public object AccountTokenTransfers(string account, string token, int page, int limit)
+        {
+            if (limit < 10 || limit > 100) limit = 25;
+            if (page <= 0) page = 1;
+
+            using (var client = CreateApi())
+            {
+                // Get the list of transactions from the API
+                var offset = limit * (page - 1);
+                var transfers = client.TokenWalletTransfersGet(Base58Encoding.Decode(token),
+                    Base58Encoding.Decode(account), offset, limit);
+                var lastPage = ConvUtils.GetNumPages(transfers.Count, limit);
+                var count = transfers.Transfers.Count;
+
+                // Prepare the result
+                return new
+                {
+                    Page = page,
+                    Transfers = transfers.Transfers.Select((t, i) => new TokenTransfer(t)).ToList(),
+                    HaveNextPage = page < lastPage,
+                    LastPage = lastPage,
+                    NumStr = count > 0 ? $"{offset + 1} - {offset + count} of {offset + count}" : "-"
+                };
             }
         }
     }
