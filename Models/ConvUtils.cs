@@ -189,5 +189,10 @@ namespace csmon.Models
                 return string.Join(':', split.Take(take)) + ":*:*";
             }
         }
+
+        public static string GetTxId(Release.TransactionId id)
+        {
+            return id == null ? null : $"{ConvUtils.ConvertHash(id.PoolHash)}.{id.Index + 1}";
+        }
     }
 }
