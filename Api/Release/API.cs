@@ -45,6 +45,8 @@ namespace Release
       TokenInfoResult TokenInfoGet(byte[] token);
       TokenHoldersResult TokenHoldersGet(byte[] token, long offset, long limit);
       TokensListResult TokensListGet(long offset, long limit);
+      SmartContractDataResult SmartContractDataGet(byte[] address);
+      SmartContractCompileResult SmartContractCompile(string sourceCode);
     }
 
     public interface Iface : ISync {
@@ -151,6 +153,14 @@ namespace Release
       #if SILVERLIGHT
       IAsyncResult Begin_TokensListGet(AsyncCallback callback, object state, long offset, long limit);
       TokensListResult End_TokensListGet(IAsyncResult asyncResult);
+      #endif
+      #if SILVERLIGHT
+      IAsyncResult Begin_SmartContractDataGet(AsyncCallback callback, object state, byte[] address);
+      SmartContractDataResult End_SmartContractDataGet(IAsyncResult asyncResult);
+      #endif
+      #if SILVERLIGHT
+      IAsyncResult Begin_SmartContractCompile(AsyncCallback callback, object state, string sourceCode);
+      SmartContractCompileResult End_SmartContractCompile(IAsyncResult asyncResult);
       #endif
     }
 
@@ -1843,6 +1853,130 @@ namespace Release
         throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "TokensListGet failed: unknown result");
       }
 
+      
+      #if SILVERLIGHT
+      public IAsyncResult Begin_SmartContractDataGet(AsyncCallback callback, object state, byte[] address)
+      {
+        return send_SmartContractDataGet(callback, state, address);
+      }
+
+      public SmartContractDataResult End_SmartContractDataGet(IAsyncResult asyncResult)
+      {
+        oprot_.Transport.EndFlush(asyncResult);
+        return recv_SmartContractDataGet();
+      }
+
+      #endif
+
+      public SmartContractDataResult SmartContractDataGet(byte[] address)
+      {
+        #if !SILVERLIGHT
+        send_SmartContractDataGet(address);
+        return recv_SmartContractDataGet();
+
+        #else
+        var asyncResult = Begin_SmartContractDataGet(null, null, address);
+        return End_SmartContractDataGet(asyncResult);
+
+        #endif
+      }
+      #if SILVERLIGHT
+      public IAsyncResult send_SmartContractDataGet(AsyncCallback callback, object state, byte[] address)
+      #else
+      public void send_SmartContractDataGet(byte[] address)
+      #endif
+      {
+        oprot_.WriteMessageBegin(new TMessage("SmartContractDataGet", TMessageType.Call, seqid_));
+        SmartContractDataGet_args args = new SmartContractDataGet_args();
+        args.Address = address;
+        args.Write(oprot_);
+        oprot_.WriteMessageEnd();
+        #if SILVERLIGHT
+        return oprot_.Transport.BeginFlush(callback, state);
+        #else
+        oprot_.Transport.Flush();
+        #endif
+      }
+
+      public SmartContractDataResult recv_SmartContractDataGet()
+      {
+        TMessage msg = iprot_.ReadMessageBegin();
+        if (msg.Type == TMessageType.Exception) {
+          TApplicationException x = TApplicationException.Read(iprot_);
+          iprot_.ReadMessageEnd();
+          throw x;
+        }
+        SmartContractDataGet_result result = new SmartContractDataGet_result();
+        result.Read(iprot_);
+        iprot_.ReadMessageEnd();
+        if (result.__isset.success) {
+          return result.Success;
+        }
+        throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "SmartContractDataGet failed: unknown result");
+      }
+
+      
+      #if SILVERLIGHT
+      public IAsyncResult Begin_SmartContractCompile(AsyncCallback callback, object state, string sourceCode)
+      {
+        return send_SmartContractCompile(callback, state, sourceCode);
+      }
+
+      public SmartContractCompileResult End_SmartContractCompile(IAsyncResult asyncResult)
+      {
+        oprot_.Transport.EndFlush(asyncResult);
+        return recv_SmartContractCompile();
+      }
+
+      #endif
+
+      public SmartContractCompileResult SmartContractCompile(string sourceCode)
+      {
+        #if !SILVERLIGHT
+        send_SmartContractCompile(sourceCode);
+        return recv_SmartContractCompile();
+
+        #else
+        var asyncResult = Begin_SmartContractCompile(null, null, sourceCode);
+        return End_SmartContractCompile(asyncResult);
+
+        #endif
+      }
+      #if SILVERLIGHT
+      public IAsyncResult send_SmartContractCompile(AsyncCallback callback, object state, string sourceCode)
+      #else
+      public void send_SmartContractCompile(string sourceCode)
+      #endif
+      {
+        oprot_.WriteMessageBegin(new TMessage("SmartContractCompile", TMessageType.Call, seqid_));
+        SmartContractCompile_args args = new SmartContractCompile_args();
+        args.SourceCode = sourceCode;
+        args.Write(oprot_);
+        oprot_.WriteMessageEnd();
+        #if SILVERLIGHT
+        return oprot_.Transport.BeginFlush(callback, state);
+        #else
+        oprot_.Transport.Flush();
+        #endif
+      }
+
+      public SmartContractCompileResult recv_SmartContractCompile()
+      {
+        TMessage msg = iprot_.ReadMessageBegin();
+        if (msg.Type == TMessageType.Exception) {
+          TApplicationException x = TApplicationException.Read(iprot_);
+          iprot_.ReadMessageEnd();
+          throw x;
+        }
+        SmartContractCompile_result result = new SmartContractCompile_result();
+        result.Read(iprot_);
+        iprot_.ReadMessageEnd();
+        if (result.__isset.success) {
+          return result.Success;
+        }
+        throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "SmartContractCompile failed: unknown result");
+      }
+
     }
     public class Processor : TProcessor {
       public Processor(ISync iface)
@@ -1874,6 +2008,8 @@ namespace Release
         processMap_["TokenInfoGet"] = TokenInfoGet_Process;
         processMap_["TokenHoldersGet"] = TokenHoldersGet_Process;
         processMap_["TokensListGet"] = TokensListGet_Process;
+        processMap_["SmartContractDataGet"] = SmartContractDataGet_Process;
+        processMap_["SmartContractCompile"] = SmartContractCompile_Process;
       }
 
       protected delegate void ProcessFunction(int seqid, TProtocol iprot, TProtocol oprot);
@@ -2628,6 +2764,62 @@ namespace Release
           Console.Error.WriteLine(ex.ToString());
           TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
           oprot.WriteMessageBegin(new TMessage("TokensListGet", TMessageType.Exception, seqid));
+          x.Write(oprot);
+        }
+        oprot.WriteMessageEnd();
+        oprot.Transport.Flush();
+      }
+
+      public void SmartContractDataGet_Process(int seqid, TProtocol iprot, TProtocol oprot)
+      {
+        SmartContractDataGet_args args = new SmartContractDataGet_args();
+        args.Read(iprot);
+        iprot.ReadMessageEnd();
+        SmartContractDataGet_result result = new SmartContractDataGet_result();
+        try
+        {
+          result.Success = iface_.SmartContractDataGet(args.Address);
+          oprot.WriteMessageBegin(new TMessage("SmartContractDataGet", TMessageType.Reply, seqid)); 
+          result.Write(oprot);
+        }
+        catch (TTransportException)
+        {
+          throw;
+        }
+        catch (Exception ex)
+        {
+          Console.Error.WriteLine("Error occurred in processor:");
+          Console.Error.WriteLine(ex.ToString());
+          TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
+          oprot.WriteMessageBegin(new TMessage("SmartContractDataGet", TMessageType.Exception, seqid));
+          x.Write(oprot);
+        }
+        oprot.WriteMessageEnd();
+        oprot.Transport.Flush();
+      }
+
+      public void SmartContractCompile_Process(int seqid, TProtocol iprot, TProtocol oprot)
+      {
+        SmartContractCompile_args args = new SmartContractCompile_args();
+        args.Read(iprot);
+        iprot.ReadMessageEnd();
+        SmartContractCompile_result result = new SmartContractCompile_result();
+        try
+        {
+          result.Success = iface_.SmartContractCompile(args.SourceCode);
+          oprot.WriteMessageBegin(new TMessage("SmartContractCompile", TMessageType.Reply, seqid)); 
+          result.Write(oprot);
+        }
+        catch (TTransportException)
+        {
+          throw;
+        }
+        catch (Exception ex)
+        {
+          Console.Error.WriteLine("Error occurred in processor:");
+          Console.Error.WriteLine(ex.ToString());
+          TApplicationException x = new TApplicationException        (TApplicationException.ExceptionType.InternalError," Internal error.");
+          oprot.WriteMessageBegin(new TMessage("SmartContractCompile", TMessageType.Exception, seqid));
           x.Write(oprot);
         }
         oprot.WriteMessageEnd();
@@ -9081,6 +9273,446 @@ namespace Release
 
       public override string ToString() {
         StringBuilder __sb = new StringBuilder("TokensListGet_result(");
+        bool __first = true;
+        if (Success != null && __isset.success) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Success: ");
+          __sb.Append(Success== null ? "<null>" : Success.ToString());
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class SmartContractDataGet_args : TBase
+    {
+      private byte[] _address;
+
+      public byte[] Address
+      {
+        get
+        {
+          return _address;
+        }
+        set
+        {
+          __isset.address = true;
+          this._address = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool address;
+      }
+
+      public SmartContractDataGet_args() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 1:
+                if (field.Type == TType.String) {
+                  Address = iprot.ReadBinary();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("SmartContractDataGet_args");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+          if (Address != null && __isset.address) {
+            field.Name = "address";
+            field.Type = TType.String;
+            field.ID = 1;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteBinary(Address);
+            oprot.WriteFieldEnd();
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("SmartContractDataGet_args(");
+        bool __first = true;
+        if (Address != null && __isset.address) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Address: ");
+          __sb.Append(Address);
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class SmartContractDataGet_result : TBase
+    {
+      private SmartContractDataResult _success;
+
+      public SmartContractDataResult Success
+      {
+        get
+        {
+          return _success;
+        }
+        set
+        {
+          __isset.success = true;
+          this._success = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool success;
+      }
+
+      public SmartContractDataGet_result() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 0:
+                if (field.Type == TType.Struct) {
+                  Success = new SmartContractDataResult();
+                  Success.Read(iprot);
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("SmartContractDataGet_result");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+
+          if (this.__isset.success) {
+            if (Success != null) {
+              field.Name = "Success";
+              field.Type = TType.Struct;
+              field.ID = 0;
+              oprot.WriteFieldBegin(field);
+              Success.Write(oprot);
+              oprot.WriteFieldEnd();
+            }
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("SmartContractDataGet_result(");
+        bool __first = true;
+        if (Success != null && __isset.success) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Success: ");
+          __sb.Append(Success== null ? "<null>" : Success.ToString());
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class SmartContractCompile_args : TBase
+    {
+      private string _sourceCode;
+
+      public string SourceCode
+      {
+        get
+        {
+          return _sourceCode;
+        }
+        set
+        {
+          __isset.sourceCode = true;
+          this._sourceCode = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool sourceCode;
+      }
+
+      public SmartContractCompile_args() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 1:
+                if (field.Type == TType.String) {
+                  SourceCode = iprot.ReadString();
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("SmartContractCompile_args");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+          if (SourceCode != null && __isset.sourceCode) {
+            field.Name = "sourceCode";
+            field.Type = TType.String;
+            field.ID = 1;
+            oprot.WriteFieldBegin(field);
+            oprot.WriteString(SourceCode);
+            oprot.WriteFieldEnd();
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("SmartContractCompile_args(");
+        bool __first = true;
+        if (SourceCode != null && __isset.sourceCode) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("SourceCode: ");
+          __sb.Append(SourceCode);
+        }
+        __sb.Append(")");
+        return __sb.ToString();
+      }
+
+    }
+
+
+    #if !SILVERLIGHT
+    [Serializable]
+    #endif
+    public partial class SmartContractCompile_result : TBase
+    {
+      private SmartContractCompileResult _success;
+
+      public SmartContractCompileResult Success
+      {
+        get
+        {
+          return _success;
+        }
+        set
+        {
+          __isset.success = true;
+          this._success = value;
+        }
+      }
+
+
+      public Isset __isset;
+      #if !SILVERLIGHT
+      [Serializable]
+      #endif
+      public struct Isset {
+        public bool success;
+      }
+
+      public SmartContractCompile_result() {
+      }
+
+      public void Read (TProtocol iprot)
+      {
+        iprot.IncrementRecursionDepth();
+        try
+        {
+          TField field;
+          iprot.ReadStructBegin();
+          while (true)
+          {
+            field = iprot.ReadFieldBegin();
+            if (field.Type == TType.Stop) { 
+              break;
+            }
+            switch (field.ID)
+            {
+              case 0:
+                if (field.Type == TType.Struct) {
+                  Success = new SmartContractCompileResult();
+                  Success.Read(iprot);
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
+              default: 
+                TProtocolUtil.Skip(iprot, field.Type);
+                break;
+            }
+            iprot.ReadFieldEnd();
+          }
+          iprot.ReadStructEnd();
+        }
+        finally
+        {
+          iprot.DecrementRecursionDepth();
+        }
+      }
+
+      public void Write(TProtocol oprot) {
+        oprot.IncrementRecursionDepth();
+        try
+        {
+          TStruct struc = new TStruct("SmartContractCompile_result");
+          oprot.WriteStructBegin(struc);
+          TField field = new TField();
+
+          if (this.__isset.success) {
+            if (Success != null) {
+              field.Name = "Success";
+              field.Type = TType.Struct;
+              field.ID = 0;
+              oprot.WriteFieldBegin(field);
+              Success.Write(oprot);
+              oprot.WriteFieldEnd();
+            }
+          }
+          oprot.WriteFieldStop();
+          oprot.WriteStructEnd();
+        }
+        finally
+        {
+          oprot.DecrementRecursionDepth();
+        }
+      }
+
+      public override string ToString() {
+        StringBuilder __sb = new StringBuilder("SmartContractCompile_result(");
         bool __first = true;
         if (Success != null && __isset.success) {
           if(!__first) { __sb.Append(", "); }
