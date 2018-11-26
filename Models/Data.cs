@@ -76,6 +76,7 @@ namespace csmon.Models
     public class StatItem
     {
         public long Value;
+        //public float PercentChange;
 
         public StatItem()
         {
@@ -145,8 +146,7 @@ namespace csmon.Models
         public TransactionInfo(int idx, Release.TransactionId id, Release.Transaction tr)
         {
             Index = idx;
-            if (id != null)
-                Id = $"{ConvUtils.ConvertHash(id.PoolHash)}.{id.Index + 1}";
+            Id = ConvUtils.GetTxId(id);
             Value = ConvUtils.FormatAmount(tr.Amount);            
             FromAccount = Base58Encoding.Encode(tr.Source);
             ToAccount = Base58Encoding.Encode(tr.Target);
@@ -182,19 +182,6 @@ namespace csmon.Models
         public BlockInfo Info = new BlockInfo();
         public long TxCount;
         public List<TransactionInfo> Transactions = new List<TransactionInfo>();
-    }
-
-    // Contains token amount
-    public class TokenAmount
-    {
-        public string Token { get; set; }
-        public string Value { get; set; }
-    }
-
-    // The list of tokens amounts
-    public class TokenAmounts
-    {
-        public List<TokenAmount> Tokens = new List<TokenAmount>();
     }
 
     // Network description
@@ -254,12 +241,6 @@ namespace csmon.Models
             Index = index;
             Address = address;
         }
-    }
-
-    // List of contracts
-    public class ContractsData : PageData
-    {
-        public List<ContractLinkInfo> Contracts = new List<ContractLinkInfo>();
     }
 
     // Network node info
@@ -385,18 +366,6 @@ namespace csmon.Models
         }
     }
 
-    // Contains list of wallets
-    public class AccountsData : PageData
-    {
-        public List<AccountData> Accounts = new List<AccountData>();
-    }
-
-    // Contains list of tokens
-    public class TokensData : PageData
-    {
-        public List<Token> Tokens = new List<Token>();
-    }
-
     // Contains token data
     public class TokenInfo
     {
@@ -405,4 +374,107 @@ namespace csmon.Models
         public List<TokenProperty> Properties;
         public List<TransactionInfo> Transactions;
     }
+
+    // Contains token data
+    public class TokenInfo2
+    {
+        public string Address;
+        public string Code;
+        public string Name;
+        public int HoldersCount;
+        public string TotalSupply;
+        public string Owner;
+        public int TransactionsCount;
+        public int TransfersCount;
+
+        public bool Found;
+
+        public TokenInfo2()
+        {
+        }
+
+        public TokenInfo2(Release.TokenInfo t)
+        {
+            Address = Base58Encoding.Encode(t.Address);
+            Code = t.Code;
+            Name = t.Name;
+            HoldersCount = t.HoldersCount;
+            TotalSupply = t.TotalSupply;
+            Owner = Base58Encoding.Encode(t.Owner);
+            TransactionsCount = t.TransactionsCount;
+            TransfersCount = t.TransfersCount;
+            Found = true;
+        }
+    }
+
+    // Token transaction
+    public class TokenTransaction
+    {
+        public int Index;
+        public string Id;
+        public string Initiator;
+        public string Method;
+        public DateTime Time;
+        public string Params;
+
+        public TokenTransaction(Release.TokenTransaction t, int index)
+        {
+            Index = index;
+            Id = ConvUtils.GetTxId(t.Transaction);
+            Time = ConvUtils.UnixTimeStampToDateTime(t.Time);
+            Initiator = Base58Encoding.Encode(t.Initiator);
+            Method = t.Method;            
+            Params = string.Join(", ", t.Params);            
+        }
+    }
+
+    // Token holder info
+    public class TokenHolder
+    {
+        public string Address;
+        public string Balance;
+        public int TransfersCount;
+
+        public TokenHolder(Release.TokenHolder t)
+        {
+            Address = Base58Encoding.Encode(t.Holder);
+            Balance = t.Balance;
+            TransfersCount = t.TransfersCount;
+        }
+    }
+
+    // Token transfer info
+    public class TokenTransfer
+    {
+        public string Initiator;
+        public string Amount;
+        public DateTime Time;
+        public string Transaction;
+
+        public TokenTransfer(Release.TokenTransfer t)
+        {
+            Initiator = Base58Encoding.Encode(t.Initiator);
+            Amount = t.Amount;
+            Time = ConvUtils.UnixTimeStampToDateTime(t.Time);
+            Transaction = ConvUtils.GetTxId(t.Transaction);
+        }
+    }
+
+    // Token balance info
+    public class TokenBalance
+    {
+        public string Address;
+        public string Code;
+        public string Balance;
+        public int Page; // For displaying token transfers, store page num here in js
+        public bool Loading; // For displaying token transfers, store loading flag here in js
+
+        public TokenBalance(Release.TokenBalance b)
+        {
+            Address = Base58Encoding.Encode(b.Token);
+            Code = b.Code;
+            Balance = b.Balance;
+        }
+    }
+
 }
