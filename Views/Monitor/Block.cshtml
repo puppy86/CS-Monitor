@@ -31,7 +31,7 @@
                 },
                 getTransactions: function(p) {
                     this.loading_t = true;
-                    $.get(`${M_API}/PoolTransactions?hash=${this.blockId}&page=${p}&txcount=${this.pool.txCount}`)
+                    $.get(`${M_API}/PoolTransactions?hash=${this.blockId}&page=${p}&limit=${localStorage.limit}&txcount=${this.pool.txCount}`)
                         .done(function (data) {
                             vm.page = data.page;
                             vm.transData = data;
@@ -117,11 +117,9 @@
     </div>
 
     <h4 class="my-3">List of transactions</h4>
-    <div class="mt-4">Transactions {{transData.numStr}}</div>
-    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pb>
 
+    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage" top>Transactions {{transData.numStr}}</pb>
     <transactions :network="net" :source="transData.transactions"></transactions>
-
     <div class="row justify-content-center">
         <div class="col-auto">
             <div class="progress mt-1" v-show="loading_t">

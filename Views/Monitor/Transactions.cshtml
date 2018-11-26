@@ -14,7 +14,7 @@
             methods: {
                 getTxs: function (p) {
                     this.loading = true;
-                    $.get(`${M_API}/txs/${p}`)
+                    $.get(`${M_API}/txs?page=${p}&limit=${localStorage.limit}`)
                         .done(vm.onGetData)
                         .always(function() {
                             vm.loading = false;
@@ -39,7 +39,7 @@
 </nav>
 
 <h4>List of transactions processed in the network</h4>
-<p class="my-2">Showing the last 100k transactions (total Txs count {{txData.txCount}})</p>
+<p class="my-3">Showing the last 100k transactions (total Txs count {{txData.txCount}})</p>
 <div class="row justify-content-center" v-show="loading">
     <div class="col-auto my-2">
         <h6>Loading...</h6>
@@ -49,8 +49,7 @@
     </div>
 </div>
 <div v-show="!loading">
-    <div class="mt-4">Transactions on page: {{txData.numStr}}</div>
-    <pb :page="page" :getfn="getTxs" :next="txData.haveNextPage" :last="txData.lastPage"></pb>
+    <pb :page="page" :getfn="getTxs" :next="txData.haveNextPage" :last="txData.lastPage" top>Transactions on page: {{txData.numStr}}</pb>
     <transactions :network="net" :source="txData.transactions" :noindex="true"></transactions>
     <pb :page="page" :getfn="getTxs" :next="txData.haveNextPage" :last="txData.lastPage"></pb>
 </div>

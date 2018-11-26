@@ -10,12 +10,12 @@
                 page: @ViewData["page"],
                 loading: false,
                 accountsData: {},
-                sort: localStorage["accSort"] !== undefined ? localStorage["accSort"] : 1
+                sort: localStorage.accSort ? localStorage.accSort : 1
             },
             methods: {
                 getAccounts: function(p) {
                     this.loading = true;
-                    $.get(`${M_API}/accounts?page=${p}&sort=${this.sort}`)
+                    $.get(`${M_API}/accounts?page=${p}&limit=${localStorage.limit}&sort=${this.sort}`)
                         .done(vm.onGetData)
                         .always(function() {
                             vm.loading = false;
@@ -27,7 +27,7 @@
                 },
                 getSorted: function (s) {
                     this.sort = s;
-                    localStorage["accSort"] = s;
+                    localStorage.accSort = s;
                     this.getAccounts(this.page);
                 }
             }
@@ -54,8 +54,7 @@
     </div>
 </div>
 <div v-show="!loading">
-    <div class="mt-4">Accounts {{accountsData.numStr}}</div>
-    <pb :page="page" :getfn="getAccounts" :next="accountsData.haveNextPage" :hidelast="true" :last="accountsData.lastPage"></pb>
+    <pb :page="page" :getfn="getAccounts" :next="accountsData.haveNextPage" :last="accountsData.lastPage" top>Accounts {{accountsData.numStr}}</pb>
     <div class="table-responsive">
         <table class="table table-sm table-striped border-bottom border-primary mb-0 table_info_trans">
             <thead>
@@ -88,5 +87,5 @@
             </tbody>
         </table>
     </div>
-    <pb :page="page" :getfn="getAccounts" :next="accountsData.haveNextPage" :hidelast="true" :last="accountsData.lastPage"></pb>
+    <pb :page="page" :getfn="getAccounts" :next="accountsData.haveNextPage" :last="accountsData.lastPage"></pb>
 </div>

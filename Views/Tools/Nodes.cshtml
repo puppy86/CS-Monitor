@@ -21,7 +21,7 @@
 }
 
 @section script
-    {
+{
     <script>
 
         var vm = new Vue({
@@ -34,7 +34,7 @@
             },
             methods: {
                 getData: function (p) {
-                    $.get(`${M_API}/GetNodesData/${p}`)
+                    $.get(`${M_API}/GetNodesData?page=${p}&limit=${localStorage.limit}`)
                         .done(function (data) {
                             vm.page = data.page;
                             vm.nodesData = data;
@@ -122,7 +122,7 @@
 <div id="map"></div>
 
 <div class="mt-4">Nodes {{nodesData.numStr}} (<span class="text-success">{{nodesData.onlineCount}} Online</span>, <span class="text-danger"> {{nodesData.offlineCount}} Offline</span>)</div>
-<pb :page="page" :getfn="getData" :next="nodesData.haveNextPage" :last="nodesData.lastPage"></pb>
+<pb :page="page" :getfn="getData" :next="nodesData.haveNextPage" :last="nodesData.lastPage" top></pb>
 <div class="table-responsive">
     <table class="table table-sm table-striped border-bottom border-primary table_info_nodes">
         <thead class="thead-light">

@@ -63,7 +63,7 @@
                 },
                 getTransactions: function (p) {
                     this.loading_t = true;
-                    $.get(`${M_API}/ContractTransactions?id=${this.id}&page=${p}`)
+                    $.get(`${M_API}/ContractTransactions?id=${this.id}&page=${p}&limit=${localStorage.limit}`)
                         .done(function (data) {
                             vm.page = data.page;
                             vm.transData = data;
@@ -150,11 +150,8 @@
                 </li>
             </ul>
             <div v-show="activeTab === 'transactions'">
-                <div class="mt-4">Transactions {{transData.numStr}}</div>
-                <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pb>
-
+                <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage" top>Transactions {{transData.numStr}}</pb>
                 <transactions v-show="!loading_t" :network="net" :source="transData.transactions"></transactions>
-
                 <div class="row justify-content-center">
                     <div class="col-auto">
                         <div class="progress mt-1" v-show="loading_t">

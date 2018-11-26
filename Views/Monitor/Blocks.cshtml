@@ -14,7 +14,7 @@
             methods: {
                 getBlocks: function (p) {
                     this.loading = true;
-                    $.get(`${M_API}/blocks/${p}`)
+                    $.get(`${M_API}/blocks?page${p}&limit=${localStorage.limit}`)
                         .done(vm.onGetData)
                         .always(function() {
                             vm.loading = false;
@@ -49,8 +49,7 @@
     </div>
 </div>
 <div v-show="!loading">
-    <div class="mt-4">Blocks {{blocksData.numStr}}</div>
-    <pb :page="page" :getfn="getBlocks" :next="blocksData.haveNextPage" :last="blocksData.lastPage"></pb>
+    <pb :page="page" :getfn="getBlocks" :next="blocksData.haveNextPage" :last="blocksData.lastPage" top>Blocks {{blocksData.numStr}}</pb>
     <div class="table-responsive">
         <table class="table table-sm table-striped border-bottom border-primary mb-0 table_info_trans">
             <thead>

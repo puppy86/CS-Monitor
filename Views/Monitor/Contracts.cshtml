@@ -14,7 +14,7 @@
             methods: {
                 getContracts: function(p) {
                     this.loading = true;
-                    $.get(`${M_API}/getContracts?page=${p}`)
+                    $.get(`${M_API}/getContracts?page=${p}&limit=${localStorage.limit}`)
                         .done(function(data) {
                             vm.page = data.page;
                             vm.contractsData = data;
@@ -48,8 +48,7 @@
 </div>
 <div v-show="!loading">
     <h4 class="my-3">Smart contracts</h4>
-    <div class="mt-4">Contracts {{contractsData.numStr}}</div>
-    <pb :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" :last="contractsData.lastPage"></pb>
+    <pb :page="page" :getfn="getContracts" :next="contractsData.haveNextPage" :last="contractsData.lastPage" top>Contracts {{contractsData.numStr}}</pb>
     <div class="table-responsive">
         <table class="table table-sm table-striped border-bottom border-primary table_info_trans">
             <thead class="thead-light">
