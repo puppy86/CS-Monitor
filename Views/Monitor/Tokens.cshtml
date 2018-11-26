@@ -14,7 +14,7 @@
             methods: {
                 getTokens: function(p) {
                     this.loading = true;
-                    $.get(`${M_API}/Tokens?page=${p}`)
+                    $.get(`${M_API}/Tokens2?page=${p}&limit=${localStorage.limit}`)
                         .done(function(data) {
                             vm.page = data.page;
                             vm.tokensData = data;
@@ -48,26 +48,23 @@
 </div>
 <div v-show="!loading">
     <h4 class="my-3">Tokens</h4>
-    <div class="mt-4">Tokens {{tokensData.numStr}}</div>
-    <pb :page="page" :getfn="getTokens" :next="tokensData.haveNextPage" :last="tokensData.lastPage"></pb>
+    <pb :page="page" :getfn="getTokens" :next="tokensData.haveNextPage" :last="tokensData.lastPage" top>Tokens {{tokensData.numStr}}</pb>
     <div class="table-responsive">
         <table class="table table-sm table-striped border-bottom border-primary table_info_trans">
             <thead class="thead-light">
                 <tr>
-                    <th>№</th>
-                    <th>Address</th>
-                    <th>Id</th>
+                    <th>Code</th>
                     <th>Name</th>
-                    <th>Site</th>
+                    <th>Address</th>
+                    <th>Holders</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="item in tokensData.tokens">
-                    <td>{{item.index}}</td>
-                    <td class="hash"><a :href="net + '/token/' + item.address">{{item.address}}</a></td>
-                    <td>{{item.id}}</td>
+                    <td>{{item.code}}</td>
                     <td>{{item.name}}</td>
-                    <td>{{item.site}}</td>
+                    <td class="hash"><a :href="net + '/token/' + item.address">{{item.address}}</a></td>
+                    <td>{{item.holdersCount}}</td>
                 </tr>
             </tbody>
         </table>

@@ -16,22 +16,26 @@
             data: {
                 net: M_NET,
                 Address: "@ViewData["id"]",
+                activeTab: "transactions",
                 tokenData: {
                     token: {}
                 },
                 loading: false,
                 loading_t: false,
-                page: 1,
-                transData: {}
+                loading_h: false,
+                loading_r: false,
+                transData: { page: 1 },
+                holdersData: { page: 1 },
+                transfersData: { page: 1 }
             },
             methods: {
                 getData: function() {
                     this.loading = true;
-                    $.get(`${M_API}/Token?id=${this.Address}`)
+                    $.get(`${M_API}/Token2?id=${this.Address}`)
                         .done(function(data) {
                             vm.tokenData = data;
                             if (data.found)
-                                vm.getTransactions(vm.page);
+                                vm.getTransactions(vm.transData.page);
                             else
                                 window.location.href = `${M_NET}/NotFound/${vm.Address}`;
                         }).always(function() {
@@ -40,23 +44,32 @@
                 },
                 getTransactions: function (p) {
                     this.loading_t = true;
-                    $.get(`${M_API}/ContractTransactions?id=${this.id}&page=${p}`)
+                    $.get(`${M_API}/TokenTransactions?id=${this.Address}&page=${p}&limit=${localStorage.limit}`)
                         .done(function (data) {
-                            vm.page = data.page;
                             vm.transData = data;
-                            if (data.transactions.length > 0)
-                                vm.getTime(0);
                         })
                         .always(function () {
                             vm.loading_t = false;
                         });
                 },
-                getTime: function (i) {
-                    $.get(`${M_API}/GetTransactionTime?id=${this.transData.transactions[i].id}`)
+                getHolders: function (p) {
+                    this.loading_h = true;
+                    $.get(`${M_API}/TokenHolders?id=${this.Address}&page=${p}&limit=${localStorage.limit}`)
                         .done(function (data) {
-                            vm.transData.transactions[i++].time = data;
-                            if (i < vm.transData.transactions.length)
-                                vm.getTime(i);
+                            vm.holdersData = data;
+                        })
+                        .always(function () {
+                            vm.loading_h = false;
+                        });
+                },
+                getTransfers: function (p) {
+                    this.loading_r = true;
+                    $.get(`${M_API}/TokenTransfers?id=${this.Address}&page=${p}&limit=${localStorage.limit}`)
+                        .done(function (data) {
+                            vm.transfersData = data;
+                        })
+                        .always(function () {
+                            vm.loading_r = false;
                         });
                 }
             },
@@ -99,50 +112,178 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Contract address: </td>
+                    <td>Address: </td>
                     <td>{{Address}}</td>
                 </tr>
                 <tr>
-                    <td>Id: </td>
-                    <td>{{tokenData.token.id}}</td>
+                    <td>Code: </td>
+                    <td>{{tokenData.code}}</td>
                 </tr>
                 <tr>
                     <td>Name: </td>
-                    <td>{{tokenData.token.name}}</td>
+                    <td>{{tokenData.name}}</td>
                 </tr>
                 <tr>
-                    <td>Site: </td>
-                    <td><a :href="'http://' + tokenData.token.site" target="_blank">{{tokenData.token.site}}</a></td>
+                    <td>TotalSupply: </td>
+                    <td>{{tokenData.totalSupply}}</td>
                 </tr>
                 <tr>
-                    <td>Email: </td>
-                    <td>{{tokenData.token.email}}</td>
+                    <td>Owner: </td>
+                    <td><a :href="net + '/account/' + tokenData.owner">{{tokenData.owner}}</a></td>
                 </tr>
                 <tr>
-                    <td>Links: </td>
-                    <td>
-                        <span v-for="prop in tokenData.properties">
-                            <a :href="prop.value" target="_blank">
-                                <img :src="'/img/social/' + prop.property + '.png'" alt="" class="imglink"/>
-                            </a>
-                        </span>
-                    </td>
+                    <td>Txs Count: </td>
+                    <td>{{tokenData.transactionsCount}}</td>
                 </tr>
+                <tr>
+                    <td>Holders Count: </td>
+                    <td>{{tokenData.holdersCount}}</td>
+                </tr>
+                <tr>
+                    <td>Transfers Count: </td>
+                    <td>{{tokenData.transfersCount}}</td>
+                </tr>
+                @*<tr>
+                        <td>Site: </td>
+                        <td><a :href="'http://' + tokenData.token.site" target="_blank">{{tokenData.token.site}}</a></td>
+                    </tr>
+                    <tr>
+                        <td>Email: </td>
+                        <td>{{tokenData.token.email}}</td>
+                    </tr>
+                    <tr>
+                        <td>Links: </td>
+                        <td>
+                            <span v-for="prop in tokenData.properties">
+                                <a :href="prop.value" target="_blank">
+                                    <img :src="'/img/social/' + prop.property + '.png'" alt="" class="imglink"/>
+                                </a>
+                            </span>
+                        </td>
+                    </tr>*@
             </tbody>
         </table>
     </div>
 
-    <h4 class="mt-4">Transactions {{transData.numStr}}</h4>
-    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pb>
 
-    <transactions v-show="!loading_t" :network="net" :source="transData.transactions"></transactions>
 
-    <div class="row justify-content-center">
-        <div class="col-auto">
-            <div class="progress mt-1" v-show="loading_t">
-                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+
+    <div class="row my-3">
+        <div class="col-12">
+            <ul class="nav nav-tabs my-1">
+                <li class="nav-item" v-bind:class="{bgActiveTab:activeTab === 'transactions'}">
+                    <a class="nav-link" v-bind:class="{active: activeTab === 'transactions'}" href="#" v-on:click="activeTab = 'transactions'">Transactions</a>
+                </li>
+                <li class="nav-item" v-bind:class="{bgActiveTab:activeTab === 'holders'}">
+                    <a class="nav-link" v-bind:class="{active: activeTab === 'holders'}" href="#" v-on:click="activeTab = 'holders'; if(holdersData.numStr === undefined) getHolders();">Holders</a>
+                </li>
+                <li class="nav-item" v-bind:class="{bgActiveTab:activeTab === 'transfers'}">
+                    <a class="nav-link" v-bind:class="{active: activeTab === 'transfers'}" href="#" v-on:click="activeTab = 'transfers'; if(transfersData.numStr === undefined) getTransfers();">Transfers</a>
+                </li>
+            </ul>
+            <div v-show="activeTab === 'transactions'">
+                
+                <pb :page="transData.page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage" top>Transactions {{transData.numStr}}</pb>
+                <div v-show="!loading_t" class="table-responsive">
+                    <table class="table table-sm table-striped border-bottom border-primary table_info_trans">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>№</th>
+                                <th>Id</th>
+                                <th>Time</th>
+                                <th>Initiator</th>
+                                <th>Method</th>
+                                <th>Params</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in transData.transactions">
+                                <td>{{item.index}}</td>
+                                <td class="hash"><a :href="net + '/transaction/' + item.id">{{item.id}}</a></td>
+                                <td>{{formatDateTime(item.time)}}</td>
+                                <td class="hash"><a :href="net + '/account/' + item.initiator">{{item.initiator}}</a></td>
+                                <td class="hash">{{item.method}}</td>
+                                <td class="hash">{{item.params}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-auto">
+                        <div class="progress mt-1" v-show="loading_t">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+                <pb :page="transData.page" :getfn="getTransactions" :next="transData.haveNextPage" :last="transData.lastPage"></pb>
+
+            </div>
+            <div v-show="activeTab === 'holders'">
+
+                <pb :page="holdersData.page" :getfn="getHolders" :next="holdersData.haveNextPage" :last="holdersData.lastPage" top>Holders {{holdersData.numStr}}</pb>
+                <div v-show="!loading_h" class="table-responsive">
+                    <table class="table table-sm table-striped border-bottom border-primary table_info_trans">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Holder</th>
+                                <th>Balance</th>
+                                <th>Transfers count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in holdersData.holders">
+                                <td class="hash"><a :href="net + '/account/' + item.address">{{item.address}}</a></td>                                                                                                                               
+                                <td>{{item.balance}}</td>
+                                <td>{{item.transfersCount}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-auto">
+                        <div class="progress mt-1" v-show="loading_h">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+                <pb :page="holdersData.page" :getfn="getHolders" :next="holdersData.haveNextPage" :last="holdersData.lastPage"></pb>
+
+            </div>
+            <div v-show="activeTab === 'transfers'">
+
+                <pb :page="transfersData.page" :getfn="getTransfers" :next="transfersData.haveNextPage" :last="transfersData.lastPage" top>Transfers {{transfersData.numStr}}</pb>
+                <div v-show="!loading_r" class="table-responsive">
+                    <table class="table table-sm table-striped border-bottom border-primary table_info_trans">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Initiator</th>
+                                <th>Time</th>
+                                <th>Amount</th>
+                                <th>Transaction</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in transfersData.transfers">
+                                <td class="hash"><a :href="net + '/account/' + item.initiator">{{item.initiator}}</a></td>
+                                <td>{{formatDateTime(item.time)}}</td>
+                                <td>{{item.amount}}</td>
+                                <td class="hash"><a :href="net + '/transaction/' + item.transaction">{{item.transaction}}</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-auto">
+                        <div class="progress mt-1" v-show="loading_r">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+                <pb :page="transfersData.page" :getfn="getTransfers" :next="transfersData.haveNextPage" :last="transfersData.lastPage"></pb>
+
+
             </div>
         </div>
     </div>
-    <pb :page="page" :getfn="getTransactions" :next="transData.haveNextPage"></pb>
+
 </div>
