@@ -30,39 +30,65 @@ Vue.component("transactions", {
     </div>`
 });
 
+var pagesData = {
+    limit: localStorage.limit ? localStorage.limit : 25
+};
+
 // Pager component, used for page switching on tables
 Vue.component("pb", {
-    props: ["page", "getfn", "next", "last", "hidelast"],
+    props: {
+        page: Number,
+        getfn: Function,
+        next: Boolean,
+        last: Number,
+        top: Boolean
+    },
+    data: function () {
+        return pagesData;
+    },
+    methods: {
+        setLimit: function (value) {
+            this.limit = value;
+            localStorage.limit = value;
+            this.getfn(this.page);
+        }
+    },
     template:
-        `<ul class="pagination pagination-sm justify-content-end  my-1">
-            <li v-bind:class="{'page-item':true, disabled:page<=1}">
-                <a class="page-link" href="#" v-on:click="getfn(1)" >First</a>
-            </li>
-            <li v-bind:class="{'page-item':true, disabled:page<=1}">
-                <a class="page-link" href="#" v-on:click="getfn(page - 1)">Prev</a>
-            </li>
+        `<div class="d-sm-flex justify-content-between">
+            <div v-show="top" class="my-1"><slot></slot></div>
+            <div class="nav-item dropdown my-1" v-show="!top">
+             Show
+             <div class="btn-group">
+                 <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                     {{limit}}
+                 </button>
+                 <div class="dropdown-menu">
+                     <a class="dropdown-item" href="#" v-on:click="setLimit(25)">25</a>
+                     <a class="dropdown-item" href="#" v-on:click="setLimit(50)">50</a>
+                     <a class="dropdown-item" href="#" v-on:click="setLimit(100)">100</a>
+                 </div>
+             </div>
+            </div>
+            <ul class="pagination pagination-sm my-1">
+                <li v-bind:class="{'page-item':true, disabled:page<=1}">
+                    <a class="page-link" href="#" v-on:click="getfn(1)" >First</a>
+                </li>
+                <li v-bind:class="{'page-item':true, disabled:page<=1}">
+                    <a class="page-link" href="#" v-on:click="getfn(page - 1)">Prev</a>
+                </li>
 
-            <li class="page-item" v-show="page!=null">
-                <a class="page-link"> {{page}} of {{last}} </a>                
-            </li>
+                <li class="page-item" v-show="page!=null">
+                    <a class="page-link"> {{page}} of {{last}} </a>                
+                </li>
 
-            <!--<li class="page-item" v-show="page>1">
-                <a class="page-link" href="#" v-on:click="getfn(page - 1)"> {{page-1}} </a>                
-            </li>
-            <li class="page-item active">
-                <a class="page-link" href="#"> {{page}} </a>
-            </li>
-            <li class="page-item" v-show="(last !== undefined)&&(page+1 <= last)">
-                <a class="page-link" href="#" v-on:click="getfn(page + 1)"> {{page+1}} </a>                
-            </li>-->
-
-            <li v-bind:class="{'page-item':true, disabled:!next}">
-                <a class="page-link" href="#" v-on:click="getfn(page + 1)">Next</a>
-            </li>
-            <li v-bind:class="{'page-item':true, disabled:last === undefined || page >= last}" >
-                <a class="page-link" href="#" v-on:click="getfn(last)">Last</a>
-            </li>
-        </ul>`
+                <li v-bind:class="{'page-item':true, disabled:!next}">
+                    <a class="page-link" href="#" v-on:click="getfn(page + 1)">Next</a>
+                </li>
+                <li v-bind:class="{'page-item':true, disabled:last === undefined || page >= last}" >
+                    <a class="page-link" href="#" v-on:click="getfn(last)">Last</a>
+                </li>
+            </ul>
+        </div>`
 });
 
 Vue.mixin({
