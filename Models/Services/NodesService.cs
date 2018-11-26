@@ -16,7 +16,7 @@ namespace csmon.Models.Services
     public interface INodesService
     {
         // Gets a list of blockchain network nodes by given network id
-        NodesData GetNodes(string network, int page);
+        NodesData GetNodes(string network, int page, int limit);
         NodeInfo GetNode(string net, string key);
     }
 
@@ -201,15 +201,16 @@ namespace csmon.Models.Services
         }
 
         // Gets the list of network nodes by network id
-        public NodesData GetNodes(string network, int page)
+        public NodesData GetNodes(string network, int page, int limit)
         {
-            const int numPerPage = 75;
+            if (limit < 10 || limit > 100) limit = 25;
             if (page <= 0) page = 1;
-            var offset = numPerPage * (page - 1);
+
+            var offset = limit * (page - 1);
 
             var nodes = _states[network].Nodes;
             var nodesCount = nodes.Count;
-            var listNodes = nodes.Skip(offset).Take(numPerPage).ToList();
+            var listNodes = nodes.Skip(offset).Take(limit).ToList();
 
             // Prepare the result and return
             var result = new NodesData
@@ -218,8 +219,8 @@ namespace csmon.Models.Services
                 Nodes = listNodes,
                 OnlineCount = nodes.Count(n => n.Active),
                 OfflineCount = nodes.Count(n => !n.Active),
-                HaveNextPage = nodesCount > offset + numPerPage,
-                LastPage = ConvUtils.GetNumPages(nodesCount, numPerPage),
+                HaveNextPage = nodesCount > offset + limit,
+                LastPage = ConvUtils.GetNumPages(nodesCount, limit),
                 NumStr = nodesCount > 0 ? $"{offset + 1} - {offset + listNodes.Count} of {nodesCount}" : "0"
             };
             return result;            
