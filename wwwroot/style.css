@@ -39,6 +39,10 @@ body {
     min-height: 400px;
 }
 
+.table_info_trans, .table_info_nodes {
+    margin-bottom: 0;
+}
+
 .table_info_trans td, .table_info_trans th {
     padding: 7px 15px;
     font-size: 15px;
